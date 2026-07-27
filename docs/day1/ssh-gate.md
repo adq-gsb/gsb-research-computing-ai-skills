@@ -90,7 +90,7 @@ The Yens are a 17-node shared research computing cluster: 5 interactive nodes yo
   <text x="60" y="414" font-size="12" font-weight="700" letter-spacing="0.6" fill="#8a94a6">SHARED STORAGE · EVERY NODE SEES THE SAME FILES</text>
   <text x="60" y="438" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/home/users/SUNetID/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   personal · backed up · limited</tspan></text>
   <text x="60" y="460" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/yen/projects/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   project files &amp; results · backed up · large</tspan></text>
-  <text x="60" y="482" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/scratch/shared/SUNetID/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   large &amp; fast · NOT backed up</tspan></text>
+  <text x="60" y="482" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/scratch/users/SUNetID/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   large &amp; fast · NOT backed up</tspan></text>
 </svg>
 
 *Your laptop and the Yens are two separate computers; **SSH** is the connection between them. When you log in you land on one of the shared **interactive Yens** (yen1–yen5) — fine for light work. The powerful **SLURM compute nodes** come later, on Day 3, reached through a scheduler rather than directly. Whichever node you're on, you see the same shared files.*
@@ -132,7 +132,7 @@ whoami        # confirm you're logged in as yourself
 ```bash
 ls ~                              # your home directory on the Yens
 pwd                               # /home/users/SUNetID
-ls /scratch/shared/               # shared scratch — you will create your own folder here later
+ls /scratch/users/                # personal scratch — you will create your own folder here later
 ls /yen/projects/                 # shared project storage
 ```
 

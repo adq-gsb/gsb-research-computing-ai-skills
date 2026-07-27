@@ -21,16 +21,10 @@ Transfer a directory from your laptop to your Yens scratch space using `scp`.
 {: .important }
 > **Task:** Copy your sorted directory from your laptop to your Yens scratch space using `scp`.
 
-First, **on the Yens**, create your scratch directory:
+From your **laptop** (open a new local terminal tab):
 
 ```bash
-mkdir -p /scratch/shared/SUNetID
-```
-
-Then, from your **laptop** (open a new local terminal tab):
-
-```bash
-scp -r ~/Desktop/grimoire/ SUNetID@yen.stanford.edu:/scratch/shared/SUNetID/grimoire/
+scp -r ~/Desktop/grimoire/ SUNetID@yen.stanford.edu:/scratch/users/SUNetID/grimoire/
 ```
 
 - `-r` means recursive — copies the whole directory tree
@@ -39,7 +33,7 @@ scp -r ~/Desktop/grimoire/ SUNetID@yen.stanford.edu:/scratch/shared/SUNetID/grim
 **Verify the transfer on the Yens:**
 ```bash
 # SSH back onto the Yens (or use the tab that's already open)
-ls /scratch/shared/SUNetID/grimoire/fire/    # should show your files
+ls /scratch/users/SUNetID/grimoire/fire/    # should show your files
 ```
 
 {: .note }
@@ -58,7 +52,7 @@ ls /scratch/shared/SUNetID/grimoire/fire/    # should show your files
 Run this from your **laptop** (not the Yens):
 
 ```bash
-scp -r SUNetID@yen.stanford.edu:/scratch/shared/SUNetID/grimoire/ ~/Desktop/grimoire_from_yens/
+scp -r SUNetID@yen.stanford.edu:/scratch/users/SUNetID/grimoire/ ~/Desktop/grimoire_from_yens/
 ```
 
 Now the remote path is the source and the local path is the destination. Same command, order reversed.
