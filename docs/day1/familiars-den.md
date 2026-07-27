@@ -36,8 +36,7 @@ You just saw *why* keeping your work in GitHub is worth the trouble (see [Versio
 
 A few basics worth knowing before you start.
 
-<svg viewBox="0 0 1000 560" role="img" aria-labelledby="cc-arch-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:1000px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
-  <title id="cc-arch-title">How Claude Code works: on your machine you give the harness instructions and point it at your data — check before sharing. The harness acts as you (editing files, running commands, driving git, calling tools) and loops those results back to itself. It exchanges context with Claude's model on Anthropic's server, across the campus perimeter, reached via Stanford's governed route.</title>
+<svg viewBox="0 0 1000 560" role="img" aria-label="How Claude Code works: on your machine you give the harness instructions and point it at your data — check before sharing. The harness acts as you (editing files, running commands, driving git, calling tools) and loops those results back to itself. It exchanges context with Claude's model on Anthropic's server, across the campus perimeter, reached via Stanford's governed route." xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:1000px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <defs>
     <marker id="ah-green" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#2e8b57"/></marker>
     <marker id="ah-slate" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#556a95"/></marker>
