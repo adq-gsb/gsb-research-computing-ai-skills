@@ -245,18 +245,38 @@ code.quest-cmd.cast-flash::before {
 }
 
 /* Hint / spoiler collapsibles (<details>) in lesson content default to a plain
-   browser triangle that clashes with the gold callout theme. Render the summary
-   as a gold "hint" pill so it reads as an interactive prompt. Scoped to
-   .main-content so it never touches the quest-log panel's own UI. */
-.main-content details > summary {
-  display: inline-block;
-  cursor: pointer;
-  border: 1px solid #d9b477;
-  border-radius: 6px;
-  background: #fff8ef;
-  color: #5b4a2f;
-  padding: 0.4rem 0.8rem;
-  font-weight: 600;
+   browser triangle that clashes with the theme. Render them as a full-width
+   "accordion": a gray summary bar with a chevron that rotates open, and the
+   revealed content boxed beneath it. Scoped to .main-content so it never
+   touches the quest-log panel's own UI. */
+.main-content details {
+  border: 1px solid #e1e4ea;
+  border-radius: 8px;
+  margin: 0.9rem 0;
+  overflow: hidden;              /* clips the summary bar to the rounded box */
 }
-.main-content details > summary:hover { background: #f3e6cf; }
-.main-content details[open] > summary { margin-bottom: 0.6rem; }
+.main-content details > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  background: #f3f4f7;
+  color: #2c3e50;
+  font-weight: 600;
+  list-style: none;              /* drop the default disclosure triangle... */
+}
+.main-content details > summary::-webkit-details-marker { display: none; }  /* ...incl. Safari */
+.main-content details > summary::before {
+  content: "\25b8";              /* ▸ our own chevron, rotates when open */
+  display: inline-block;
+  color: #6a7280;
+  transition: transform 0.15s ease;
+}
+.main-content details > summary:hover { background: #e9ecf2; }
+.main-content details[open] > summary {
+  border-bottom: 1px solid #e1e4ea;
+  margin: 0 -0.9rem;             /* pull the bar back out to the box edges... */
+}
+.main-content details[open] > summary::before { transform: rotate(90deg); }
+.main-content details[open] { padding: 0 0.9rem 0.9rem; }  /* ...so only the content is inset */
