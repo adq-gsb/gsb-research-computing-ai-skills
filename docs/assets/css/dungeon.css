@@ -66,21 +66,103 @@
 /* Inline code in a quest label renders upright (not italic) so it reads as a command */
 .quest-check code { font-style: normal; }
 
-/* Per-checkbox sync affordance: "Show my sync command" → revealed incantation */
+/* Per-checkbox sync affordance: checking the box magically reveals the incantation */
 .quest-sync-inline { margin: -0.25rem 0 1rem 1.6rem; font-size: 1rem; }
-.quest-sync-inline code.quest-cmd { font-size: 0.95em; padding: 0.2rem 0.45rem; }
-.quest-cmd-gen {
-  cursor: pointer;
-  padding: 0.4rem 0.9rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: 1px solid #d9b477;
-  border-radius: 6px;
-  background: #fff8ef;
-  color: #5b4a2f;
+.quest-sync-inline code.quest-cmd {
+  font-size: 0.95em;
+  padding: 0.2rem 0.45rem;
+  color: #16203a;              /* high-contrast command text */
+  background: #eef1f8;
+  border: 1px solid #c7d0e4;
 }
-.quest-cmd-gen:hover { background: #f3e6cf; }
+
+/* Sparkles float above the revealed line, so it needs a positioning context */
+.quest-cmd-reveal { position: relative; }
+
+/* The whole line fades/slides in, with a soft magical aura, when checked */
+.quest-sync-inline.casting-in { animation: cast-fade-in 0.5s ease both; }
+@keyframes cast-fade-in {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.98); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Magic-wand charm before the command — sits in a chip so it's easy to see,
+   but stays static and un-distracting */
+.quest-cmd-wand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7em;
+  height: 1.7em;
+  margin-right: 0.5rem;
+  font-size: 1.25em;
+  vertical-align: middle;
+  background: #f3e8ff;
+  border: 1px solid #c9a8f5;
+  border-radius: 50%;
+}
+.quest-cmd-wand svg { display: block; }
+
+/* While the spell is "typed": shifting rainbow glow + blinking caret */
+code.quest-cmd.casting {
+  color: #6b21a8;
+  animation: cast-glow 1s ease-in-out infinite;
+}
+@keyframes cast-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(124, 58, 237, 0.65); }
+  33%      { text-shadow: 0 0 12px rgba(217, 180, 119, 0.9), 0 0 3px rgba(124,58,237,0.8); }
+  66%      { text-shadow: 0 0 12px rgba(96, 165, 250, 0.85), 0 0 3px rgba(168,85,247,0.8); }
+}
+code.quest-cmd.casting::after {
+  content: '▍';
+  margin-left: 1px;
+  color: #7c3aed;
+  animation: cast-caret 0.6s step-end infinite;
+}
+@keyframes cast-caret { 50% { opacity: 0; } }
+
+/* When the spell "lands": a quick light-sweep across the command box */
+code.quest-cmd { position: relative; overflow: hidden; }
+code.quest-cmd.cast-flash::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -70%;
+  width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255, 240, 190, 0.9), transparent);
+  animation: cast-sweep 0.75s ease-out forwards;
+}
+@keyframes cast-sweep { to { left: 130%; } }
+
+/* Sparkle particles that burst up and fade as the spell is cast */
+.quest-spark-layer {
+  position: absolute;
+  inset: -6px -4px;
+  pointer-events: none;
+  overflow: visible;
+}
+.quest-spark {
+  position: absolute;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: cast-spark 1.25s ease-out forwards;
+}
+@keyframes cast-spark {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.2) rotate(0deg); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-26px) scale(1.15) rotate(200deg); }
+}
+
 .quest-cmd-hint { display: block; color: #6a7280; font-size: 1rem; margin-top: 0.45rem; }
+
+/* Respect reduced-motion: reveal everything instantly, no glow/caret/sparkles */
+@media (prefers-reduced-motion: reduce) {
+  .quest-sync-inline.casting-in { animation: none; }
+  code.quest-cmd.casting { color: inherit; animation: none; text-shadow: none; }
+  code.quest-cmd.casting::after { content: none; }
+  code.quest-cmd.cast-flash::before { animation: none; content: none; }
+  .quest-spark { animation: none; opacity: 0; }
+}
 
 /* "Copy" button next to a revealed sync command */
 .quest-cmd-copy {
