@@ -168,6 +168,20 @@
     return { token: spell, count: count };
   }
 
+  // Rooms that come before the cast setup on Day 1 (Version Control with Git):
+  // students haven't forked, cloned, or made `cast` executable yet, so the
+  // "Cast to the leaderboard" prompt would point at a command they can't run.
+  // Derived from the DAYS order so it stays correct if rooms are reordered.
+  var PRE_CAST_ROOMS = (function () {
+    var set = {};
+    var day1 = DAYS[0].rooms;
+    for (var i = 0; i < day1.length; i++) {
+      if (day1[i].id === 'd1-repository') break;  // setup happens here
+      set[day1[i].id] = true;
+    }
+    return set;
+  })();
+
   // Per-checkbox sync affordance: once a quest box is checked, a "Cast to the
   // leaderboard" button appears beneath it; clicking reveals the current incantation
   // plus a Copy button. The incantation is the same site-wide (total + capstones)
@@ -183,14 +197,20 @@
     box = document.createElement('div');
     box.className = 'quest-sync-inline';
 
-    var gen = document.createElement('button');
-    gen.type = 'button';
-    gen.className = 'quest-cmd-gen';
-    gen.textContent = '🔮 Cast to the leaderboard';
-
     var reveal = document.createElement('span');
     reveal.className = 'quest-cmd-reveal';
-    reveal.style.display = 'none';
+
+    var wand = document.createElement('span');
+    wand.className = 'quest-cmd-wand';
+    wand.setAttribute('aria-hidden', 'true');
+    // Inline SVG magic wand (bold + high-contrast, unlike the thin emoji).
+    wand.innerHTML =
+      '<svg viewBox="0 0 24 24" width="1em" height="1em" focusable="false" aria-hidden="true">' +
+        '<path d="M4 20 L14 10" stroke="#6d28d9" stroke-width="2.6" stroke-linecap="round" fill="none"/>' +
+        '<path d="M17 2.6 l1.15 3.25 3.25 1.15 -3.25 1.15 -1.15 3.25 -1.15 -3.25 -3.25 -1.15 3.25 -1.15 z" fill="#7c3aed"/>' +
+        '<path d="M7 4.5 l0.6 1.65 1.65 0.6 -1.65 0.6 -0.6 1.65 -0.6 -1.65 -1.65 -0.6 1.65 -0.6 z" fill="#a855f7"/>' +
+        '<path d="M20 13.5 l0.5 1.45 1.45 0.5 -1.45 0.5 -0.5 1.45 -0.5 -1.45 -1.45 -0.5 1.45 -0.5 z" fill="#a855f7"/>' +
+      '</svg>';
 
     var code = document.createElement('code');
     code.className = 'quest-cmd';
@@ -209,19 +229,15 @@
       ? 'run it from your repo root on the Yens · Step 7 makes it executable'
       : 'run it from your repo root on the Yens · one-time <code>chmod +x cast</code> (see <a href="/gsb-research-computing-ai-skills/day1/repository/">Version Control with Git</a>)';
 
+    reveal.appendChild(wand);
     reveal.appendChild(code);
     reveal.appendChild(copy);
     reveal.appendChild(hint);
-    box.appendChild(gen);
     box.appendChild(reveal);
 
-    gen.addEventListener('click', function () {
-      code.textContent = buildSyncCommand();
-      reveal.style.display = '';
-      gen.style.display = 'none';
-    });
+    // Always copy the full, current spell — even if clicked mid-animation.
     copy.addEventListener('click', function () {
-      try { navigator.clipboard.writeText(code.textContent); } catch (_) {}
+      try { navigator.clipboard.writeText(buildSyncCommand()); } catch (_) {}
       copy.textContent = 'Copied ✓';
       setTimeout(function () { copy.textContent = 'Copy'; }, 1500);
     });
@@ -230,30 +246,91 @@
     return box;
   }
 
+  // Scatter a short-lived burst of sparkles over an element.
+  function sprinkleSparkles(host) {
+    var GLYPHS = ['✨', '⭐', '🌟', '💫', '✦', '·'];
+    var layer = document.createElement('span');
+    layer.className = 'quest-spark-layer';
+    for (var s = 0; s < 12; s++) {
+      var sp = document.createElement('span');
+      sp.className = 'quest-spark';
+      sp.textContent = GLYPHS[s % GLYPHS.length];
+      sp.style.left = (2 + Math.random() * 94) + '%';
+      sp.style.top = (Math.random() * 70) + '%';
+      sp.style.fontSize = (0.55 + Math.random() * 0.8) + 'rem';
+      sp.style.animationDelay = (Math.random() * 0.6).toFixed(2) + 's';
+      layer.appendChild(sp);
+    }
+    host.appendChild(layer);
+    setTimeout(function () { if (layer.parentNode) layer.parentNode.removeChild(layer); }, 1800);
+  }
+
+  // Reveal the incantation with a "magical" typewriter, glow, sparkles, and a
+  // finishing light-sweep. On page load (animate === false) or when the visitor
+  // prefers reduced motion, show it at once.
+  function castReveal(box, animate) {
+    var code = box.querySelector('code.quest-cmd');
+    if (!code) return;
+    var text = buildSyncCommand();
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    clearInterval(code._castTimer);
+    code.classList.remove('cast-flash');
+    if (!animate || reduce) {
+      code.classList.remove('casting');
+      code.textContent = text;
+      return;
+    }
+    // Restart the entrance fade so re-checking always animates.
+    box.classList.remove('casting-in');
+    void box.offsetWidth;
+    box.classList.add('casting-in');
+    code.classList.add('casting');
+    code.textContent = '';
+    var reveal = box.querySelector('.quest-cmd-reveal') || box;
+    sprinkleSparkles(reveal);
+    var i = 0;
+    code._castTimer = setInterval(function () {
+      i += 1;
+      code.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        clearInterval(code._castTimer);
+        code.classList.remove('casting');
+        // A quick light-sweep as the spell "lands," plus a second sparkle puff.
+        void code.offsetWidth;
+        code.classList.add('cast-flash');
+        sprinkleSparkles(reveal);
+        setTimeout(function () { code.classList.remove('cast-flash'); }, 800);
+      }
+    }, 34);
+  }
+
   // Show/hide the sync affordance under a checkbox as it is checked/unchecked.
-  function toggleSyncAffordance(label, checked) {
+  function toggleSyncAffordance(label, checked, animate) {
     if (!label) return;
+    // No cast prompt before the setup page — they can't cast yet.
+    var cb = label.querySelector('input[data-room]');
+    if (cb && PRE_CAST_ROOMS[cb.getAttribute('data-room')]) return;
     if (checked) {
-      ensureSyncAffordance(label).style.display = '';
+      var box = ensureSyncAffordance(label);
+      box.style.display = '';
+      castReveal(box, animate !== false);
     } else {
       var box = label.nextElementSibling;
       if (box && box.classList && box.classList.contains('quest-sync-inline')) {
         box.style.display = 'none';
-        box.querySelector('.quest-cmd-gen').style.display = '';
-        box.querySelector('.quest-cmd-reveal').style.display = 'none';
       }
     }
   }
 
   // Keep any already-revealed command current as more boxes are ticked.
+  // Skip a box that is mid-animation so we don't cut its typewriter short.
   function updateRevealedSpells() {
     var cmd = buildSyncCommand();
-    var reveals = document.querySelectorAll('.quest-sync-inline .quest-cmd-reveal');
-    for (var i = 0; i < reveals.length; i++) {
-      if (reveals[i].style.display !== 'none') {
-        var c = reveals[i].querySelector('code.quest-cmd');
-        if (c) c.textContent = cmd;
-      }
+    var boxes = document.querySelectorAll('.quest-sync-inline');
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].style.display === 'none') continue;
+      var c = boxes[i].querySelector('code.quest-cmd');
+      if (c && !c.classList.contains('casting')) c.textContent = cmd;
     }
   }
 
@@ -272,7 +349,7 @@
       if (progress[sk]) {
         cb.checked = true;
         var label = cb.closest('.quest-check');
-        if (label) { label.classList.add('done'); toggleSyncAffordance(label, true); }
+        if (label) { label.classList.add('done'); toggleSyncAffordance(label, true, false); }
       }
 
       // Save on change

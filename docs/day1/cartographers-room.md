@@ -59,7 +59,7 @@ Rule of thumb: the project itself — scripts, data, and outputs — lives in **
 
 {: .note }
 > **How to organize your work on the Yens:**
-> - **A project — its scripts, data, and outputs → `/yen/projects/your_project/`.** This is the shared, backed-up home for the project itself; keep raw data and outputs in **separate subfolders** (e.g. `data/` and `output/`) so they never get mixed up. Access is controlled by the project's **workgroup**: everyone in it can read and write, which is how you, your PI, and collaborators share the same files. You may belong to **several** project workgroups at once, each with its own folder under `/yen/projects/`. See [Workgroups](https://rcpedia.stanford.edu/_policies/workgroups/) on RCpedia for who gets access and how it's managed.
+> - **A project — its scripts, data, and outputs → `/yen/projects/faculty/your_project/`.** This is the shared, backed-up home for the project itself; keep raw data and outputs in **separate subfolders** (e.g. `data/` and `output/`) so they never get mixed up. Access is controlled by the project's **workgroup**: everyone in it can read and write, which is how you, your PI, and collaborators share the same files. You may belong to **several** project workgroups at once, each with its own folder under `/yen/projects/faculty/` (or `/yen/projects/students/`). See [Workgroups](https://rcpedia.stanford.edu/_policies/workgroups/) on RCpedia for who gets access and how it's managed.
 > - **Personal files → your home, `/home/users/SUNetID/`.** Things that are yours, not any one project's: authentication tokens, R or shell preferences, quick one-off experiments. Backed up, and only you can see it.
 > - **Large, temporary things → `/scratch/shared/SUNetID/`.** Fast and roomy, but **not backed up** and periodically cleared. Use it for things you don't need to keep or that won't fit in your quota — a big public dataset you're exploring, or an LLM you're testing out. Copy anything worth keeping back to `/yen/projects/`.
 
@@ -72,7 +72,7 @@ Two things to know about `/tmp`: it's **private to that node** (a file at `/tmp`
 **Check your quota:**
 ```bash
 gsbquota                             # shows home and scratch usage for your account
-gsbquota /yen/projects/your_project  # append a path to check a project folder's usage
+gsbquota /yen/projects/faculty/your_project  # append a path to check a project folder's usage
 ```
 
 **Browse storage in a visual file manager:**
