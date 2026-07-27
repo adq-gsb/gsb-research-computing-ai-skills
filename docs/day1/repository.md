@@ -239,7 +239,7 @@ Your fork ships with a small program called `cast` — your spell-caster for rec
 chmod +x cast
 ```
 
-From now on, whenever you finish a quest, the site shows a **🔮 Cast to the leaderboard** button with a one-line spell — run it from your repo root to update your standing:
+From now on, whenever you check off a quest the site reveals a one-line spell beneath it — run it from your repo root to update your standing:
 
 ```bash
 ./cast <spell>
