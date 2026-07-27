@@ -327,10 +327,8 @@ claude
 
 Optional — the Day 1 Challenge only needs the exercise from Version Control with Git. This is extra practice.
 
-### Make a real change: dark mode
-
 <details markdown="1">
-<summary>Show steps</summary>
+<summary>Make a real change: dark mode</summary>
 
 Now let Claude Code do real work on your own site. Launch `claude` inside `gsb-research-computing-ai-skills`, then press `Shift+Tab` until you're in **auto mode** — so Claude can run the whole task end to end without stopping to ask at every edit and git step. Then give it a concrete, checkable task — switch the site to dark mode and drive the whole git loop for you:
 
@@ -354,10 +352,8 @@ https://YOUR-USERNAME.github.io/gsb-research-computing-ai-skills/
 
 </details>
 
-### Bonus — Do it like a pro (plan mode + issues)
-
 <details markdown="1">
-<summary>Show steps</summary>
+<summary>Bonus — Do it like a pro (plan mode + issues)</summary>
 
 The task above flipped the whole site to dark in one line. Here's a more ambitious change, handled carefully — add a **toggle** so readers can switch between light and dark themselves. Because it's bigger, you look before you leap and review a plan before any file changes. (Do this on a fresh branch.)
 
