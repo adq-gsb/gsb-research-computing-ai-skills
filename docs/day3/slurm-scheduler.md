@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "The SLURM Scheduler"
+title: "The Slurm Scheduler"
 parent: "Day 3 — Cluster Computing"
 nav_order: 5
 permalink: /day3/slurm-scheduler/
 ---
 
-# The SLURM Scheduler
+# The Slurm Scheduler
 
 <div data-room-id="d3-slurm-scheduler"></div>
 
@@ -40,9 +40,9 @@ In the live demo earlier you saw what happens when many users share the same nod
 - **You hit the user limit** — per-user CPU and RAM caps are enforced; your script gets throttled even if the node has headroom
 - **You need to walk away** — if your connection drops, your script dies; babysitting a terminal for hours is not research
 
-The solution: a scheduler. **SLURM** reads every job request, knows what resources each job needs, and assigns work to **dedicated nodes** where nothing else is running.
+The solution: a scheduler. **Slurm** reads every job request, knows what resources each job needs, and assigns work to **dedicated nodes** where nothing else is running.
 
-| | Interactive Yens | SLURM Scheduled Nodes |
+| | Interactive Yens | Slurm Scheduled Nodes |
 |---|---|---|
 | Nodes | 5 (`yen1`–`yen5`) | 12 |
 | How to access | SSH directly | Submit a job script |
@@ -51,11 +51,11 @@ The solution: a scheduler. **SLURM** reads every job request, knows what resourc
 | Notebooks? | Yes | No |
 | GPUs? | No | Yes |
 
-Instead of running your script directly on a shared node, you submit it to the scheduler: you specify what resources you need, SLURM runs it on a dedicated node, and you collect the results when it's done.
+Instead of running your script directly on a shared node, you submit it to the scheduler: you specify what resources you need, Slurm runs it on a dedicated node, and you collect the results when it's done.
 
-| SLURM concept | What it is |
+| Slurm concept | What it is |
 |---|---|
-| SLURM scheduler | Decides which jobs run where and when |
+| Slurm scheduler | Decides which jobs run where and when |
 | Compute node | A dedicated machine that runs your job |
 | CPU core | A unit of parallel compute you request |
 | RAM | Memory you request for the job |
@@ -72,7 +72,7 @@ Instead of running your script directly on a shared node, you submit it to the s
 ## Main quest — Peek at the Queue
 
 {: .important }
-> **Task:** Look at the live SLURM queue to see what jobs are waiting or running right now.
+> **Task:** Look at the live Slurm queue to see what jobs are waiting or running right now.
 
 ```bash
 squeue
@@ -97,7 +97,7 @@ You can also filter by partition — for example, to see only GPU jobs:
 squeue -p gpu
 ```
 
-Every `PD` job is waiting for a node with the resources it requested. When SLURM finds a matching node — it runs.
+Every `PD` job is waiting for a node with the resources it requested. When Slurm finds a matching node — it runs.
 
 Now run `sinfo` to see the state of all nodes and the partitions they belong to:
 
