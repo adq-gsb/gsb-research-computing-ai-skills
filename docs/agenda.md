@@ -92,27 +92,29 @@ Every day adds a layer to one research pipeline. The dataset: SEC Form 3 filings
 
 ## Day 3 — Cluster Computing
 
-**Theme:** SLURM and batch computing on the cluster
+**Theme:** Slurm and batch computing on the cluster
 
 ### Core Concepts
-- Compute resources: CPU cores, RAM, shared storage, and why a shared cluster needs a scheduler (SLURM)
+- Compute resources: CPU cores, RAM, shared storage, and why a shared cluster needs a scheduler (Slurm)
 - Resource estimation: measure wall time and memory before writing `#SBATCH` directives
 - System data: analyze a real Yens `top`/yenstop snapshot (and live `top`) to understand CPU/RAM/process/user patterns, and per-user vs. whole-node limits
 - Job lifecycle: submit → queue → run → complete → logs
 - Job monitoring: `squeue`, `sinfo`, `sacct`, `scancel`, reading `.out`/`.err` logs
 
-### Timing (3 hours ≈ 180 min)
+### Timing (~180 min teaching + two 10-min breaks ≈ 3h20m)
 
-Times are rough, scaled by how many quests each section holds and how hands-on it is (the SLURM job section is the heaviest — 13 quests including debugging). Keep a full **30 min** for the Capstone.
+Times are rough, scaled by how many quests each section holds and how hands-on it is (the Slurm job section is the heaviest — 11 quests including debugging). Two breaks — after Profiling (~50 min in) and after the Slurm Job section — split the day into roughly 50 / 70 / 60-min blocks. Keep a full **30 min** for the Capstone.
 
 | Section | Quests | Time |
 |---|---|---|
 | Compute Environments (demo + discussion) | 3 | 20 min |
 | Profiling Resource Usage (two-terminal live profiling; document resource needs) | 5 | 30 min |
-| Exploring Cluster Usage Data (analyze a real Yens yenstop snapshot with Claude) | 3 | 25 min |
-| The SLURM Scheduler (why SLURM exists; read the queue + partitions with `squeue`/`sinfo`) | 4 | 15 min |
-| Writing & Submitting a SLURM Job (write + submit + monitor + cancel; debug broken `fix_me*.slurm` jobs) | 13 | 30 min |
-| Writing a SLURM Job with Claude (author a reusable `yen-slurm` skill — global vs. project — then have Claude use it to draft the batch SLURM; compare vs. your hand-written one) | 1 | 15 min |
+| ☕ **Break** | — | 10 min |
+| Exploring Cluster Usage Data (analyze a real Yens yenstop snapshot with Claude) | 3 | 20 min |
+| The Slurm Scheduler (why Slurm exists; read the queue + partitions with `squeue`/`sinfo`) | 4 | 15 min |
+| Writing & Submitting a Slurm Job (write + submit + monitor + cancel; debug broken `fix_me*.slurm` jobs) | 11 | 35 min |
+| ☕ **Break** | — | 10 min |
+| Writing a Slurm Job with Claude (have Claude write a project skill + a global Yen skill; generate/compare/run a batch Slurm with each; project vs. global scope) | 1 | 15 min |
 | Documenting Your Pipeline (write the README) | 2 | 15 min |
 | Day 3 Capstone (estimate resources for 100 filings *before* running, batch-submit, compare actual vs. estimate, document) | 1 | 30 min |
 
@@ -125,11 +127,11 @@ Times are rough, scaled by how many quests each section holds and how hands-on i
 | **Compute Environments** | Class demo + discussion: laptop vs. Yens vs. cloud (CPU, RAM, storage tradeoffs) | Compare your laptop's cores/RAM to a Yen node; estimate cloud $/hr for the Day 2 job; use the laptop-vs-Yen widget | Shared vocabulary for CPU, RAM, and storage across environments | Demo + discussion |
 | **Profiling Resource Usage** | Profile a mystery script with `time`, `watch userload`, and `htop` (serial vs. parallel); document resource needs in README | Vectorized vs. non-vectorized profiling; compare `/usr/bin/time -v`'s peak RAM to `userload`'s; profile an I/O-bound script (`sys` vs. `user` time) | Profiling methodology; estimating resources instead of guessing | Two-terminal live profiling |
 | **Exploring Cluster Usage Data** | Load the real yenstop CSV, explore it (e.g. the biggest process in GB given yen1's ~1 TB RAM), and write up one finding in README | Make a plot; compare per-user usage against both the per-user limit and the whole node; run `top` live | Real cluster-data literacy; per-user vs. system limits; plain-language write-up | Explore a monitoring CSV with pandas/Claude; watch live `top` |
-| **The SLURM Scheduler** | Read the queue with `squeue`, filter by partition, explain `R` vs. `PD`, and describe partitions/node states with `sinfo` | `longsqueue` alias; `scontrol show job`; compare a GPU vs. CPU partition | Why SLURM exists; interactive vs. scheduled nodes; partitions | Read and filter the live SLURM queue |
-| **Writing & Submitting a SLURM Job** | Write a SLURM script from scratch (shebang, `#SBATCH` directives, `.out`/`.err` logs, env setup, run command); submit, monitor, and cancel a job; watch a job run on its node with `htop` | Email notifications (`--mail-type=ALL`); interactive allocation (`srun --pty`); job dependency chaining; the `dev` partition; **debug broken `fix_me*.slurm` jobs** to `COMPLETED` | Writing a SLURM script line by line; managing a job's lifecycle; reading logs; telling code-bug vs. OOM vs. timeout failures apart | Write, submit, cancel, watch, and debug real SLURM jobs |
-| **Writing a SLURM Job with Claude** | Author a reusable Claude skill (`~/.claude/skills/yen-slurm/SKILL.md`) capturing the Yen SLURM conventions (email, log naming, venv, partitions/RCpedia, resources-from-profiling); understand global vs. project skill scope; then have the skill-armed Claude draft the batch SLURM and compare it to the hand-written one | — | Authoring reusable Claude skills; global vs. project scope; encoding team conventions once; reviewing an agent's output against the docs | Write a SKILL.md; Claude uses it to draft the batch `.slurm`; you review |
+| **The Slurm Scheduler** | Read the queue with `squeue`, filter by partition, explain `R` vs. `PD`, and describe partitions/node states with `sinfo` | `longsqueue` alias; `scontrol show job`; compare a GPU vs. CPU partition | Why Slurm exists; interactive vs. scheduled nodes; partitions | Read and filter the live Slurm queue |
+| **Writing & Submitting a Slurm Job** | Write a Slurm script from scratch (shebang, `#SBATCH` directives, `.out`/`.err` logs, env setup, run command); submit, monitor, and cancel a job; watch a job run on its node with `htop` | Email notifications (`--mail-type=ALL`); interactive allocation (`srun --pty`); job dependency chaining; the `dev` partition; **debug broken `fix_me*.slurm` jobs** to `COMPLETED` | Writing a Slurm script line by line; managing a job's lifecycle; reading logs; telling a Slurm setup bug from a code bug when a job fails | Write, submit, cancel, watch, and debug real Slurm jobs |
+| **Writing a Slurm Job with Claude** | Have Claude write a **project** skill (`.claude/skills/form3-slurm` — this repo's path/venv/script) and a **global** skill (`~/.claude/skills/yen-slurm` — Yen partitions/RCpedia, email, `%j` logs, resources-from-profiling); use each to generate a batch Slurm, compare to the hand-written one, and run it | — | Authoring reusable Claude skills; project vs. global scope; encoding repo setup vs. cluster conventions; reviewing an agent's output | Claude writes two SKILL.md skills; generate/compare/run with each; you review |
 | **Documenting Your Pipeline** | Write a README covering what the script does, how to run it, and where output lands | Have Claude stress-test your README as a first-time reader; explain it to your PI in plain language | Technical documentation habits; AI-assisted review; research communication | Write a full README while the work is fresh |
-| **Day 3 Capstone** | Estimate CPU/RAM/time for 100 filings and write the estimate (which resources scale + why) in the README *before* running; write `slurm/extract_form_3_batch.slurm` for 100 with email notifications; submit and confirm; compare actual (email/`sacct`) vs. estimate and document over/under; commit and push via Claude Code | — | Estimating a larger run before submitting, then checking the estimate against reality; synthesizing profiling → SLURM → debugging → docs | Full 100-filing batch submission, backed by real measurements |
+| **Day 3 Capstone** | Estimate CPU/RAM/time for 100 filings and write the estimate (which resources scale + why) in the README *before* running; bump the existing `slurm/extract_form_3_batch.slurm` to 100 (re-tuning resources) with email notifications; submit and confirm; compare actual (email/`sacct`) vs. estimate and document over/under; commit and push via Claude Code | — | Estimating a larger run before submitting, then checking the estimate against reality; synthesizing profiling → Slurm → debugging → docs | Full 100-filing batch submission, backed by real measurements |
 
 ---
 
