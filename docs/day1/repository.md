@@ -189,11 +189,12 @@ Pushing to your fork has to prove it's really you. You'll create a **Personal Ac
 *Give the token to `gh` — on the Yens:*
 
 ```bash
-ml gh-cli          # make gh available on the Yens
-gh auth login      # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Paste an authentication token
+ml gh-cli           # make gh available on the Yens
+gh auth login       # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Paste an authentication token
+gh auth setup-git   # let gh remember the token so git never asks you again
 ```
 
-Paste the token when it asks. That's it — `gh` configures git to use it, so every `git push` from now on works without a browser, a device code, or a password prompt.
+Paste the token when `gh auth login` asks. The `gh auth setup-git` step then wires `gh` in as git's credential helper, so it hands over your token automatically on every `git push` — no browser, no device code, and no password prompt, now or in future sessions.
 
 <details markdown="1">
 <summary>Setting up <code>gh</code> on your own laptop</summary>
