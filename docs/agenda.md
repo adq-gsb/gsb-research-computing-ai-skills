@@ -101,21 +101,21 @@ Every day adds a layer to one research pipeline. The dataset: SEC Form 3 filings
 - Job lifecycle: submit → queue → run → complete → logs
 - Job monitoring: `squeue`, `sinfo`, `sacct`, `scancel`, reading `.out`/`.err` logs
 
-### Timing (~180 min teaching + two 10-min breaks ≈ 3h20m)
+### Timing (9 am–12 pm — 3 hours incl. two 10-min breaks; ~160 min teaching)
 
-Times are rough, scaled by how many quests each section holds and how hands-on it is (the Slurm job section is the heaviest — 11 quests including debugging). Two breaks — after Profiling (~50 min in) and after the Slurm Job section — split the day into roughly 50 / 70 / 60-min blocks. Keep a full **30 min** for the Capstone.
+Live pace is **main-quest-focused** (side quests are the buffer for students who finish early). The four big blocks — Compute (demo), Profiling, Slurm Job, Capstone — get 30 min each; the four lighter sections are brisk at 10. Two breaks — after Profiling (10:00) and after the Slurm Job section (11:00) — split the morning into ~60 / 50 / 50-min blocks. See `.instructor/day3-teaching-plan.md` for the full run-of-show.
 
 | Section | Quests | Time |
 |---|---|---|
-| Compute Environments (demo + discussion) | 3 | 20 min |
+| Compute Environments (demo + discussion) | 3 | 30 min |
 | Profiling Resource Usage (two-terminal live profiling; document resource needs) | 5 | 30 min |
 | ☕ **Break** | — | 10 min |
-| Exploring Cluster Usage Data (analyze a real Yens yenstop snapshot with Claude) | 3 | 20 min |
-| The Slurm Scheduler (why Slurm exists; read the queue + partitions with `squeue`/`sinfo`) | 4 | 15 min |
-| Writing & Submitting a Slurm Job (write + submit + monitor + cancel; debug broken `fix_me*.slurm` jobs) | 11 | 35 min |
+| Exploring Cluster Usage Data (analyze a real Yens yenstop snapshot with Claude) | 3 | 10 min |
+| The Slurm Scheduler (why Slurm exists; read the queue + partitions with `squeue`/`sinfo`) | 4 | 10 min |
+| Writing & Submitting a Slurm Job (write + submit + monitor + cancel; debug broken `fix_me*.slurm` jobs) | 11 | 30 min |
 | ☕ **Break** | — | 10 min |
-| Writing a Slurm Job with Claude (have Claude write a project skill + a global Yen skill; generate/compare/run a batch Slurm with each; plus `claude -p` non-interactive mode) | 2 | 15 min |
-| Documenting Your Pipeline (write the README) | 2 | 15 min |
+| Writing a Slurm Job with Claude (have Claude write a project skill + a global Yen skill; generate/compare/run a batch Slurm with each; plus `claude -p` non-interactive mode) | 2 | 10 min |
+| Documenting Your Pipeline (write the README) | 2 | 10 min |
 | Day 3 Capstone (estimate resources for 100 filings *before* running, batch-submit, compare actual vs. estimate, document) | 1 | 30 min |
 
 *If students finish the Capstone early: sync to climb the leaderboard, revisit skipped quests, and bring any lingering Day 3 questions to the instructors.*
