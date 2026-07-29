@@ -114,7 +114,7 @@ Times are rough, scaled by how many quests each section holds and how hands-on i
 | The Slurm Scheduler (why Slurm exists; read the queue + partitions with `squeue`/`sinfo`) | 4 | 15 min |
 | Writing & Submitting a Slurm Job (write + submit + monitor + cancel; debug broken `fix_me*.slurm` jobs) | 11 | 35 min |
 | ☕ **Break** | — | 10 min |
-| Writing a Slurm Job with Claude (have Claude write a project skill + a global Yen skill; generate/compare/run a batch Slurm with each; project vs. global scope) | 1 | 15 min |
+| Writing a Slurm Job with Claude (have Claude write a project skill + a global Yen skill; generate/compare/run a batch Slurm with each; plus `claude -p` non-interactive mode) | 2 | 15 min |
 | Documenting Your Pipeline (write the README) | 2 | 15 min |
 | Day 3 Capstone (estimate resources for 100 filings *before* running, batch-submit, compare actual vs. estimate, document) | 1 | 30 min |
 

@@ -179,7 +179,7 @@ cd gsb-research-computing-ai-skills
 Pushing to your fork has to prove it's really you. The **GitHub CLI** (`gh`) sets this up once, and then git just works. On the Yens, load it and sign in:
 
 ```bash
-module load gh     # make gh available on the Yens
+ml gh-cli          # make gh available on the Yens
 gh auth login      # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Login with a web browser
 ```
 

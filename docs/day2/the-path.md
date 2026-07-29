@@ -266,7 +266,7 @@ A plot is never finished. Back in your notebook, edit the plotting cell to make 
 
 ```bash
 cd ~                 # or wherever you saved the notebook
-module load claude
+ml claude-code
 claude
 ```
 

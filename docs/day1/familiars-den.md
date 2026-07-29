@@ -216,11 +216,11 @@ ssh SUNetID@yen.stanford.edu
 **1 — Load Claude Code.** It's available as a module on the Yens, just like `gh` and `python`:
 
 ```bash
-module load claude
+ml claude-code
 ```
 
 {: .note }
-> If `module load claude` can't find the module, ask an instructor for the exact name — the module list changes over time.
+> If `ml claude-code` can't find the module, ask an instructor for the exact name — the module list changes over time.
 
 **2 — Make a working folder and launch it from there.** Create a `cctest` directory in your home directory, move into it, and start Claude Code:
 
