@@ -152,8 +152,9 @@ Merging it is optional — the open PR is enough to count as done.
 
 {: .note }
 > If Claude reports that `git push` failed for authentication, you haven't
-> signed in to GitHub on the Yens yet — run `ml gh-cli && gh auth login`
-> (see Step 3 of [Version Control with Git](../repository/)), then ask Claude to
+> signed in to GitHub on the Yens yet — run `ml gh-cli && gh auth login` and
+> paste your Personal Access Token (see Step 3 of
+> [Version Control with Git](../repository/)), then ask Claude to
 > push again. Still stuck? Ask an instructor.
 
 {: .note }

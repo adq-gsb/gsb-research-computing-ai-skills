@@ -176,29 +176,39 @@ cd gsb-research-computing-ai-skills
 
 **Step 3 — Authenticate with GitHub (one time)**
 
-Pushing to your fork has to prove it's really you. The **GitHub CLI** (`gh`) sets this up once, and then git just works. On the Yens, load it and sign in:
+Pushing to your fork has to prove it's really you. You'll create a **Personal Access Token (PAT)** — a single-purpose password for the command line — and hand it to the **GitHub CLI** (`gh`) once. After that git just works. There's no browser on the Yens, so a token is the simplest way in.
+
+*Create the token — do this in your browser, on your laptop:*
+
+1. Open this pre-filled link: **[Create your token](https://github.com/settings/tokens/new?scopes=repo,workflow,read:org&description=yen-repo-workflow)**. It's a **classic** token with the three scopes you need already checked — **`repo`** (push to your fork), **`workflow`** (lets you push changes to the GitHub Actions files), and **`read:org`** (lets the GitHub CLI sign you in) — and named `yen-repo-workflow`.
+2. Set the **expiration** to **1 year** — long enough to reuse this token for your research work well beyond this course, with an automatic backstop if it's ever forgotten or leaked.
+3. Click **Generate token**, then **copy it right away** — GitHub shows it only once.
+
+> Treat the token like a password: don't commit it, don't paste it into a file, don't share it. If it ever leaks, delete it on GitHub and make a new one.
+
+*Give the token to `gh` — on the Yens:*
 
 ```bash
 ml gh-cli          # make gh available on the Yens
-gh auth login      # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Login with a web browser
+gh auth login      # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Paste an authentication token
 ```
 
-`gh` prints a **one-time code**. On your **laptop**, open [github.com/login/device](https://github.com/login/device), enter the code, and approve — the Yens have no browser, so you do this part from your laptop. That's it: `gh` configures git to use your GitHub login, so every `git push` from now on works without asking for a password.
+Paste the token when it asks. That's it — `gh` configures git to use it, so every `git push` from now on works without a browser, a device code, or a password prompt.
 
 <details markdown="1">
 <summary>Setting up <code>gh</code> on your own laptop</summary>
 
-You'll want `gh` on your laptop too (for the Claude Code work later). Install it, then run the same `gh auth login`:
+You'll want `gh` on your laptop too (for the Claude Code work later). Install it, then run the same `gh auth login` and paste the **same token**:
 
 - **macOS** (Homebrew): `brew install gh`
 - **Windows** (in PowerShell — then it's usable from Git Bash too): `winget install --id GitHub.cli`
 - **Linux** / other: see the [official instructions](https://github.com/cli/cli#installation)
 
 ```bash
-gh auth login    # GitHub.com → HTTPS → Login with a web browser
+gh auth login    # GitHub.com → HTTPS → Paste an authentication token
 ```
 
-On a laptop `gh` can open the browser for you automatically.
+(On a laptop you *can* instead choose "Login with a web browser" — but the token works everywhere, so reusing it is one less thing to think about.)
 
 </details>
 
