@@ -30,6 +30,14 @@ You'll make one of each.
 
 ## Main quest
 
+You'll do this from Claude Code running on the Yens. Load the module and launch it inside your repo:
+
+```bash
+ml claude-code
+cd ~/gsb-research-computing-ai-skills
+claude
+```
+
 ### 1. A project skill — how *this* repo runs
 
 Ask Claude Code (inside your repo) to write a **project** skill:
@@ -74,3 +82,25 @@ Then put it to work:
 > Put a sticky note on your laptop lid so instructors can see where you are.
 
 <label class="quest-check"><input type="checkbox" data-room="d3-slurm-with-claude" data-key="main"> I had Claude write a project skill and a global Yen skill, used each to generate a batch Slurm, compared them to my hand-written script and ran them, and can explain project vs. global scope</label>
+
+---
+
+## Side quest — Claude in one shot (`claude -p`)
+
+Everything above used Claude Code **interactively**. For a quick, one-off question — or to script it — Claude also runs **non-interactively**: `claude -p "…"` (print mode) runs a single prompt, prints the answer, and exits. No session, no back-and-forth.
+
+Point it at a file — e.g. review one of the broken debug scripts:
+
+```bash
+claude -p "review scripts/extract_form_3_one_file_broken.py and explain what it does"
+```
+
+Or **pipe** data in on `stdin` — since `claude -p` reads stdin and prints to stdout like any Unix tool, you can feed it a log. Take a failed job's error log from the debug quests and let Claude diagnose it in one line:
+
+```bash
+cat logs/fix_me_*.err | claude -p "this Slurm job failed — explain the error and suggest a fix"
+```
+
+That composability is the point: `claude -p` drops into pipelines and scripts wherever you'd otherwise eyeball output yourself.
+
+<label class="quest-check"><input type="checkbox" data-room="d3-slurm-with-claude" data-key="side1"> I used `claude -p` to review a script, and piped a failed job's log to Claude for a one-shot diagnosis</label>
