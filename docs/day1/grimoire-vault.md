@@ -19,7 +19,11 @@ This room teaches you how to organize hundreds of files at once using the shell 
 Three hundred files. No order. No organization. A real research dataset often looks exactly like this — files from a vendor, a scrape, an instrument dump. Your job before any analysis is to understand what you have and impose structure on it.
 
 {: .important }
-> **Task:** Organize 300 files into a clean directory structure using the explore → plan → execute → document framework.
+> **Task:** Organize 300 files into a clean directory structure.
+
+<img src="{{ '/assets/images/grimoire-spell-index.png' | relative_url }}" alt="An open grimoire titled 300 Spell Grimoire, with index tabs down the side grouping the spells three different ways: by element (fire, ice, lightning, earth, wind), by tier (tier1 through tier5), and by type (offensive, defensive, utility, healing)" style="display:block;width:100%;max-width:520px;height:auto;margin:1.5rem auto">
+
+*Every filename records three things about a spell — its element, its tier, and its type. Each of those is a different way you could group the 300 files, and choosing between them is part of the exercise.*
 
 **Step 1 — Download and unzip**
 
