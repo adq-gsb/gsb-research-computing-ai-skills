@@ -1,6 +1,6 @@
 #!/bin/bash
-# Demo 2/4 — "Ways to Parallelize": ONE JOB, MANY CORES.
-# One SLURM job that reserves 2 cores; xargs -P fans the filings out across
+# Approach 1 — "Ways to Parallelize": ONE JOB, MANY CORES.
+# One Slurm job that reserves 2 cores; xargs -P fans the filings out across
 # them *inside* the job. Parallelism within a job: your code splits the work,
 # not the scheduler.
 #
@@ -16,9 +16,11 @@ cd $HOME/gsb-research-computing-ai-skills
 source .venv/bin/activate
 
 export OUT=/scratch/shared/$USER/demo_results
+LIST=/scratch/shared/$USER/demo_urls.txt
 mkdir -p "$OUT"
+python .instructor/parallelization_demos/make_url_list.py "$LIST"
 
 # -P runs up to $SLURM_CPUS_PER_TASK extractions at once — one per reserved core.
-# Each worker grabs the next filing the moment it finishes one (dynamic waves).
-ls data/sec_filings/*.txt | xargs -P "$SLURM_CPUS_PER_TASK" -n1 \
-    bash -c 'python scripts/extract_form_3_cli.py "$1" "$OUT/$(basename "$1" .txt).json"' _
+# Each core grabs the next filing the moment it finishes one (dynamic waves).
+xargs -P "$SLURM_CPUS_PER_TASK" -n1 \
+    bash -c 'python .instructor/parallelization_demos/extract_one_url.py "$1" "$OUT/$(basename "$1" .txt).json"' _ < "$LIST"

@@ -67,6 +67,9 @@ callouts:
   weapon:
     title: Weapon Earned
     color: purple
+  demo:
+    title: Demo
+    color: grey-dk
 
 markdown: kramdown
 kramdown:

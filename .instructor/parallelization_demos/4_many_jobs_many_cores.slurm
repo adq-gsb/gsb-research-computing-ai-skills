@@ -1,6 +1,6 @@
 #!/bin/bash
-# Demo 4/4 — "Ways to Parallelize": MANY JOBS, MANY CORES.
-# Both dials at once: a job array (parallel across jobs) where each task also
+# Approach 3 — "Ways to Parallelize": MANY JOBS, MANY CORES.
+# Both at once: a job array (parallel across jobs) where each task also
 # reserves 2 cores and fans its slice out across them with xargs -P
 # (parallel within each job).
 #
@@ -17,9 +17,9 @@ cd $HOME/gsb-research-computing-ai-skills
 source .venv/bin/activate
 
 export OUT=/scratch/shared/$USER/demo_results
-LIST=/scratch/shared/$USER/demo_filings_list.txt
+LIST=/scratch/shared/$USER/demo_urls.txt
 mkdir -p "$OUT"
-ls data/sec_filings/*.txt > "$LIST"   # every task regenerates the same list; harmless
+python .instructor/parallelization_demos/make_url_list.py "$LIST"   # every task rebuilds the same list; harmless
 
 # same chunking as demo 3: one contiguous slice of the list per array task
 TOTAL=$(wc -l < "$LIST")
@@ -29,4 +29,4 @@ END=$(( START + CHUNK - 1 ))
 
 # ...but within the slice, fan out across this task's reserved cores
 sed -n "${START},${END}p" "$LIST" | xargs -P "$SLURM_CPUS_PER_TASK" -n1 \
-    bash -c 'python scripts/extract_form_3_cli.py "$1" "$OUT/$(basename "$1" .txt).json"' _
+    bash -c 'python .instructor/parallelization_demos/extract_one_url.py "$1" "$OUT/$(basename "$1" .txt).json"' _

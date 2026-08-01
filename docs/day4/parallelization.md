@@ -169,7 +169,10 @@ for filing in filings:          # 100 filings in the list
 
 If one filing takes 5 seconds, 100 filings take ~500 seconds — and the whole time your script is using exactly one core. A Yen node has dozens more you could have asked for.
 
-**Approach 1: One job, many cores — parallelize _within_ a job.** Ask the same job for several cores (set `#SBATCH --cpus-per-task` in your `.slurm` script) and split the filings across them in your code. But you're capped at the cores on a single machine:
+{: .demo }
+> Watch as we run this baseline and each of the three approaches below on the Yens — the same filings every time, so the only thing that changes is how the work is spread. After each run, `sacct -j JOBID --format=JobID,State,Elapsed,TotalCPU,AllocCPUS,MaxRSS` shows what it cost: `Elapsed` is the wall-clock time, `TotalCPU` against `AllocCPUS` shows how busy the reserved cores actually stayed, and `MaxRSS` is the peak memory — the same field you compared against your estimate on [Day 3](../../day3/capstone/).
+
+**Approach 1: One job, many cores — parallelize _within_ a job.** Ask the same job for several cores (on the Yens, set `#SBATCH --cpus-per-task` in your `.slurm` script) and split the filings across them in your code. But you're capped at the cores on a single machine:
 
 <svg viewBox="0 0 600 178" role="img" aria-labelledby="jc2-title jc2-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="jc2-title">One job, many cores</title>
