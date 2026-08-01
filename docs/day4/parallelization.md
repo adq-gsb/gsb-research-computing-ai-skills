@@ -119,6 +119,37 @@ A quick test, in kitchen terms: if you could hand each task to a different cook 
 {: .note }
 > Parallelization doesn't make a single task faster — one grilled cheese still takes its four steps. It makes *many* tasks finish sooner by running them at the same time. If your bottleneck is one slow step, parallelizing won't help; you need a faster step.
 
+Let's run through some examples together and discuss what types of tasks are parallelizable (or useful to parallelize):
+
+<details markdown="1">
+<summary>Example 1</summary>
+
+You're given an array of numbers, and you're asked to compute the sum of the numbers in the array:
+
+<div style="text-align:center;font-size:1.15em;margin:0.75rem 0">∑<sub>x ∈ array</sub> x</div>
+
+Is parallelizing possible and/or worthwhile?
+
+What if we want to compute the sum of some complicated function of each number (see below)?
+
+<div style="text-align:center;font-size:1.15em;margin:0.75rem 0">∑<sub>x ∈ array</sub> f(x)</div>
+
+</details>
+
+<details markdown="1">
+<summary>Example 2</summary>
+
+You have a dataset A where rows are meant to have a unique key. You want to merge dataset B onto A, but without the merge creating new rows. A standard way to avoid that is to check that A's rows are unique. Can this be parallelized?
+
+</details>
+
+<details markdown="1">
+<summary>Example 3</summary>
+
+You're scraping a website to compile a dataset. After scraping each page, you want to write some variables you found on the page to a common `.csv` that will store the results from all the webpages you've scraped. Can this be parallelized?
+
+</details>
+
 ---
 
 ## Ways to Parallelize

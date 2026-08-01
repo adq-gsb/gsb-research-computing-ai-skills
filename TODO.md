@@ -81,28 +81,23 @@ Day 3's exercises break for the whole cohort, not just this account. Run
 
 ## Content gaps
 
-### Comprehension questions at the end of "When Parallelization Helps"
-Add a question section closing that part of `docs/day4/parallelization.md`, giving the
-audience concrete workloads to classify as parallelizable or not. The section teaches
-the independent-vs-sequential distinction via the grilled-cheese figures but never
-makes students apply it, and Day 4 has no `{: .important }` / `> **Task:**` device on
-any concept page (Days 1–3 open every section with one).
+### Answer key for the "When Parallelization Helps" examples
+**Done 2026-08-01:** the section now closes with three `<details>` examples posed for
+class discussion, following `docs/day3/profiling.md:66`. They are Ben's own, and
+deliberately data-work rather than statistics flavoured:
 
-Use Day 3's existing device — a stack of collapsed answers:
-`<details markdown="1"><summary>❓ Question 1</summary>` … (see
-`docs/day3/profiling.md:66` and `docs/day3/compute-environments.md:179`).
+1. Sum an array of numbers — then the sum of a complicated function of each. Tests
+   *granularity*: possible either way, worthwhile only in the second.
+2. Checking key uniqueness in A before merging B onto it. Tests the *partitioning
+   axis* — uniqueness is global, so it parallelizes only if rows sharing a key land
+   together.
+3. Scraping pages in parallel while appending to one shared `.csv`. Tests
+   *parallel work with a serial write*.
 
-Candidate examples, mixing both answers and at least one that splits along a
-non-obvious axis:
-
-- Extract fields from 500 SEC filings, one API call each — **yes**, the day's own job
-- Compute a running cumulative total over a time series — **no**, each step needs the previous
-- Run the same regression on 50 country subsamples — **yes**
-- Bootstrap 10,000 resamples — **yes**
-- Download 200 files — **yes**, and I/O-bound rather than CPU-bound, so threads not cores
-- Train one model by gradient descent over epochs — **no**, epochs are sequential
-- Run an MCMC sampler — **not within a chain, yes across chains**; the nuance mirrors
-  "steps within a sandwich" vs "sandwiches are independent"
+**Still open:** the examples are posed with no answers. Day 3 pairs its question
+stack with a single `✅ Check your answer` block (`profiling.md:303`) — worth adding
+if these are ever read outside a live class, since the answers are non-obvious and
+two of the three are "yes, but".
 
 ### Load-imbalance exercise from the archived "When One Filing Runs Long"
 That section was cut from `docs/day4/parallelization.md` on 2026-08-01 as orthogonal
@@ -119,22 +114,27 @@ under Approach 1 vs Approach 2, and explain the gap. The archived page has the
 finished animated figures already.
 
 ### Surface the parallelization demo to students
-`.instructor/parallelization_demos/` ships a README plus four `.slurm` scripts whose
-own README says they map "1:1 to the diagrams in the Day 4 'Ways to Parallelize'
-section" — but that section in `docs/day4/parallelization.md` has no student-facing
-hook, so a runnable instructor demo is invisible to the class.
+**Partly done 2026-08-01.** `docs/day4/parallelization.md` now carries four `{: .demo }`
+callouts — one framing the whole comparison, one per approach — and a `demo` callout
+type was added to `docs/_config.yml` (grey-dk, the one unused palette colour). So the
+demo is no longer invisible.
 
-The site's one complete demo convention is Day 3's Compute Environments page, a
-four-layer stack worth copying:
+**Still open:** the rest of Day 3's four-layer convention. Day 4's index table has no
+`💬` or demo label on any row (`docs/day4/index.md:37-44`, which invented standalone
+`🖊️ Concept` and `🏛️ Community` tokens Days 1–3 don't use), and there is no
+participation checkbox — Day 3's `d3-compute-environments.main` reads "I participated
+in the class demo and discussion", the site's only attendance-based key. Adding one
+means a new key in the `DAYS` registry and regenerating `docs/_data/quest_keys.json`.
+Day 4 is still the thinnest day at 9 of 76 keys.
+
+Day 3's Compute Environments page remains the site's one complete demo convention,
+a four-layer stack:
 
 1. Index-table format label — `docs/day3/index.md:56`: `🥪💬 Demo + discussion`
 2. `## Main quest — Class Participation` heading (participation noun, not an imperative)
 3. `{: .important }` + `> **Task:** Take part in the class demo and discussion — …`
 4. `<details><summary>❓ After the demo — discuss these</summary>` + a participation
    checkbox ("I participated in the class demo and discussion")
-
-Day 4 also invented format tokens Days 1–3 don't use (standalone `🖊️ Concept`,
-`🏛️ Community`), dropping the `💬` that carried the demo/discussion signal.
 
 ### Thread vs. process pool caveat on the parallelization page
 `docs/day4/parallelization.md` implies cores are the lever for speeding up the
@@ -190,10 +190,18 @@ students.
 ### Parallel-write pitfalls exercise
 Students are taught to parallelize a loop but never what breaks when workers write to
 shared state (interleaved output, lost writes, a shared counter that undercounts).
-Deliberately left out of the "Ask Claude Code for help" callout rather than mentioned
-in passing. `extract_form_3_batch.py` dodges the problem by writing one JSON per
-filing — a good starting point for an exercise that has students break it, observe
-the corruption, then fix it.
+
+**Status changed 2026-08-01.** The concept now enters the page as Example 3 in the
+"When Parallelization Helps" question stack — scraping many pages in parallel while
+appending to one shared `.csv` — posed as a class discussion prompt, so an instructor
+introduces it aloud. It is deliberately *not* explained in prose anywhere. So this
+exercise is now a follow-up to that discussion rather than students' first exposure.
+
+The resolution is already the pattern they implement in `array-exercise.md`: one
+output file per task, combined afterwards by `merge_results.py` (Part 4).
+`extract_form_3_cli.py` writes one JSON per filing for the same reason. A good
+exercise breaks that deliberately — append to a shared file from an array — has them
+observe the corruption, then fix it.
 
 ### Day 2's end-of-day sync ritual is dead
 `docs/day2/boss-gate-2.md:105-115` still tells students to click a
