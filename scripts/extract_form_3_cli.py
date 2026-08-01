@@ -38,6 +38,7 @@ Extract the following fields:
 - filing_date: The filing date (prefer signatureDate or FILED AS OF DATE).
 
 Return valid JSON matching the schema exactly.
+Return a SINGLE JSON object, not a list. Do not wrap it in an array.
 """
 
 
@@ -61,7 +62,8 @@ def main():
     filing_text = filing_path.read_text()
 
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        # Day 2's model. Temporary: this key can't reach gpt-4o-mini — see TODO.md.
+        model="gemini-2.5-flash-lite",
         response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},

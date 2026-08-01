@@ -15,7 +15,16 @@
 cd $HOME/gsb-research-computing-ai-skills
 source .venv/bin/activate
 
-export OUT=/scratch/shared/$USER/demo_results
+# Fail before spending API calls if the key isn't where load_dotenv() looks.
+if ! grep -q '^STANFORD_API_KEY=' .env 2>/dev/null; then
+    echo "No STANFORD_API_KEY in $PWD/.env — see docs/day2/key-vault.md" >&2
+    exit 1
+fi
+
+# One results directory per run, so a rerun never inherits the last run's
+# output. extract_one_url.py skips a filing whose .json already exists, which
+# would otherwise make the second run look instant and spoil the comparison.
+export OUT=/scratch/shared/$USER/demo_results/$SLURM_JOB_ID
 LIST=/scratch/shared/$USER/demo_urls.txt
 mkdir -p "$OUT"
 python .instructor/parallelization_demos/make_url_list.py "$LIST"

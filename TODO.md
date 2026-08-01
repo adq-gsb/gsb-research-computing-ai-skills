@@ -34,6 +34,51 @@ last. The nav title also doesn't say "Capstone" (Day 1: "Day 1 Challenge", Day 3
 
 ---
 
+## Blocked on external fix
+
+### Extraction scripts moved off `gpt-4o-mini` — revert when the gateway is fixed
+**Temporary workaround applied 2026-08-01.** All four extraction scripts now call
+`gemini-2.5-flash-lite` (Day 2's model) instead of `gpt-4o-mini`:
+
+- `.instructor/parallelization_demos/extract_one_url.py`
+- `scripts/extract_form_3_batch.py`
+- `scripts/extract_form_3_one_file.py`
+- `scripts/extract_form_3_cli.py`
+
+**Why.** The Stanford gateway rejects `gpt-4o-mini` for our key with a 401
+`key_model_access_denied`, so every filing fails (observed on Slurm job `402079`:
+20/20 calls rejected). The [rates page](https://uit.stanford.edu/service/ai-api-gateway/rates)
+*does* list GPT-4o-mini as an available, priced model, so this is a per-key
+entitlement gap rather than a retired model. `client.models.list()` against the key
+returns 27 models including a malformed **`gpt-4.omini`** — almost certainly
+`gpt-4o-mini` registered with a typo on the gateway side, and plausibly the whole
+cause. The string appears nowhere in this repo; it comes back from the gateway.
+
+**Action:** ask the gateway admins whether `gpt-4.omini` is that typo and can be
+corrected. If they fix it, revert the four `model=` lines. Both the working model
+name and the fallback are recorded here so the revert is mechanical.
+
+**Prompt change that came with it.** `gemini-2.5-flash-lite` returns the result
+wrapped in a JSON array on roughly 60% of filings (measured 3/5), which fails
+`Form3Filing.model_validate_json`. All four system prompts gained a line:
+
+> Return a SINGLE JSON object, not a list. Do not wrap it in an array.
+
+That took it to 5/5 valid on the same filings. The line is harmless for
+`gpt-4o-mini`, so it can stay after the revert.
+
+**Left inconsistent on purpose.** Two doc pages still name `gpt-4o-mini` in prose —
+`docs/day4/putting-it-all-together.md:27` and `docs/day4/validating-llm-outputs.md:76`
+— on the assumption this is short-lived. If the gateway fix drags, update them or
+the pages will contradict the code students run.
+
+**Not yet checked:** whether the *shared course key* at
+`/scratch/shared/gsb-research-computing-ai-skills/.env` has the same gap. If it does,
+Day 3's exercises break for the whole cohort, not just this account. Run
+`client.models.list()` against it to confirm.
+
+---
+
 ## Content gaps
 
 ### Comprehension questions at the end of "When Parallelization Helps"
@@ -98,6 +143,44 @@ records `real 0m22.5s` against `user 0m1.9s` — roughly 20s spent waiting on th
 So `--cpus-per-task=8` with a *process* pool buys almost nothing, while a *thread*
 pool on one core helps a lot. Worth a short caveat so students don't request cores
 that sit idle.
+
+### Physical vs. virtual (hyperthreaded) CPUs go unexplained
+No student-facing prose anywhere distinguishes physical cores from logical CPUs. The
+only occurrences are a JavaScript variable comment
+(`docs/day3/compute-environments.md:240`, "256 logical cores") and two script comments
+about `OPENBLAS_NUM_THREADS`. The nearest note, `docs/day3/profiling.md:208`, covers
+*cores vs. processes* — a different distinction.
+
+The Day 4 demo callout now makes this visible, so it needs explaining. On yen20:
+
+| Fact | Value |
+|------|-------|
+| `ThreadsPerCore` | 2 |
+| `CPUTot` / physical cores | 512 / 256 |
+| `SelectTypeParameters` | `CR_CORE_MEMORY` — Slurm allocates whole **cores** |
+| `OverSubscribe` | `NO` — the sibling thread isn't given to anyone else |
+
+So `--cpus-per-task=1` reserves one whole physical core and `sacct` reports
+`ReqCPUS=1, AllocCPUS=2` (observed on jobs `402034`, `402076`, `402079`). Nothing is
+misconfigured or wasted — `AllocCPUS` counts logical CPUs while `--cpus-per-task`
+requests cores — but a student dividing `TotalCPU` by `AllocCPUS` gets a utilization
+figure **2× too low**. Job `402079`: 17.3s over 38s is ~46% against `ReqCPUS`, but
+reads ~23% against `AllocCPUS`.
+
+Already done as a stopgap: the callout at `docs/day4/parallelization.md:173` uses
+`sacct -X`, shows both `ReqCPUS` and `AllocCPUS`, and says which to divide by. That
+puts the two numbers side by side, which is the natural hook for a fuller treatment —
+the kitchen metaphor extends cleanly (one burner that can hold two pans is still one
+burner's worth of heat).
+
+Related: the thread-vs-process-pool caveat below is the same argument from the
+software side. A student who reads `--cpus-per-task=8` as eight independent workers is
+wrong twice over. Worth writing the two together.
+
+Not checked: whether `--hint=nomultithread` changes what `AllocCPUS` reports on this
+cluster. Expected to be a no-op for allocation under `CR_CORE` (it affects task
+binding), but unverified — a ~10-second job settles it before any of this reaches
+students.
 
 ### Parallel-write pitfalls exercise
 Students are taught to parallelize a loop but never what breaks when workers write to

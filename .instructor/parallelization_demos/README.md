@@ -28,8 +28,9 @@ a partial failure only pays for what actually failed.
 
 ## Running
 
-From the repo root on the Yens (a `.env` with the API key must be present,
-and `logs/` must exist — Slurm won't create it):
+From the repo root on the Yens (a `.env` holding `STANFORD_API_KEY` must be
+present there — each demo checks for it and exits before spending any API calls
+if it's missing — and `logs/` must exist, since Slurm won't create it):
 
 ```bash
 mkdir -p logs
@@ -38,14 +39,21 @@ sbatch .instructor/parallelization_demos/1_one_job_one_core.slurm
 
 All four demos process the same **20 filings**, so their timings are directly
 comparable — set once as `NUM_FILINGS` in `make_url_list.py`. That is 20 paid API
-calls per demo, so budget 80 for a full four-way comparison against a cleared
-results directory.
+calls per demo, so budget 80 for a full four-way comparison.
 
 Expect well under a minute for the serial baseline (Day 3 measured ~2.25s per
 filing), and less for the rest.
 
-Results land in `/scratch/shared/$USER/demo_results/`; delete that directory
-between runs to make timing comparisons clean.
+Results land in `/scratch/shared/$USER/demo_results/<job-id>/` — one directory
+per run, named for the job ID (for the array demos, the shared
+`SLURM_ARRAY_JOB_ID`, so a whole array writes into one directory). Every run
+therefore starts empty, and `extract_one_url.py`'s skip-if-exists never makes a
+rerun look artificially fast. Nothing is deleted automatically, so the output
+stays around to inspect; clear old runs yourself when scratch gets cluttered:
+
+```bash
+rm -rf /scratch/shared/$USER/demo_results
+```
 
 ## Comparing time and resources
 
