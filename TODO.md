@@ -167,11 +167,16 @@ requests cores — but a student dividing `TotalCPU` by `AllocCPUS` gets a utili
 figure **2× too low**. Job `402079`: 17.3s over 38s is ~46% against `ReqCPUS`, but
 reads ~23% against `AllocCPUS`.
 
-Already done as a stopgap: the callout at `docs/day4/parallelization.md:173` uses
-`sacct -X`, shows both `ReqCPUS` and `AllocCPUS`, and says which to divide by. That
-puts the two numbers side by side, which is the natural hook for a fuller treatment —
-the kitchen metaphor extends cleanly (one burner that can hold two pans is still one
-burner's worth of heat).
+That stopgap has been reverted (2026-08-01). The callout at
+`docs/day4/parallelization.md:173` briefly showed both `ReqCPUS` and `AllocCPUS` with
+a sentence explaining the doubling, but it was cut as too much detail for a page that
+never introduces hyperthreading. The callout now asks only for `ReqCPUS`, so students
+divide by the right number and never see the discrepancy.
+
+That keeps the page honest but leaves the concept unexplained, and anyone who runs
+`sacct` with their own format string will still hit it. The kitchen metaphor extends
+cleanly when someone writes the fuller treatment — one burner that can hold two pans
+is still one burner's worth of heat.
 
 Related: the thread-vs-process-pool caveat below is the same argument from the
 software side. A student who reads `--cpus-per-task=8` as eight independent workers is

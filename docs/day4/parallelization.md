@@ -170,7 +170,7 @@ for filing in filings:          # 100 filings in the list
 If one filing takes 5 seconds, 100 filings take ~500 seconds — and the whole time your script is using exactly one core. A Yen node has dozens more you could have asked for.
 
 {: .demo }
-> Watch as we run this baseline and each of the three approaches below on the Yens — the same filings every time, so the only thing that changes is how the work is spread. After each run, `sacct -X -j JOBID --format=JobID,State,Elapsed,TotalCPU,ReqCPUS,AllocCPUS,MaxRSS` shows what it cost: `Elapsed` is the wall-clock time, `TotalCPU` against `ReqCPUS` shows how busy the reserved cores actually stayed, and `MaxRSS` is the peak memory — the same field you compared against your estimate on [Day 3](../../day3/capstone/). Expect `AllocCPUS` to read double `ReqCPUS`: the Yens run two hyperthreads per physical core, and Slurm reserves the whole core for each CPU you ask for. `ReqCPUS` is the number to divide by.
+> Watch as we run this baseline and each of the three approaches below on the Yens — the same filings every time, so the only thing that changes is how the work is spread. After each run, `sacct -X -j JOBID --format=JobID,State,Elapsed,TotalCPU,ReqCPUS,MaxRSS` shows what it cost: `Elapsed` is the wall-clock time, `TotalCPU` against `ReqCPUS` shows how busy the reserved cores actually stayed, and `MaxRSS` is the peak memory — the same field you compared against your estimate on [Day 3](../../day3/capstone/).
 
 **Approach 1: One job, many cores — parallelize _within_ a job.** Ask the same job for several cores (on the Yens, set `#SBATCH --cpus-per-task` in your `.slurm` script) and split the filings across them in your code. But you're capped at the cores on a single machine:
 
@@ -212,11 +212,11 @@ If one filing takes 5 seconds, 100 filings take ~500 seconds — and the whole t
 
 Two cores clear the eight filings in four waves — ≈ 4 × 5s = 20s of wall-clock, versus ~40s one at a time. Same total work, spread across two cores.
 
-{: .demo }
-> Let's run an example like this on the Yens and see how it performs — the same filings as the baseline, now split across the cores of a single job.
-
 {: .tip }
 > **Ask Claude Code for help with parallelizing within a job.** Get it to split the filings across the cores for you: describe your loop and say how many cores you asked for. Read what it gives you before you run it — check that the work really is independent.
+
+{: .demo }
+> Let's run an example like this on the Yens and see how it performs — the same filings as the baseline, now split across the cores of a single job.
 
 **Approach 2: Many jobs, one core each — parallelize _across_ jobs.** Submit a **job array**: the scheduler launches many near-identical jobs at once, each an independent task on (possibly) a different node, each working its own slice of the filings. This scales past a single machine, and because every task stands alone, a failure costs you only that task:
 
@@ -260,11 +260,11 @@ Two cores clear the eight filings in four waves — ≈ 4 × 5s = 20s of wall-cl
 
 We'll cover job arrays in detail on the [next page](../slurm-arrays/).
 
-{: .demo }
-> Let's run an example like this on the Yens and see how it performs — the same filings again, this time split across independent array tasks.
-
 {: .note }
 > **The tasks are identical — so you have to tell them apart.** Every task in an array runs the same script, which means nothing decides on its own which filing each one takes. That mapping is yours to write.
+
+{: .demo }
+> Let's run an example like this on the Yens and see how it performs — the same filings again, this time split across independent array tasks.
 
 **Approach 3: Many jobs, many cores — do both.** Nothing stops an array task from itself requesting several cores. Reach for this when one alone isn't enough: many jobs to spread across nodes, several cores inside each to chew through a big slice:
 
