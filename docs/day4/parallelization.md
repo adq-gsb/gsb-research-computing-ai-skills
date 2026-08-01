@@ -150,6 +150,19 @@ You're scraping a website to compile a dataset. After scraping each page, you wa
 
 </details>
 
+<label class="quest-check"><input type="checkbox" data-room="d4-parallelization" data-key="main"> I can explain what parallelization is, when it can be used, and when it helps</label>
+
+<details markdown="1">
+<summary>🔮 How to cast your progress — click to reveal</summary>
+
+Every quest you check reveals a **🔮 Cast to the leaderboard** button with a one-line `./cast` spell. To record it:
+
+1. SSH to the Yens — `ssh SUNetID@yen.stanford.edu`
+2. `cd` to your repo — `cd ~/gsb-research-computing-ai-skills`
+3. Paste the `./cast …` spell from the quest and run it.
+
+</details>
+
 ---
 
 ## Ways to Parallelize
@@ -371,24 +384,16 @@ The illustrations above show a tidy few-filings-per-core picture. In practice th
 
 ---
 
-<label class="quest-check"><input type="checkbox" data-room="d4-parallelization" data-key="main"> I can explain what parallelization is and when it helps</label>
-
-<details markdown="1">
-<summary>🔮 How to cast your progress — click to reveal</summary>
-
-Every quest you check reveals a **🔮 Cast to the leaderboard** button with a one-line `./cast` spell. To record it:
-
-1. SSH to the Yens — `ssh SUNetID@yen.stanford.edu`
-2. `cd` to your repo — `cd ~/gsb-research-computing-ai-skills`
-3. Paste the `./cast …` spell from the quest and run it.
-
-</details>
+<label class="quest-check"><input type="checkbox" data-room="d4-parallelization" data-key="approaches"> I can explain a few ways to parallelize — more cores within one job, more jobs, or both</label>
 
 ---
+
+{: .tip }
+> **Hitting a wall on resources? Ask us.** If a job is too slow, or you're bumping up against what you can reasonably request, the DARC team is happy to look at your code with you.
 
 ## What You Learned
 
 - You can explain the difference between running tasks sequentially on one core and in parallel across many
 - You can tell whether a workload is **independent** enough to parallelize
-- You can distinguish parallelizing **within a job** (more cores) from **across jobs** (a job array), and name the limit each one runs into
+- You can explain a few ways to parallelize — more cores **within** one job, more **jobs**, or both — and name the limit each one runs into
 - You understand that parallelization speeds up *many* tasks, not a single slow one
