@@ -45,7 +45,7 @@ On Day 3 you didn't run your script directly on a login node — you handed it t
 
 Now suppose we want to run that script not once but many times. Each run is independent of the others, so rather than one core working through them in sequence, we want many running at once.
 
-The move that makes this tractable is to run **the same script every time**, changing only one thing: a number telling each run which piece of the work is its own. You *could* do that by hand, submitting the script once per piece — a separate `sbatch` call, job ID, and output file for each. That's fine for four but unmanageable for a hundred. SLURM has a purpose-built tool for exactly this pattern instead.
+You *could* do that by hand, submitting the script once for each run — a separate `sbatch` call, job ID, and output file every time. That's fine for four but unmanageable for a hundred. SLURM has a purpose-built tool for exactly this pattern instead.
 
 {: .demo }
 > Now the same script as an array, with one directive added:
@@ -75,7 +75,7 @@ The move that makes this tractable is to run **the same script every time**, cha
 {: .note }
 > **`%A` and `%a` in the log names.** On Day 3 you used `%j`, the job ID, so each run wrote its own log file. An array needs two numbers instead: `%A` is the ID of the array as a whole, and `%a` is the task's index within it. Together they give every task a file of its own — for example, `hello_402103_1.out`, `hello_402103_2.out`, and so on — rather than four tasks overwriting one another.
 
-We can see that specifying your job as an **array** tells SLURM to launch your one script many times, each run as an independent **task**. Every task still runs the same script, identical except for its **`SLURM_ARRAY_TASK_ID`**.
+We can see that specifying your job as an **array** tells SLURM to launch your one script many times, each run as an independent **task**.
 
 <svg viewBox="0 0 618 270" role="img" aria-labelledby="array-title array-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:616px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="array-title">One array script fans out into many tasks</title>
@@ -112,7 +112,9 @@ The task number is what makes this general. Every task runs the identical script
 
 ---
 
-## Building the Array Job
+## Exercise
+
+Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array.
 
 The task ID is just an integer — *you* decide what it points to. The usual pattern has these steps:
 
