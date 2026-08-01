@@ -14,82 +14,101 @@ You've seen when a workload qualifies for parallelization and when it helps. Now
 
 ---
 
-## Recap
+## Recap: One Script, One Task
 
 On Day 3 you didn't run your script directly on a login node — you handed it to **SLURM**, the cluster's scheduler, in an `sbatch` script. SLURM found a free slot on a compute node, ran your job there, and saved the output. That was one input, one job.
 
-To scale up, the question is *how* to run that work in parallel across the cluster's cores — and which mechanism to reach for.
+{: .demo }
+> For example, consider the following:
+>
+> ```bash
+> #!/bin/bash
+> #SBATCH --job-name=hello
+> #SBATCH --output=logs/hello_%j.out
+> #SBATCH --error=logs/hello_%j.err
+> #SBATCH --time=00:01:00
+> #SBATCH --mem=1G
+> #SBATCH --cpus-per-task=1
+>
+> echo "Hello, world!"
+> ```
+>
+> If we submit this, we can inspect the log file to see that the compute node printed:
+>
+> ```
+> Hello, world!
+> ```
 
 ---
 
-Stripped of the real work, a submission script is just the four parts from Day 3 — shebang, `#SBATCH` directives, setup, and the run line. Here `echo` stands in for the run line:
+## One Script, Many (Similar) Tasks
 
-```bash
-#!/bin/bash
-#SBATCH --job-name=hello
-#SBATCH --output=logs/hello_%j.out
-#SBATCH --error=logs/hello_%j.err
-#SBATCH --time=00:01:00
-#SBATCH --mem=1G
-#SBATCH --cpus-per-task=1
+Now suppose we want to run that script not once but many times. Each run is independent of the others, so rather than one core working through them in sequence, we want many running at once.
 
-echo "Hello, Natalya"
-```
+The move that makes this tractable is to run **the same script every time**, changing only one thing: a number telling each run which piece of the work is its own. You *could* do that by hand, submitting the script once per piece — a separate `sbatch` call, job ID, and output file for each. That's fine for four but unmanageable for a hundred. SLURM has a purpose-built tool for exactly this pattern instead.
 
-Save it as `slurm/hello.slurm`, submit it, and read what the compute node wrote:
+{: .demo }
+> Now the same script as an array, with one directive added:
+>
+> ```bash
+> #!/bin/bash
+> #SBATCH --job-name=hello-array
+> #SBATCH --output=logs/hello_%A_%a.out
+> #SBATCH --error=logs/hello_%A_%a.err
+> #SBATCH --time=00:01:00
+> #SBATCH --mem=1G
+> #SBATCH --cpus-per-task=1
+> #SBATCH --array=1-4                     # the new line, which says: run this script 4 times
+>
+> echo "Hello, world! My task number is $SLURM_ARRAY_TASK_ID"
+> ```
+>
+> After submitting this job array, we should be able to see the following in the different log files:
+>
+> ```
+> Hello, world! My task number is 1
+> Hello, world! My task number is 2
+> Hello, world! My task number is 3
+> Hello, world! My task number is 4
+> ```
 
-```bash
-sbatch slurm/hello.slurm        # Submitted batch job 12345678
-cat logs/hello_12345678.out     # Hello, Natalya
-```
+{: .note }
+> **`%A` and `%a` in the log names.** On Day 3 you used `%j`, the job ID, so each run wrote its own log file. An array needs two numbers instead: `%A` is the ID of the array as a whole, and `%a` is the task's index within it. Together they give every task a file of its own — for example, `hello_402103_1.out`, `hello_402103_2.out`, and so on — rather than four tasks overwriting one another.
 
-Keep this shape in mind — a job array is this same script with **one directive added**.
+We can see that specifying your job as an **array** tells SLURM to launch your one script many times, each run as an independent **task**. Every task still runs the same script, identical except for its **`SLURM_ARRAY_TASK_ID`**.
 
----
-
-## Running the Same Task Multiple Times — at the Same Time
-
-The individual units of work are independent of one another, so rather than one core grinding through them in sequence, we want many cores working at once.
-
-The move that makes this tractable is to run **the same script every time**, changing only which input it picks up. You *could* do that by hand, submitting that one script once per input — hundreds of `sbatch` calls, hundreds of job IDs, and hundreds of output names to wrangle. But that's clumsy and effortful. SLURM has a purpose-built tool for exactly this pattern instead.
-
----
-
-## The Idea: One Script, Many Tasks
-
-A **job array** is a single script that SLURM launches many times, each run as an independent **task**. You add one directive to your `sbatch` script — alongside the other `#SBATCH` lines at the top, like the ones you wrote on Day 3:
-
-```bash
-#SBATCH --array=1-100
-```
-
-and that one submission becomes 100 tasks. Every task runs the same script — identical except for one number, its **`SLURM_ARRAY_TASK_ID`** (1, 2, 3, … 100). You use that number to decide which filing *this* task should process.
-
-<svg viewBox="0 0 562 212" role="img" aria-labelledby="array-title array-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:560px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+<svg viewBox="0 0 618 270" role="img" aria-labelledby="array-title array-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:616px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="array-title">One array script fans out into many tasks</title>
-  <desc id="array-desc">A single submission script with the directive array equals 1 to 100 fans out into many independent tasks. Task 1 processes filing 1, task 2 processes filing 2, and so on up to task 100, each selected by its array task ID.</desc>
+  <desc id="array-desc">A single submission script with the directive array equals 1 to N fans out into N independent tasks, numbered 1, 2, 3 and so on up to N. What each task does is determined by your code together with its array task ID.</desc>
   <!-- fan-out connectors (drawn first, behind boxes) -->
-  <line x1="188" y1="106" x2="330" y2="30"  stroke="#cbd3e0" stroke-width="1.5"/>
-  <line x1="188" y1="106" x2="330" y2="68"  stroke="#cbd3e0" stroke-width="1.5"/>
-  <line x1="188" y1="106" x2="330" y2="106" stroke="#cbd3e0" stroke-width="1.5"/>
-  <line x1="188" y1="106" x2="330" y2="172" stroke="#cbd3e0" stroke-width="1.5"/>
-  <!-- submission script -->
-  <rect x="24" y="80" width="164" height="52" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
-  <text x="106" y="101" font-size="12.5" font-weight="700" fill="#2c3e50" text-anchor="middle">SLURM script</text>
-  <text x="106" y="119" font-size="10.5" fill="#6a7280" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">--array=1–100</text>
-  <!-- task boxes -->
-  <rect x="330" y="15"  width="208" height="30" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="434" y="35"  font-size="12" fill="#2c3e50" text-anchor="middle">task 1  →  filing 1</text>
-  <rect x="330" y="53"  width="208" height="30" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="434" y="73"  font-size="12" fill="#2c3e50" text-anchor="middle">task 2  →  filing 2</text>
-  <rect x="330" y="91"  width="208" height="30" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="434" y="111" font-size="12" fill="#2c3e50" text-anchor="middle">task 3  →  filing 3</text>
-  <text x="434" y="146" font-size="16" fill="#9aa2b1" text-anchor="middle">⋮</text>
-  <rect x="330" y="157" width="208" height="30" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="434" y="177" font-size="12" fill="#2c3e50" text-anchor="middle">task 100  →  filing 100</text>
+  <line x1="188" y1="129" x2="330" y2="37"  stroke="#cbd3e0" stroke-width="1.5"/>
+  <line x1="188" y1="129" x2="330" y2="89"  stroke="#cbd3e0" stroke-width="1.5"/>
+  <line x1="188" y1="129" x2="330" y2="141" stroke="#cbd3e0" stroke-width="1.5"/>
+  <line x1="188" y1="129" x2="330" y2="221" stroke="#cbd3e0" stroke-width="1.5"/>
+  <rect x="24" y="103" width="164" height="52" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
+  <text x="106" y="124" font-size="12.5" font-weight="700" fill="#2c3e50" text-anchor="middle">SLURM script</text>
+  <text x="106" y="142" font-size="10.5" fill="#6a7280" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">--array=1–N</text>
+  <rect x="330" y="15" width="264" height="44" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <text x="462" y="31" font-size="12" fill="#2c3e50" text-anchor="middle">task 1</text>
+  <text x="462" y="46" font-size="8" fill="#6a7280" text-anchor="middle">determined by your code <tspan font-weight="700">and</tspan> SLURM_ARRAY_TASK_ID</text>
+  <rect x="330" y="67" width="264" height="44" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <text x="462" y="83" font-size="12" fill="#2c3e50" text-anchor="middle">task 2</text>
+  <text x="462" y="98" font-size="8" fill="#6a7280" text-anchor="middle">determined by your code <tspan font-weight="700">and</tspan> SLURM_ARRAY_TASK_ID</text>
+  <rect x="330" y="119" width="264" height="44" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <text x="462" y="135" font-size="12" fill="#2c3e50" text-anchor="middle">task 3</text>
+  <text x="462" y="150" font-size="8" fill="#6a7280" text-anchor="middle">determined by your code <tspan font-weight="700">and</tspan> SLURM_ARRAY_TASK_ID</text>
+  <text x="462" y="188" font-size="16" fill="#9aa2b1" text-anchor="middle">⋮</text>
+  <rect x="330" y="199" width="264" height="44" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <text x="462" y="215" font-size="12" fill="#2c3e50" text-anchor="middle">task N</text>
+  <text x="462" y="230" font-size="8" fill="#6a7280" text-anchor="middle">determined by your code <tspan font-weight="700">and</tspan> SLURM_ARRAY_TASK_ID</text>
   <!-- caption -->
-  <text x="281" y="205" font-size="12.5" fill="#6a7280" text-anchor="middle">One submission becomes 100 independent tasks; each task's ID selects its filing.</text>
+  <text x="309" y="263" font-size="12.5" fill="#6a7280" text-anchor="middle">One submission becomes N independent tasks, each with its own task ID.</text>
 </svg>
+
+The task number is what makes this general. Every task runs the identical script, and `SLURM_ARRAY_TASK_ID` is the only thing that differs between them — so wherever the work needs to vary, you derive it from that number: which file to read, which row of a list to process, which parameter value to try.
+
+{: .warning }
+> **Counting from 1.** `--array=1-N` numbers the tasks 1, 2, … N. Slurm doesn't insist on that: numbering from 0 instead, so the tasks run 0 through N − 1, is equally valid. But starting at 1 is the convention used here, and it matters as soon as the task ID indexes something. In some languages a list of N items, `items`, is indexed 0 through N − 1, so a 1-based task ID has to be shifted — `items[task_id - 1]` rather than `items[task_id]`. Get it wrong and nothing complains up front: the first item is silently skipped, and the last task runs off the end of the list.
 
 ---
 

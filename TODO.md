@@ -244,6 +244,39 @@ course's own pipeline.
 
 ---
 
+### Decide where demo scripts belong — `.instructor/` may be the wrong home
+Open question, raised 2026-08-01. Demo material currently lives in `.instructor/`:
+the four `parallelization_demos/*.slurm` plus their two helpers. Two things make
+that placement doubtful.
+
+**`.instructor/` is tracked and students fork the repo.** Everything in it —
+including `KEYS.md`, `capstone.key.md`, `boss-gate-1.key.md` — ships in every
+student fork already. So the directory name signals "instructor-only" without
+delivering it. Worth confirming whether that is intended for the answer keys too;
+if not, it is a bigger problem than script placement.
+
+**Student-facing pages may end up referencing the path.** A demo callout on
+`docs/day4/slurm-arrays.md` briefly told the reader to run
+`python .instructor/hello_name.py` before that example was simplified away. Any
+page that points into `.instructor/` shows the student a path in a directory
+that reads as off-limits, with no way to tell whether they are meant to run it.
+
+Options, roughly:
+
+1. **Leave it.** Simplest, but the naming keeps misleading and pages keep pointing
+   into it.
+2. **Move anything a student might run into `scripts/` and `slurm/`**, alongside
+   `extract_form_3_cli.py` and the existing `.slurm` files, and keep `.instructor/`
+   for answer keys and teaching plans only. Most consistent with how the rest of
+   the repo is laid out.
+3. **A third top-level directory** — `demos/` — for material that is instructor-led
+   but not secret. Clearest signal, one more place to look.
+
+Deciding this also settles whether the demos should be reproducible by students
+after class, which is really the underlying question.
+
+---
+
 ## Housekeeping
 
 - `docs/day4/proposed_agenda.md` has dead links pointing at deleted archive files.
