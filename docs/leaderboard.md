@@ -70,7 +70,7 @@ tr.lb-leader td { background: #f4f8ff; }
     'd1-boss-gate-1.main',
     'd2-boss-gate.commit',
     'd3-capstone.commit',
-    'd4-boss-gate.commit',
+    'd4-capstone.commit',
   ];
 
   // Dungeon titles earned by clearing each day's Capstone (0-4 cleared).

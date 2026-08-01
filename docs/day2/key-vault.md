@@ -264,4 +264,4 @@ The key is still there, sitting in the first commit, even though the file is gon
 - `.gitignore` is your first line of defense against accidental credential exposure
 - Public config (like a `base_url`) can be hardcoded; only true secrets belong in `.env`
 - The `openai` client is a de facto standard: point `base_url` at any OpenAI-compatible service and the same code works
-- Everything you send through the Stanford AI API Gateway is logged — classify your data before calling the API
+- The Gateway logs that a call happened and which key made it, but not the contents of the call — still, classify your data first: high-risk use requires an approved Data Risk Assessment

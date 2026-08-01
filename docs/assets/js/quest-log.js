@@ -142,7 +142,7 @@
     'd1-boss-gate-1.main',
     'd2-boss-gate.commit',
     'd3-capstone.commit',
-    'd4-boss-gate.commit'
+    'd4-capstone.commit'
   ];
 
   // Encode progress as a short 3-word "spell": [completed count, capstone count,
