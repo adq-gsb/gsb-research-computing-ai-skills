@@ -59,6 +59,20 @@ non-obvious axis:
 - Run an MCMC sampler — **not within a chain, yes across chains**; the nuance mirrors
   "steps within a sandwich" vs "sandwiches are independent"
 
+### Load-imbalance exercise from the archived "When One Filing Runs Long"
+That section was cut from `docs/day4/parallelization.md` on 2026-08-01 as orthogonal
+to the page's argument, and moved to
+`docs/day4/archive/when-one-filing-runs-long.md` (nav- and search-excluded). It is a
+good basis for an exercise rather than exposition: it takes eight filings, makes
+filing 3 run 3× long, and shows that a shared pool of cores rebalances around it
+while fixed per-job chunks cannot — plus the "longest processing time first"
+heuristic and its one-third-of-optimal bound.
+
+Real filings do vary this way, so the exercise has a natural hook: have students
+process a batch where one filing is much denser than the rest, compare wall-clock
+under Approach 1 vs Approach 2, and explain the gap. The archived page has the
+finished animated figures already.
+
 ### Surface the parallelization demo to students
 `.instructor/parallelization_demos/` ships a README plus four `.slurm` scripts whose
 own README says they map "1:1 to the diagrams in the Day 4 'Ways to Parallelize'
