@@ -16,17 +16,42 @@ You've seen when a workload qualifies for parallelization and when it helps. Now
 
 ## Recap
 
-On Day 3 you didn't run your extraction script directly on a login node — you handed it to **SLURM**, the cluster's scheduler, in an `sbatch` script. SLURM found a free slot on a compute node, ran your job there, and saved the output. That was one filing, one job.
+On Day 3 you didn't run your script directly on a login node — you handed it to **SLURM**, the cluster's scheduler, in an `sbatch` script. SLURM found a free slot on a compute node, ran your job there, and saved the output. That was one input, one job.
 
 To scale up, the question is *how* to run that work in parallel across the cluster's cores — and which mechanism to reach for.
 
 ---
 
+Stripped of the real work, a submission script is just the four parts from Day 3 — shebang, `#SBATCH` directives, setup, and the run line. Here `echo` stands in for the run line:
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=hello
+#SBATCH --output=logs/hello_%j.out
+#SBATCH --error=logs/hello_%j.err
+#SBATCH --time=00:01:00
+#SBATCH --mem=1G
+#SBATCH --cpus-per-task=1
+
+echo "Hello, Natalya"
+```
+
+Save it as `slurm/hello.slurm`, submit it, and read what the compute node wrote:
+
+```bash
+sbatch slurm/hello.slurm        # Submitted batch job 12345678
+cat logs/hello_12345678.out     # Hello, Natalya
+```
+
+Keep this shape in mind — a job array is this same script with **one directive added**.
+
+---
+
 ## Running the Same Task Multiple Times — at the Same Time
 
-The filings are independent of one another, so rather than one core grinding through them in sequence, we want many cores working at once.
+The individual units of work are independent of one another, so rather than one core grinding through them in sequence, we want many cores working at once.
 
-The move that makes this tractable is to run **the same script every time**, changing only which filing it picks up. You *could* do that by hand, submitting that one script once per filing — 100 `sbatch` calls, 100 job IDs, and 100 output names to wrangle. But that's clumsy and effortful. SLURM has a purpose-built tool for exactly this pattern instead.
+The move that makes this tractable is to run **the same script every time**, changing only which input it picks up. You *could* do that by hand, submitting that one script once per input — hundreds of `sbatch` calls, hundreds of job IDs, and hundreds of output names to wrangle. But that's clumsy and effortful. SLURM has a purpose-built tool for exactly this pattern instead.
 
 ---
 
