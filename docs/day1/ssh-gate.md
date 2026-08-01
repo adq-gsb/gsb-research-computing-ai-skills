@@ -10,7 +10,7 @@ permalink: /day1/ssh-gate/
 
 <div data-room-id="d1-ssh-gate"></div>
 
-SSH lets you connect from your laptop to a remote computer and run commands there as if you were sitting at it. In this room you will learn what a remote server is, why researchers use one, and how to log in to the Yens cluster.
+SSH lets you connect from your laptop to a remote computer and run commands there as if you were sitting at it. In this section you will learn what a remote server is, why researchers use one, and how to log in to the Yens cluster.
 
 ---
 
@@ -122,7 +122,7 @@ Replace `SUNetID` with your Stanford username. When prompted for your password, 
 **Identify your node:**
 ```bash
 hostname      # e.g. yen1, yen2, yen3, yen4, or yen5
-whoami        # confirm you're logged in as yourself
+whoami        # confirm you are logged in as yourself
 ```
 
 {: .note }
