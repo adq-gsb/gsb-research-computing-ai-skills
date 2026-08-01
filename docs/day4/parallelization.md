@@ -389,7 +389,7 @@ The illustrations above show a tidy few-filings-per-core picture. In practice th
 ---
 
 {: .tip }
-> **Hitting a wall on resources? Ask us.** If a job is too slow, or you're bumping up against what you can reasonably request, the DARC team is happy to look at your code with you.
+> **Hitting a wall on resources in the future? Ask us.** If a job is too slow, or you're bumping up against what you can reasonably request, the DARC team is happy to look at your code with you.
 
 ## What You Learned
 

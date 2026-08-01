@@ -10,11 +10,11 @@ permalink: /day4/slurm-arrays/
 
 <div data-room-id="d4-slurm-arrays"></div>
 
-You've seen *why* parallelization helps and when a workload qualifies. This section is about *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, the standard, purpose-built tool is a **SLURM job array**. This page covers how arrays work; you'll build and submit one in [Submitting an Array Job](../array-exercise/).
+You've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **SLURM job array**.
 
 ---
 
-## Recap: One Job on SLURM (Day 3)
+## Recap
 
 On Day 3 you didn't run your extraction script directly on a login node — you handed it to **SLURM**, the cluster's scheduler, in an `sbatch` script. SLURM found a free slot on a compute node, ran your job there, and saved the output. That was one filing, one job.
 
@@ -22,23 +22,11 @@ To scale up, the question is *how* to run that work in parallel across the clust
 
 ---
 
-## From One Filing to Many
+## Running the Same Task Multiple Times — at the Same Time
 
-The goal is a single script that handles *all* your filings — not one you edit and rerun by hand for each. The natural way to write that is a **`for` loop** over the filings:
+The filings are independent of one another, so rather than one core grinding through them in sequence, we want many cores working at once.
 
-```python
-for filing in filings:       # your list of filings
-    result = extract(filing)
-    save(result)
-```
-
-That gives you one script that processes every filing. But it works through them *one at a time* on a single core — this isn't parallelization, it's just your work organized into a single, re-runnable script (the serial picture from [Parallelization Basics](../parallelization/)).
-
----
-
-## Running Them at the Same Time
-
-The loop's iterations are independent, so rather than one core grinding through them in sequence, we want many cores working at once. You *could* do that by submitting the script by hand, once per filing — 100 `sbatch` calls, 100 job IDs, and 100 output names to wrangle. But that's clumsy and effortful. SLURM has a purpose-built tool for exactly this pattern instead.
+The move that makes this tractable is to run **the same script every time**, changing only which filing it picks up. You *could* do that by hand, submitting that one script once per filing — 100 `sbatch` calls, 100 job IDs, and 100 output names to wrangle. But that's clumsy and effortful. SLURM has a purpose-built tool for exactly this pattern instead.
 
 ---
 
