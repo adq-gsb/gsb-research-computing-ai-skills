@@ -1,5 +1,5 @@
 #!/bin/bash
-# Demo 3/4 — "Cores, Jobs, or Both": MANY JOBS, ONE CORE EACH.
+# Demo 3/4 — "Ways to Parallelize": MANY JOBS, ONE CORE EACH.
 # A job array: the scheduler launches one independent job per array task
 # (possibly on different nodes), and each task works its own slice of the
 # filings serially on a single core. Parallelism across jobs: SLURM splits

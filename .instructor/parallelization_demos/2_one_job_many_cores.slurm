@@ -1,5 +1,5 @@
 #!/bin/bash
-# Demo 2/4 — "Cores, Jobs, or Both": ONE JOB, MANY CORES.
+# Demo 2/4 — "Ways to Parallelize": ONE JOB, MANY CORES.
 # One SLURM job that reserves 2 cores; xargs -P fans the filings out across
 # them *inside* the job. Parallelism within a job: your code splits the work,
 # not the scheduler.

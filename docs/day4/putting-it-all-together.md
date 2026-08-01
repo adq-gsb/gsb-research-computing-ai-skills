@@ -70,10 +70,7 @@ Every row in this table is a tool you used this week and where you learned it �
 
 ## 📊 Final Sync
 
-This is the last sync — make it count.
-
-{: .note }
-> 🔄 **Keep the leaderboard live.** In your terminal on the Yens, inside `~/gsb-research-computing-ai-skills` — start Claude Code with `claude` if it isn't already running — tell it: "Look at the `DAYS` list in `docs/assets/js/quest-log.js` for the exact `room.key` names for Day 4, and in `quest_log.json` at my repo root (create it if missing) set to `true` every key for what I finished today — [list what you completed, e.g. the parallelization and SLURM-arrays quests, the array exercise, running an LLM, and this capstone]. Before pushing, run `git remote -v` and confirm `origin` is my own fork (`{{ site.data.site_meta.github_owner }}/gsb-research-computing-ai-skills`), not the class repo `gsbdarc/gsb-research-computing-ai-skills` — if it points to the class repo, stop and tell me. Then commit and push to `main`." Claude runs the `git add`/`commit`/`push` for you — same `main` branch you've been pushing to all along.
+This is the last sync — make it count. Go back through Day 4 and check any quests you finished but didn't tick, then run the `./cast` spell from the **🔮 Cast to the leaderboard** button on the last one you checked — each spell carries your running total, so the most recent cast is the one that counts.
 
 The leaderboard updates within a couple of minutes — this is your final rank.
 

@@ -31,10 +31,10 @@ mostly have a single checkbox each — `running-llms.md` is the exception
   100 filings) as a hands-on side quest; deliberately fail a task and re-run to see
   the skip-if-exists resilience in action; a further GPU side quest.
 - Add per-Part checkpoints (e.g. a checkbox after each Part of the array exercise).
-- Register any new keys under the relevant `d4-*` rooms in `quest-log.js`, and attach
-  the "🔄 Keep the leaderboard live" sync prompt to each new checkpoint.
-  (`TOTAL_CHECKS` is derived from the registry, so new keys are counted
-  automatically — but keep `leaderboard.md`'s `TOTAL` in sync.)
+- Register any new keys under the relevant `d4-*` rooms in `quest-log.js`. Nothing
+  else to attach: `quest-log.js` injects the 🔮 Cast button under every checkbox
+  automatically, and `leaderboard.md`'s `TOTAL` derives from
+  `docs/_data/quest_keys.json` — regenerate it with `node .instructor/gen_quest_keys.js`.
 
 ---
 

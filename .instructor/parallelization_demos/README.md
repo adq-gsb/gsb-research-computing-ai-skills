@@ -1,7 +1,7 @@
 # Parallelization demos (instructor)
 
 Four SLURM scripts mapping 1:1 to the diagrams in the Day 4
-["Cores, Jobs, or Both"](../../docs/day4/parallelization.md) section.
+["Ways to Parallelize"](../../docs/day4/parallelization.md) section.
 Each extracts the SEC filings in `data/sec_filings/` with
 `scripts/extract_form_3_cli.py`, varying only *how* the work is spread.
 

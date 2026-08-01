@@ -1,5 +1,5 @@
 #!/bin/bash
-# Demo 1/4 — "Cores, Jobs, or Both": ONE JOB, ONE CORE.
+# Demo 1/4 — "Ways to Parallelize": ONE JOB, ONE CORE.
 # The serial baseline from Day 3: one SLURM job, one core, a for loop.
 # The loop can't start filing 2 until filing 1 is done.
 #

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Demo 4/4 — "Cores, Jobs, or Both": MANY JOBS, MANY CORES.
+# Demo 4/4 — "Ways to Parallelize": MANY JOBS, MANY CORES.
 # Both dials at once: a job array (parallel across jobs) where each task also
 # reserves 2 cores and fans its slice out across them with xargs -P
 # (parallel within each job).

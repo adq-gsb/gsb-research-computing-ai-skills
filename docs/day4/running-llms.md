@@ -97,9 +97,6 @@ Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler 
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="main"> I know why LLMs need a GPU and how to request one on the Yens</label>
 
-{: .note }
-> 🔄 **Keep the leaderboard live.** In your terminal on the Yens, inside `~/gsb-research-computing-ai-skills` — start Claude Code with `claude` if it isn't already running — tell it: "Set `d4-running-llms.main` to `true` in `quest_log.json` at my repo root (create it if missing). Before pushing, run `git remote -v` and confirm `origin` is my own fork (`{{ site.data.site_meta.github_owner }}/gsb-research-computing-ai-skills`), not the class repo `gsbdarc/gsb-research-computing-ai-skills` — if it points to the class repo, stop and tell me. Then commit and push to `main`." Claude runs the `git add`/`commit`/`push` for you — same `main` branch you've been pushing to all along.
-
 ---
 
 ## Exercise: Run a Model on a GPU
@@ -136,9 +133,6 @@ Switching between a local model, the Playground, and a third-party API is just a
 > The model runs entirely on the Yens — your prompts and data never leave the cluster. That's the privacy point from the last section, made real.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="exercise"> Exercise complete — pulled an open model on a GPU and queried it</label>
-
-{: .note }
-> 🔄 **Keep the leaderboard live.** In your terminal on the Yens, inside `~/gsb-research-computing-ai-skills` — start Claude Code with `claude` if it isn't already running — tell it: "Set `d4-running-llms.exercise` to `true` in `quest_log.json` at my repo root (create it if missing). Before pushing, run `git remote -v` and confirm `origin` is my own fork (`{{ site.data.site_meta.github_owner }}/gsb-research-computing-ai-skills`), not the class repo `gsbdarc/gsb-research-computing-ai-skills` — if it points to the class repo, stop and tell me. Then commit and push to `main`." Claude runs the `git add`/`commit`/`push` for you — same `main` branch you've been pushing to all along.
 
 ---
 
@@ -192,9 +186,6 @@ tail -f logs/gpu_job_JOBID.out
 > `torch`, or PyTorch, is one of the canonical deep-learning libraries that LLMs are architected in — which makes it a natural way to confirm the GPU is usable from Python. **CUDA** is NVIDIA's software layer that lets ordinary code run on its GPUs; `CUDA available: True` means PyTorch can actually reach the GPU.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="side1"> Optional Practice complete — submitted a GPU job and confirmed it ran on a GPU</label>
-
-{: .note }
-> 🔄 **Keep the leaderboard live.** In your terminal on the Yens, inside `~/gsb-research-computing-ai-skills` — start Claude Code with `claude` if it isn't already running — tell it: "Set `d4-running-llms.side1` to `true` in `quest_log.json` at my repo root (create it if missing). Before pushing, run `git remote -v` and confirm `origin` is my own fork (`{{ site.data.site_meta.github_owner }}/gsb-research-computing-ai-skills`), not the class repo `gsbdarc/gsb-research-computing-ai-skills` — if it points to the class repo, stop and tell me. Then commit and push to `main`." Claude runs the `git add`/`commit`/`push` for you — same `main` branch you've been pushing to all along.
 
 ---
 
