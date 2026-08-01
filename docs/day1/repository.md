@@ -20,24 +20,24 @@ Version control tracks every change you make to a project — who changed what, 
 
 **GitHub** is a website that hosts git repositories in the cloud. It's where you share, back up, and submit your work.
 
-<svg viewBox="0 0 660 176" role="img" aria-labelledby="gd1-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:660px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+<svg viewBox="0 0 760 176" role="img" aria-labelledby="gd1-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:680px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="gd1-title">Git saves snapshots on your machine; GitHub stores them in the cloud. You push commits up to your fork and pull updates back down.</title>
   <defs>
     <marker id="gd1-ah" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#e67e22"/></marker>
   </defs>
-  <rect x="14" y="30" width="276" height="116" rx="14" fill="#fff8ef" stroke="#e6cfa8" stroke-width="1.5"/>
+  <rect x="14" y="30" width="330" height="116" rx="14" fill="#fff8ef" stroke="#e6cfa8" stroke-width="1.5"/>
   <text x="34" y="63" font-size="15" font-weight="700" fill="#2c3e50">💻  Your machine · the Yens</text>
   <text x="34" y="92" font-size="12.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#c0561a">git add · git commit</text>
   <text x="34" y="117" font-size="12.5" fill="#6a7280">saves snapshots locally</text>
-  <rect x="370" y="30" width="276" height="116" rx="14" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <g transform="translate(390,50) scale(1.05)"><path fill="#2c3e50" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></g>
-  <text x="414" y="63" font-size="15" font-weight="700" fill="#2c3e50">GitHub · the cloud</text>
-  <text x="390" y="92" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#33415c">YOUR_USERNAME/gsb-research-computing-ai-skills</text>
-  <text x="390" y="117" font-size="12.5" fill="#6a7280">your fork — backup &amp; submission</text>
-  <line x1="294" y1="76" x2="364" y2="76" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd1-ah)"/>
-  <text x="330" y="66" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b3611a">push</text>
-  <line x1="366" y1="100" x2="296" y2="100" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd1-ah)"/>
-  <text x="330" y="118" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b3611a">pull</text>
+  <rect x="416" y="30" width="330" height="116" rx="14" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <g transform="translate(436,50) scale(1.05)"><path fill="#2c3e50" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></g>
+  <text x="460" y="63" font-size="15" font-weight="700" fill="#2c3e50">GitHub · the cloud</text>
+  <text x="436" y="92" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#33415c">YOUR_USERNAME/gsb-research-computing-ai-skills</text>
+  <text x="436" y="117" font-size="12.5" fill="#6a7280">your fork — backup &amp; submission</text>
+  <line x1="348" y1="76" x2="412" y2="76" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd1-ah)"/>
+  <text x="380" y="66" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b3611a">push</text>
+  <line x1="414" y1="100" x2="350" y2="100" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd1-ah)"/>
+  <text x="380" y="118" text-anchor="middle" font-size="12.5" font-weight="600" fill="#b3611a">pull</text>
 </svg>
 
 Git saves your work as **commits** — snapshots of your whole project at a moment in time, each with a short message describing what changed. Your history is a chain of these snapshots, and you can return to any earlier one at any time.
@@ -87,33 +87,33 @@ A **branch** is a **git** feature that lets you build a *separate* line of commi
 
 The workflow for this course:
 
-<svg viewBox="0 0 680 392" role="img" aria-labelledby="gd2-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:680px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
+<svg viewBox="0 0 786 392" role="img" aria-labelledby="gd2-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:680px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="gd2-title">Three steps. Step 1, fork the shared course repo to your own GitHub account. Step 2, clone your fork down to the Yens, where you work. Step 3, push your finished work back up to your fork.</title>
   <defs>
     <marker id="gd2-ah" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#e67e22"/></marker>
   </defs>
   <!-- GitHub band -->
-  <rect x="12" y="40" width="656" height="138" rx="16" fill="#f7f9fc" stroke="#d3ddec" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <g transform="translate(32,56) scale(0.82)"><path fill="#8a94a6" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></g>
-  <text x="50" y="66" font-size="12" font-weight="700" letter-spacing="0.6" fill="#8a94a6">ON GITHUB · THE CLOUD</text>
-  <rect x="30" y="82" width="250" height="80" rx="12" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="50" y="116" font-size="15" font-weight="700" fill="#2c3e50">Course repo</text>
-  <text x="50" y="142" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">gsbdarc/gsb-research-computing-ai-skills</text>
-  <rect x="404" y="82" width="250" height="80" rx="12" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="424" y="116" font-size="15" font-weight="700" fill="#2c3e50">Your fork</text>
-  <text x="424" y="142" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">YOUR_USERNAME/gsb-research-computing-ai-skills</text>
-  <line x1="288" y1="122" x2="398" y2="122" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd2-ah)"/>
-  <text x="343" y="111" text-anchor="middle" font-size="13" font-weight="700" fill="#b3611a">① fork</text>
+  <rect x="8" y="40" width="770" height="138" rx="16" fill="#f7f9fc" stroke="#d3ddec" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <g transform="translate(28,56) scale(0.82)"><path fill="#8a94a6" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></g>
+  <text x="46" y="66" font-size="12" font-weight="700" letter-spacing="0.6" fill="#8a94a6">ON GITHUB · THE CLOUD</text>
+  <rect x="24" y="82" width="332" height="80" rx="12" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <text x="44" y="116" font-size="15" font-weight="700" fill="#2c3e50">Course repo</text>
+  <text x="44" y="142" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">gsbdarc/gsb-research-computing-ai-skills</text>
+  <rect x="430" y="82" width="332" height="80" rx="12" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
+  <text x="450" y="116" font-size="15" font-weight="700" fill="#2c3e50">Your fork</text>
+  <text x="450" y="142" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">YOUR_USERNAME/gsb-research-computing-ai-skills</text>
+  <line x1="364" y1="122" x2="424" y2="122" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd2-ah)"/>
+  <text x="393" y="111" text-anchor="middle" font-size="13" font-weight="700" fill="#b3611a">① fork</text>
   <!-- Yens band -->
-  <rect x="336" y="250" width="332" height="126" rx="16" fill="#fffaf2" stroke="#ecdcc0" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <rect x="404" y="262" width="250" height="76" rx="12" fill="#fff8ef" stroke="#e6cfa8" stroke-width="1.5"/>
-  <text x="424" y="294" font-size="15" font-weight="700" fill="#2c3e50">Your working copy</text>
-  <text x="424" y="320" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#b5561f">edit → git add → git commit</text>
-  <text x="356" y="362" font-size="12" font-weight="700" letter-spacing="0.6" fill="#b09668">💻  ON THE YENS · WHERE YOU WORK</text>
-  <line x1="560" y1="164" x2="560" y2="260" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd2-ah)"/>
-  <text x="597" y="219" text-anchor="middle" font-size="13" font-weight="700" fill="#b3611a">② clone</text>
-  <line x1="458" y1="260" x2="458" y2="164" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd2-ah)"/>
-  <text x="423" y="219" text-anchor="middle" font-size="13" font-weight="700" fill="#b3611a">③ push</text>
+  <rect x="360" y="250" width="418" height="126" rx="16" fill="#fffaf2" stroke="#ecdcc0" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <rect x="430" y="262" width="332" height="76" rx="12" fill="#fff8ef" stroke="#e6cfa8" stroke-width="1.5"/>
+  <text x="450" y="294" font-size="15" font-weight="700" fill="#2c3e50">Your working copy</text>
+  <text x="450" y="320" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#b5561f">edit → git add → git commit</text>
+  <text x="382" y="362" font-size="12" font-weight="700" letter-spacing="0.6" fill="#b09668">💻  ON THE YENS · WHERE YOU WORK</text>
+  <line x1="662" y1="164" x2="662" y2="260" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd2-ah)"/>
+  <text x="699" y="219" text-anchor="middle" font-size="13" font-weight="700" fill="#b3611a">② clone</text>
+  <line x1="530" y1="260" x2="530" y2="164" stroke="#e67e22" stroke-width="2.5" marker-end="url(#gd2-ah)"/>
+  <text x="493" y="219" text-anchor="middle" font-size="13" font-weight="700" fill="#b3611a">③ push</text>
 </svg>
 
 *Three numbered steps: **① fork** — make your own copy of the course repo on GitHub · **② clone** — download that copy to the Yens, where you actually work · **③ push** — send your finished work back up to your fork.*
@@ -155,14 +155,20 @@ Your work in this course is tracked in your version history. Set up your copy of
 
 **Step 1 — Fork the course repo, and build your site**
 
-A **fork** is your own copy of the course repo, living under your GitHub account. Go to the [course repo on GitHub](https://github.com/gsbdarc/gsb-research-computing-ai-skills) and click **Fork** in the top-right corner to create it.
+A **fork** is your own copy of the course repo, living under your GitHub account. GitHub deliberately switches a few things *off* on a new fork, so turning your fork into a working course site takes five clicks in a particular order. Do all of them now:
 
-Now turn your fork into your personal course site:
+1. **Fork the repo.** Go to the [course repo on GitHub](https://github.com/gsbdarc/gsb-research-computing-ai-skills) and click **Fork** in the top-right corner.
+2. **Turn on Issues.** On your fork: **Settings → General → Features → tick *Issues***. A fork starts with its issue tracker switched off, and you'll be logging issues later today — both the `github-for-research` skill and the Day 1 Challenge depend on it.
+3. **Turn on Actions.** Open the **Actions** tab on your fork. It says *"Workflows aren't being run on this forked repository"* — click the green **"I understand my workflows, go ahead and enable them."** This is the step everyone misses, and nothing builds until you do it.
+4. **Turn on Pages.** **Settings → Pages → Source → GitHub Actions → Save.** (This tells GitHub *how* to publish; it does not lift the block in step 3, which is why both are needed.)
+5. **Build the site once by hand.** **Actions → Deploy Jekyll site to Pages → Run workflow.** Enabling Actions isn't retroactive, so the very first build needs a nudge. From here on, every change that lands on your `main` rebuilds the site automatically.
 
-- **Enable GitHub Pages:** on your fork, go to **Settings → Pages → Source → GitHub Actions → Save**.
-- **Open your site:** `https://YOUR-USERNAME.github.io/gsb-research-computing-ai-skills/`
+Then open your site: `https://YOUR-USERNAME.github.io/gsb-research-computing-ai-skills/`
 
-This is now *your* course site, where your progress and leaderboard position are tracked from here on. (It may take a minute to appear the first time.)
+This is now *your* course site, where your progress and leaderboard position are tracked from here on. (The first build takes a minute or two — watch it finish on the **Actions** tab.)
+
+{: .note }
+> **Leave the other workflow switched off.** Your fork also contains **Update leaderboard roster**. That one is for the *class* repo only — it would keep overwriting your copy of the class roster every ten minutes and collide with your own work. You don't need it: the leaderboard reads your progress directly from your fork, so `./cast` (Step 7) is all it takes to appear on it.
 
 **Step 2 — Clone to the Yens**
 
@@ -176,29 +182,40 @@ cd gsb-research-computing-ai-skills
 
 **Step 3 — Authenticate with GitHub (one time)**
 
-Pushing to your fork has to prove it's really you. The **GitHub CLI** (`gh`) sets this up once, and then git just works. On the Yens, load it and sign in:
+Pushing to your fork has to prove it's really you. You'll create a **Personal Access Token (PAT)** — a single-purpose password for the command line — and hand it to the **GitHub CLI** (`gh`) once. After that git just works. There's no browser on the Yens, so a token is the simplest way in.
+
+*Create the token — do this in your browser, on your laptop:*
+
+1. Open this pre-filled link: **[Create your token](https://github.com/settings/tokens/new?scopes=repo,workflow,read:org&description=yen-repo-workflow)**. It's a **classic** token with the three scopes you need already checked — **`repo`** (push to your fork), **`workflow`** (lets you push changes to the GitHub Actions files), and **`read:org`** (lets the GitHub CLI sign you in) — and named `yen-repo-workflow`.
+2. Set the **expiration** to **1 year** — long enough to reuse this token for your research work well beyond this course, with an automatic backstop if it's ever forgotten or leaked.
+3. Click **Generate token**, then **copy it right away** — GitHub shows it only once.
+
+> Treat the token like a password: don't commit it, don't paste it into a file, don't share it. If it ever leaks, delete it on GitHub and make a new one.
+
+*Give the token to `gh` — on the Yens:*
 
 ```bash
-module load gh     # make gh available on the Yens
-gh auth login      # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Login with a web browser
+ml gh-cli           # make gh available on the Yens
+gh auth login       # answer: GitHub.com → HTTPS → Authenticate Git → Yes → Paste an authentication token
+gh auth setup-git   # let gh remember the token so git never asks you again
 ```
 
-`gh` prints a **one-time code**. On your **laptop**, open [github.com/login/device](https://github.com/login/device), enter the code, and approve — the Yens have no browser, so you do this part from your laptop. That's it: `gh` configures git to use your GitHub login, so every `git push` from now on works without asking for a password.
+Paste the token when `gh auth login` asks. The `gh auth setup-git` step then wires `gh` in as git's credential helper, so it hands over your token automatically on every `git push` — no browser, no device code, and no password prompt, now or in future sessions.
 
 <details markdown="1">
 <summary>Setting up <code>gh</code> on your own laptop</summary>
 
-You'll want `gh` on your laptop too (for the Claude Code work later). Install it, then run the same `gh auth login`:
+You'll want `gh` on your laptop too (for the Claude Code work later). Install it, then run the same `gh auth login` and paste the **same token**:
 
 - **macOS** (Homebrew): `brew install gh`
 - **Windows** (in PowerShell — then it's usable from Git Bash too): `winget install --id GitHub.cli`
 - **Linux** / other: see the [official instructions](https://github.com/cli/cli#installation)
 
 ```bash
-gh auth login    # GitHub.com → HTTPS → Login with a web browser
+gh auth login    # GitHub.com → HTTPS → Paste an authentication token
 ```
 
-On a laptop `gh` can open the browser for you automatically.
+(On a laptop you *can* instead choose "Login with a web browser" — but the token works everywhere, so reusing it is one less thing to think about.)
 
 </details>
 
@@ -222,14 +239,31 @@ git commit -m "Add my first commit from Day 1"
 
 **Step 6 — Push to your fork**
 
-**Pushing** sends your saved snapshots up to your fork on GitHub — where your site updates and, later, your submitted work can be checked.
+**Pushing** sends your saved snapshots up to your fork on GitHub — where they're backed up and, later, where your submitted work can be checked.
 
 ```bash
 git push -u origin experiment
 ```
 
+{: .note }
+> This pushes your **branch**, which is not the same as updating your site. The site rebuilds only when your fork's `main` changes — which happens when you cast a spell (Step 7) or merge a pull request. An experiment on a branch leaves the published site alone, which is exactly the point of branching.
+
 {: .important }
 > Every day's challenge is submitted the same way — a `git push` to your fork. Come back to these steps whenever you need to submit work.
+
+**Step 7 — Ready your spell-caster (one time)**
+
+Your fork ships with a small program called `cast` — your spell-caster for recording quest progress to the leaderboard. Make it executable, once, from your repo root:
+
+```bash
+chmod +x cast
+```
+
+From now on, whenever you check off a quest the site reveals a one-line spell beneath it — run it from your repo root to update your standing:
+
+```bash
+./cast <spell>
+```
 
 <label class="quest-check"><input type="checkbox" data-room="d1-repository" data-key="main"> Exercise complete</label>
 

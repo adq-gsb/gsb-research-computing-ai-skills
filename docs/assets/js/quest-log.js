@@ -1,3 +1,8 @@
+---
+# Front matter makes Jekyll process this file through Liquid so the sync-token
+# wordlist can be injected from docs/_data/spell_words.json (see SPELL_WORDS
+# below). Keep this file free of `{{` and `{%` sequences other than that one.
+---
 /* DARC Dungeon — Quest Log
  * Persists checkbox state across pages via localStorage.
  * Shows a floating widget with completion count.
@@ -6,6 +11,11 @@
 
 (function () {
   'use strict';
+
+  // Spell wordlist for the sync token — injected at build time from the single
+  // source of truth docs/_data/spell_words.json (the cast program reads the
+  // same file to decode). 256 words → one word per byte.
+  var SPELL_WORDS = {{ site.data.spell_words | jsonify }};
 
   const STORAGE_KEY = 'dungeon.v1.progress';
 
@@ -21,13 +31,14 @@
       label: 'Day 1 — The Gatehouse',
       prefix: 'd1',
       rooms: [
+        { id: 'd1-intro',                keys: ['party'] },
         { id: 'd1-command-spire',       keys: ['main'] },
         { id: 'd1-grimoire-vault',       keys: ['main', 'side1'] },
         { id: 'd1-ssh-gate',             keys: ['main', 'side1'] },
         { id: 'd1-cartographers-room',   keys: ['main'] },
         { id: 'd1-scroll-transfer',      keys: ['main'] },
         { id: 'd1-repository',           keys: ['main'] },
-        { id: 'd1-familiars-den',        keys: ['main', 'skill', 'side1'] },
+        { id: 'd1-familiars-den',        keys: ['main', 'skill', 'repo', 'side1'] },
         { id: 'd1-boss-gate-1',           keys: ['main'] },
       ],
     },
@@ -48,13 +59,14 @@
       label: 'Day 3 — Cluster Computing',
       prefix: 'd3',
       rooms: [
-        { id: 'd3-kitchen',         keys: ['main', 'side1', 'side2'] },
-        { id: 'd3-head-chef',       keys: ['mystery', 'main', 'readme', 'side2', 'side3', 'side4', 'side5', 'side6', 'side7'] },
-        { id: 'd3-data-mine',       keys: ['main', 'side1', 'side3', 'side5'] },
-        { id: 'd3-foremans-desk',   keys: ['main', 'submit', 'side1', 'side2', 'side3', 'side4'] },
-        { id: 'd3-watch-tower',     keys: ['main', 'side1', 'side2', 'side3', 'side4', 'side5'] },
-        { id: 'd3-chronicle',       keys: ['main', 'side1', 'side2'] },
-        { id: 'd3-boss-gate',       keys: ['commit', 'side1'] },
+        { id: 'd3-compute-environments', keys: ['main', 'side1', 'side2'] },
+        { id: 'd3-profiling',            keys: ['mystery', 'readme', 'side2', 'side6', 'side7'] },
+        { id: 'd3-cluster-usage-data',   keys: ['main', 'side3', 'side5'] },
+        { id: 'd3-slurm-scheduler',      keys: ['main', 'side3', 'side4', 'side5'] },
+        { id: 'd3-slurm-job',            keys: ['main', 'submit', 'side1', 'side2', 'side3', 'side4', 'side5', 'debug', 'debug2', 'debug3', 'debug4'] },
+        { id: 'd3-slurm-with-claude',    keys: ['global', 'project', 'side1'] },
+        { id: 'd3-documenting-pipeline', keys: ['main', 'side1'] },
+        { id: 'd3-capstone',             keys: ['commit'] },
       ],
     },
     {
@@ -100,7 +112,7 @@
   }
 
   // Canonical, ordered list of every quest key, derived from DAYS. MUST match
-  // scripts/quest_keys.json (read by scripts/quest_sync.py); regenerate that
+  // docs/_data/quest_keys.json (read by the cast program); regenerate that
   // file with `node .instructor/gen_quest_keys.js` after changing DAYS.
   function orderedKeys() {
     var keys = [];
@@ -112,7 +124,7 @@
     return keys;
   }
 
-  // FNV-1a (32-bit) over the joined key list, as hex. Lets quest_sync.py detect
+  // FNV-1a (32-bit) over the joined key list, as hex. Lets the cast program detect
   // a token built from a different site version than the clone has.
   function keyListHash(keys) {
     var s = keys.join(',');
@@ -124,24 +136,192 @@
     return h.toString(16);
   }
 
-  // Encode completed quests as a compact, fixed-size, paste-safe token:
-  // version "1", a hash of the key list, and a base64url bitfield (one bit per
-  // canonical key). scripts/quest_sync.py decodes it on the Yens.
+  // quest_log.json keys that mark each day's boss gate (capstone) complete —
+  // must match BOSS_GATE_KEYS in docs/leaderboard.md.
+  var BOSS_GATE_KEYS = [
+    'd1-boss-gate-1.main',
+    'd2-boss-gate.commit',
+    'd3-capstone.commit',
+    'd4-boss-gate.commit'
+  ];
+
+  // Encode progress as a short 3-word "spell": [completed count, capstone count,
+  // seal]. The leaderboard only needs those two numbers, so the spell stays a
+  // short incantation. The seal (key-list hash byte folded in with the counts)
+  // lets the cast program reject a stale-version or mistyped spell; the
+  // per-position offset keeps a zero byte from always rendering as the same word.
   function encodeProgress() {
     var progress = loadProgress();
     var keys = orderedKeys();
-    var bytes = new Uint8Array(Math.ceil(keys.length / 8));
     var count = 0;
     for (var i = 0; i < keys.length; i++) {
-      if (progress[keys[i]] === true) {
-        bytes[i >> 3] |= (1 << (i & 7));
-        count++;
+      if (progress[keys[i]] === true) count++;
+    }
+    var bossCount = 0;
+    for (var b = 0; b < BOSS_GATE_KEYS.length; b++) {
+      if (progress[BOSS_GATE_KEYS[b]] === true) bossCount++;
+    }
+    var hashByte = parseInt(('0000000' + keyListHash(keys)).slice(-8).slice(0, 2), 16);
+    var seal = (count + bossCount + hashByte) & 255;
+    var bytes = [count & 255, bossCount & 255, seal];
+    var spell = bytes.map(function (x, i) { return SPELL_WORDS[(x + i * 17) & 255]; }).join('-');
+    return { token: spell, count: count };
+  }
+
+  // Rooms that come before the cast setup on Day 1 (Version Control with Git):
+  // students haven't forked, cloned, or made `cast` executable yet, so the
+  // "Cast to the leaderboard" prompt would point at a command they can't run.
+  // Derived from the DAYS order so it stays correct if rooms are reordered.
+  var PRE_CAST_ROOMS = (function () {
+    var set = {};
+    var day1 = DAYS[0].rooms;
+    for (var i = 0; i < day1.length; i++) {
+      if (day1[i].id === 'd1-repository') break;  // setup happens here
+      set[day1[i].id] = true;
+    }
+    return set;
+  })();
+
+  // Per-checkbox sync affordance: once a quest box is checked, a "Cast to the
+  // leaderboard" button appears beneath it; clicking reveals the current incantation
+  // plus a Copy button. The incantation is the same site-wide (total + capstones)
+  // and refreshed live so a revealed command never goes stale.
+  function buildSyncCommand() {
+    return './cast ' + encodeProgress().token;
+  }
+
+  function ensureSyncAffordance(label) {
+    var box = label.nextElementSibling;
+    if (box && box.classList && box.classList.contains('quest-sync-inline')) return box;
+
+    box = document.createElement('div');
+    box.className = 'quest-sync-inline';
+
+    var reveal = document.createElement('span');
+    reveal.className = 'quest-cmd-reveal';
+
+    var wand = document.createElement('span');
+    wand.className = 'quest-cmd-wand';
+    wand.setAttribute('aria-hidden', 'true');
+    // Inline SVG magic wand (bold + high-contrast, unlike the thin emoji).
+    wand.innerHTML =
+      '<svg viewBox="0 0 24 24" width="1em" height="1em" focusable="false" aria-hidden="true">' +
+        '<path d="M4 20 L14 10" stroke="#6d28d9" stroke-width="2.6" stroke-linecap="round" fill="none"/>' +
+        '<path d="M17 2.6 l1.15 3.25 3.25 1.15 -3.25 1.15 -1.15 3.25 -1.15 -3.25 -3.25 -1.15 3.25 -1.15 z" fill="#7c3aed"/>' +
+        '<path d="M7 4.5 l0.6 1.65 1.65 0.6 -1.65 0.6 -0.6 1.65 -0.6 -1.65 -1.65 -0.6 1.65 -0.6 z" fill="#a855f7"/>' +
+        '<path d="M20 13.5 l0.5 1.45 1.45 0.5 -1.45 0.5 -0.5 1.45 -0.5 -1.45 -1.45 -0.5 1.45 -0.5 z" fill="#a855f7"/>' +
+      '</svg>';
+
+    var code = document.createElement('code');
+    code.className = 'quest-cmd';
+
+    var copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'quest-cmd-copy';
+    copy.textContent = 'Copy';
+
+    reveal.appendChild(wand);
+    reveal.appendChild(code);
+    reveal.appendChild(copy);
+    box.appendChild(reveal);
+
+    // Always copy the full, current spell — even if clicked mid-animation.
+    copy.addEventListener('click', function () {
+      try { navigator.clipboard.writeText(buildSyncCommand()); } catch (_) {}
+      copy.textContent = 'Copied ✓';
+      setTimeout(function () { copy.textContent = 'Copy'; }, 1500);
+    });
+
+    label.insertAdjacentElement('afterend', box);
+    return box;
+  }
+
+  // Scatter a short-lived burst of sparkles over an element.
+  function sprinkleSparkles(host) {
+    var GLYPHS = ['✨', '⭐', '🌟', '💫', '✦', '·'];
+    var layer = document.createElement('span');
+    layer.className = 'quest-spark-layer';
+    for (var s = 0; s < 12; s++) {
+      var sp = document.createElement('span');
+      sp.className = 'quest-spark';
+      sp.textContent = GLYPHS[s % GLYPHS.length];
+      sp.style.left = (2 + Math.random() * 94) + '%';
+      sp.style.top = (Math.random() * 70) + '%';
+      sp.style.fontSize = (0.55 + Math.random() * 0.8) + 'rem';
+      sp.style.animationDelay = (Math.random() * 0.6).toFixed(2) + 's';
+      layer.appendChild(sp);
+    }
+    host.appendChild(layer);
+    setTimeout(function () { if (layer.parentNode) layer.parentNode.removeChild(layer); }, 1800);
+  }
+
+  // Reveal the incantation with a "magical" typewriter, glow, sparkles, and a
+  // finishing light-sweep. On page load (animate === false) or when the visitor
+  // prefers reduced motion, show it at once.
+  function castReveal(box, animate) {
+    var code = box.querySelector('code.quest-cmd');
+    if (!code) return;
+    var text = buildSyncCommand();
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    clearInterval(code._castTimer);
+    code.classList.remove('cast-flash');
+    if (!animate || reduce) {
+      code.classList.remove('casting');
+      code.textContent = text;
+      return;
+    }
+    // Restart the entrance fade so re-checking always animates.
+    box.classList.remove('casting-in');
+    void box.offsetWidth;
+    box.classList.add('casting-in');
+    code.classList.add('casting');
+    code.textContent = '';
+    var reveal = box.querySelector('.quest-cmd-reveal') || box;
+    sprinkleSparkles(reveal);
+    var i = 0;
+    code._castTimer = setInterval(function () {
+      i += 1;
+      code.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        clearInterval(code._castTimer);
+        code.classList.remove('casting');
+        // A quick light-sweep as the spell "lands," plus a second sparkle puff.
+        void code.offsetWidth;
+        code.classList.add('cast-flash');
+        sprinkleSparkles(reveal);
+        setTimeout(function () { code.classList.remove('cast-flash'); }, 800);
+      }
+    }, 34);
+  }
+
+  // Show/hide the sync affordance under a checkbox as it is checked/unchecked.
+  function toggleSyncAffordance(label, checked, animate) {
+    if (!label) return;
+    // No cast prompt before the setup page — they can't cast yet.
+    var cb = label.querySelector('input[data-room]');
+    if (cb && PRE_CAST_ROOMS[cb.getAttribute('data-room')]) return;
+    if (checked) {
+      var box = ensureSyncAffordance(label);
+      box.style.display = '';
+      castReveal(box, animate !== false);
+    } else {
+      var box = label.nextElementSibling;
+      if (box && box.classList && box.classList.contains('quest-sync-inline')) {
+        box.style.display = 'none';
       }
     }
-    var bin = '';
-    for (var j = 0; j < bytes.length; j++) bin += String.fromCharCode(bytes[j]);
-    var b64 = btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-    return { token: '1.' + keyListHash(keys) + '.' + b64, count: count };
+  }
+
+  // Keep any already-revealed command current as more boxes are ticked.
+  // Skip a box that is mid-animation so we don't cut its typewriter short.
+  function updateRevealedSpells() {
+    var cmd = buildSyncCommand();
+    var boxes = document.querySelectorAll('.quest-sync-inline');
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].style.display === 'none') continue;
+      var c = boxes[i].querySelector('code.quest-cmd');
+      if (c && !c.classList.contains('casting')) c.textContent = cmd;
+    }
   }
 
   // ── Checkbox sync ─────────────────────────────────────────────────────────
@@ -159,7 +339,7 @@
       if (progress[sk]) {
         cb.checked = true;
         var label = cb.closest('.quest-check');
-        if (label) label.classList.add('done');
+        if (label) { label.classList.add('done'); toggleSyncAffordance(label, true, false); }
       }
 
       // Save on change
@@ -176,6 +356,8 @@
         if (label) label.classList.toggle('done', cb.checked);
 
         renderQuestLog();
+        toggleSyncAffordance(label, cb.checked);
+        updateRevealedSpells();
       });
     });
   }
@@ -262,15 +444,7 @@
       '#quest-sunet .quest-sunet-val{font-weight:700;}' +
       '#quest-sunet .quest-sunet-edit{border:none;background:none;padding:0;margin-left:auto;' +
         'color:#8a5a12;text-decoration:underline;font-size:.78rem;}' +
-      '#quest-sunet .quest-sunet-edit:hover{background:none;color:#5b3a08;}' +
-      '#quest-sync{margin-top:.5rem;padding-top:.5rem;border-top:1px solid rgba(0,0,0,.12);font-size:.82rem;}' +
-      '#quest-sync .quest-sync-go{font:inherit;cursor:pointer;border:1px solid #d9b477;background:#fff;border-radius:6px;padding:.25rem .6rem;font-weight:700;}' +
-      '#quest-sync .quest-sync-go:hover{background:#f3e6cf;}' +
-      '#quest-sync .quest-sync-hint{color:#6a7280;font-size:.72rem;display:block;margin:.3rem 0 .15rem;}' +
-      '#quest-sync textarea{width:100%;box-sizing:border-box;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.7rem;border:1px solid #d9b477;border-radius:6px;padding:.3rem;resize:none;}' +
-      '#quest-sync .quest-sync-row{display:flex;gap:.4rem;align-items:center;margin-top:.3rem;}' +
-      '#quest-sync .quest-sync-copy{font:inherit;cursor:pointer;border:1px solid #d9b477;background:#fff;border-radius:6px;padding:.15rem .55rem;}' +
-      '#quest-sync .quest-sync-copy:hover{background:#f3e6cf;}';
+      '#quest-sunet .quest-sunet-edit:hover{background:none;color:#5b3a08;}';
     var sunetStyle = document.createElement('style');
     sunetStyle.textContent = sunetCss;
     document.head.appendChild(sunetStyle);
@@ -298,41 +472,6 @@
     var list = document.createElement('ul');
     list.id = 'quest-log-list';
     panel.appendChild(list);
-
-    // ── Sync: encode progress into a token to paste into scripts/quest_sync.py ─
-    var sync = document.createElement('div');
-    sync.id = 'quest-sync';
-    sync.innerHTML = '<button type="button" class="quest-sync-go">🔄 Sync</button>';
-    panel.appendChild(sync);
-
-    function renderSync() {
-      var enc = encodeProgress();
-      var go = '<button type="button" class="quest-sync-go">🔄 Sync</button>';
-      if (!enc.count) {
-        sync.innerHTML = go + '<span class="quest-sync-hint">Complete a quest first, then sync.</span>';
-        return;
-      }
-      sync.innerHTML = go
-        + '<span class="quest-sync-hint">Copy your progress token, then paste it into the sync command shown on the page:</span>'
-        + '<textarea readonly rows="2"></textarea>'
-        + '<div class="quest-sync-row"><button type="button" class="quest-sync-copy">Copy token</button>'
-        + '<span class="quest-sync-hint" style="margin:0">' + enc.count + ' quest' + (enc.count === 1 ? '' : 's') + '</span></div>';
-      sync.querySelector('textarea').value = enc.token;
-    }
-    sync.addEventListener('click', function (e) {
-      var goBtn = e.target.closest ? e.target.closest('.quest-sync-go') : null;
-      var cpBtn = e.target.closest ? e.target.closest('.quest-sync-copy') : null;
-      if (!goBtn && !cpBtn) return;
-      e.stopPropagation();  // keep the panel's click-outside handler from closing us
-      if (goBtn) { renderSync(); return; }
-      var ta = sync.querySelector('textarea');
-      if (ta) {
-        ta.select();
-        try { navigator.clipboard.writeText(ta.value); } catch (_) { try { document.execCommand('copy'); } catch (__) {} }
-        cpBtn.textContent = 'Copied ✓';
-        setTimeout(function () { cpBtn.textContent = 'Copy'; }, 1500);
-      }
-    });
 
     // ── SUNet ID: fills the SUNetID placeholder in commands site-wide ────────
     var SUNET_KEY = 'bootcamp.sunetid';

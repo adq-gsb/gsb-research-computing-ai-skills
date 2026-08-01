@@ -10,7 +10,7 @@ permalink: /day1/cartographers-room/
 
 <div data-room-id="d1-cartographers-room"></div>
 
-This room covers how storage is organized on the Yens: where your files live, how much space you have, and what software is available. Knowing this early helps you avoid running out of quota mid-job or being unable to find the software you need.
+This section covers how storage is organized on the Yens: where your files live, how much space you have, and what software is available. Knowing this early helps you avoid running out of quota mid-job or being unable to find the software you need.
 
 ---
 
@@ -48,7 +48,7 @@ Before you work with data files, learn the layout: what storage is yours, how mu
   <!-- Scratch: NOT backed up -->
   <rect x="446" y="40" width="200" height="150" rx="14" fill="#fff8ef" stroke="#e6cfa8" stroke-width="1.5"/>
   <text x="462" y="74" font-size="14.5" font-weight="700" fill="#2c3e50">⚡  Scratch space</text>
-  <text x="462" y="98" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/scratch/shared/SUNetID/</text>
+  <text x="462" y="98" font-size="11" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/scratch/users/SUNetID/</text>
   <rect x="460" y="112" width="172" height="28" rx="8" fill="#fdeceb" stroke="#f0c3bd" stroke-width="1.5"/>
   <text x="546" y="131" text-anchor="middle" font-size="12" font-weight="700" fill="#c0392b">✕  NOT backed up</text>
   <text x="462" y="162" font-size="11" fill="#6a7280">huge &amp; fast</text>
@@ -59,9 +59,9 @@ Rule of thumb: the project itself — scripts, data, and outputs — lives in **
 
 {: .note }
 > **How to organize your work on the Yens:**
-> - **A project — its scripts, data, and outputs → `/yen/projects/your_project/`.** This is the shared, backed-up home for the project itself; keep raw data and outputs in **separate subfolders** (e.g. `data/` and `output/`) so they never get mixed up. Access is controlled by the project's **workgroup**: everyone in it can read and write, which is how you, your PI, and collaborators share the same files. You may belong to **several** project workgroups at once, each with its own folder under `/yen/projects/`. See [Workgroups](https://rcpedia.stanford.edu/_policies/workgroups/) on RCpedia for who gets access and how it's managed.
+> - **A project — its scripts, data, and outputs → `/yen/projects/faculty/your_project/`.** This is the shared, backed-up home for the project itself; keep raw data and outputs in **separate subfolders** (e.g. `data/` and `output/`) so they never get mixed up. Access is controlled by the project's **workgroup**: everyone in it can read and write, which is how you, your PI, and collaborators share the same files. You may belong to **several** project workgroups at once, each with its own folder under `/yen/projects/faculty/` (or `/yen/projects/students/`). See [Workgroups](https://rcpedia.stanford.edu/_policies/workgroups/) on RCpedia for who gets access and how it's managed.
 > - **Personal files → your home, `/home/users/SUNetID/`.** Things that are yours, not any one project's: authentication tokens, R or shell preferences, quick one-off experiments. Backed up, and only you can see it.
-> - **Large, temporary things → `/scratch/shared/SUNetID/`.** Fast and roomy, but **not backed up** and periodically cleared. Use it for things you don't need to keep or that won't fit in your quota — a big public dataset you're exploring, or an LLM you're testing out. Copy anything worth keeping back to `/yen/projects/`.
+> - **Large, temporary things → `/scratch/users/SUNetID/`.** Fast and roomy, but **not backed up** and periodically cleared. Use it for things you don't need to keep or that won't fit in your quota — a big public dataset you're exploring, or an LLM you're testing out. Copy anything worth keeping back to `/yen/projects/`.
 
 **Local disk: `/tmp`**
 
@@ -72,7 +72,7 @@ Two things to know about `/tmp`: it's **private to that node** (a file at `/tmp`
 **Check your quota:**
 ```bash
 gsbquota                             # shows home and scratch usage for your account
-gsbquota /yen/projects/your_project  # append a path to check a project folder's usage
+gsbquota /yen/projects/faculty/your_project  # append a path to check usage for a project folder
 ```
 
 **Browse storage in a visual file manager:**
@@ -83,12 +83,19 @@ gsbbrowser                # opens an interactive file size browser in the termin
 
 **See what software modules are available:**
 ```bash
-module avail              # lists all available software modules
-module avail python       # filter by name
-module load python/3.11   # load a specific version (adjust to what's available)
-python --version          # confirm it loaded
-module list               # see what's currently loaded
-module unload python/3.11 # unload it
+module avail
+module avail python
+module load python/3.11
+python3 --version
+module list
+module unload python/3.11
 ```
+
+- `module avail` — list all available software modules
+- `module avail python` — filter that list by name
+- `module load python/3.11` — load a specific version (adjust to what's available)
+- `python3 --version` — confirm it loaded. Note it's `python3`, not `python` — on the Yens the plain `python` command does not exist
+- `module list` — see what's currently loaded
+- `module unload python/3.11` — unload it
 
 <label class="quest-check"><input type="checkbox" data-room="d1-cartographers-room" data-key="main"> Exercise complete</label>

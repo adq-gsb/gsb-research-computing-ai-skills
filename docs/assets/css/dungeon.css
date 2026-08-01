@@ -47,10 +47,9 @@
 
 /* ── Quest checkbox labels ── */
 .quest-check {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  display: block;
   margin: 0.5rem 0 0.75rem;
+  padding-left: 1.6em;
   font-style: italic;
   color: #555;
   font-size: 0.9em;
@@ -59,9 +58,264 @@
   width: 1.1em;
   height: 1.1em;
   cursor: pointer;
-  flex-shrink: 0;
+  margin-left: -1.6em;
+  margin-right: 0.5em;
+  vertical-align: -0.12em;
 }
 .quest-check.done { text-decoration: line-through; color: #999; }
+/* Inline code in a quest label renders upright (not italic) so it reads as a command */
+.quest-check code { font-style: normal; }
+
+/* Per-checkbox sync affordance: checking the box magically reveals the incantation */
+.quest-sync-inline { margin: -0.25rem 0 1rem 1.6rem; font-size: 1rem; }
+.quest-sync-inline code.quest-cmd {
+  font-size: 0.95em;
+  padding: 0.2rem 0.45rem;
+  color: #16203a;              /* high-contrast command text */
+  background: #eef1f8;
+  border: 1px solid #c7d0e4;
+}
+
+/* Sparkles float above the revealed line, so it needs a positioning context */
+.quest-cmd-reveal { position: relative; }
+
+/* The whole line fades/slides in, with a soft magical aura, when checked */
+.quest-sync-inline.casting-in { animation: cast-fade-in 0.5s ease both; }
+@keyframes cast-fade-in {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.98); }
+  60%  { opacity: 1; }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Magic-wand charm before the command — sits in a chip so it's easy to see,
+   but stays static and un-distracting */
+.quest-cmd-wand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7em;
+  height: 1.7em;
+  margin-right: 0.5rem;
+  font-size: 1.25em;
+  vertical-align: middle;
+  background: #f3e8ff;
+  border: 1px solid #c9a8f5;
+  border-radius: 50%;
+}
+.quest-cmd-wand svg { display: block; }
+
+/* While the spell is "typed": shifting rainbow glow + blinking caret */
+code.quest-cmd.casting {
+  color: #6b21a8;
+  animation: cast-glow 1s ease-in-out infinite;
+}
+@keyframes cast-glow {
+  0%, 100% { text-shadow: 0 0 6px rgba(124, 58, 237, 0.65); }
+  33%      { text-shadow: 0 0 12px rgba(217, 180, 119, 0.9), 0 0 3px rgba(124,58,237,0.8); }
+  66%      { text-shadow: 0 0 12px rgba(96, 165, 250, 0.85), 0 0 3px rgba(168,85,247,0.8); }
+}
+code.quest-cmd.casting::after {
+  content: '▍';
+  margin-left: 1px;
+  color: #7c3aed;
+  animation: cast-caret 0.6s step-end infinite;
+}
+@keyframes cast-caret { 50% { opacity: 0; } }
+
+/* When the spell "lands": a quick light-sweep across the command box */
+code.quest-cmd { position: relative; overflow: hidden; }
+code.quest-cmd.cast-flash::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -70%;
+  width: 60%; height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255, 240, 190, 0.9), transparent);
+  animation: cast-sweep 0.75s ease-out forwards;
+}
+@keyframes cast-sweep { to { left: 130%; } }
+
+/* Sparkle particles that burst up and fade as the spell is cast */
+.quest-spark-layer {
+  position: absolute;
+  inset: -6px -4px;
+  pointer-events: none;
+  overflow: visible;
+}
+.quest-spark {
+  position: absolute;
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: cast-spark 1.25s ease-out forwards;
+}
+@keyframes cast-spark {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.2) rotate(0deg); }
+  25%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-26px) scale(1.15) rotate(200deg); }
+}
+
+.quest-cmd-hint { display: block; color: #6a7280; font-size: 1rem; margin-top: 0.45rem; }
+
+/* Respect reduced-motion: reveal everything instantly, no glow/caret/sparkles */
+@media (prefers-reduced-motion: reduce) {
+  .quest-sync-inline.casting-in { animation: none; }
+  code.quest-cmd.casting { color: inherit; animation: none; text-shadow: none; }
+  code.quest-cmd.casting::after { content: none; }
+  code.quest-cmd.cast-flash::before { animation: none; content: none; }
+  .quest-spark { animation: none; opacity: 0; }
+}
+
+/* "Copy" button next to a revealed sync command */
+.quest-cmd-copy {
+  margin-left: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.95em;
+  cursor: pointer;
+  border: 1px solid #cdd4e6;
+  border-radius: 6px;
+  background: #eef1f8;
+  color: #2c3e50;
+  vertical-align: middle;
+}
+.quest-cmd-copy:hover { background: #dde3f2; }
+
+/* ── Party reveal — face-down cards that flip to show one of us ──────────────
+   Each card window is a crop of the single group illustration: the background
+   is drawn 4× the card width, and background-position picks out one character.
+   The percentages are hand-tuned so each figure sits centred in its card, and
+   the vertical 16.3% frames head-to-waist above the nameplates in the art. */
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 1.25rem 0;
+}
+@media (max-width: 640px) { .party-grid { grid-template-columns: repeat(2, 1fr); } }
+
+.party-card { perspective: 900px; }
+
+/* The flipping surface. A button so it is keyboard-operable for free. */
+.party-flip {
+  display: block;
+  width: 100%;
+  aspect-ratio: 288 / 580;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.party-inner {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.party-card.revealed .party-inner { transform: rotateY(180deg); }
+.party-flip:hover .party-inner { transform: translateY(-3px); }
+.party-card.revealed .party-flip:hover .party-inner { transform: rotateY(180deg) translateY(-3px); }
+
+.party-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 10px;
+  border: 2px solid #d9b477;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+}
+
+/* Face-down side: a sealed card with a sigil */
+.party-face-down {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(240, 214, 160, 0.30), transparent 62%),
+    linear-gradient(160deg, #3b4a63, #232f43);
+  color: #f0d6a0;
+}
+.party-sigil { font-size: 1.9rem; line-height: 1; }
+.party-tap {
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  padding: 0 0.4rem;
+  text-align: center;
+}
+.party-flip:hover .party-face-down { filter: brightness(1.12); }
+
+/* Face-up side: the cropped portrait */
+.party-face-up {
+  transform: rotateY(180deg);
+  background-image: url("../images/darc-party.png");
+  background-repeat: no-repeat;
+  background-size: 400% auto;
+  background-color: #e8e2d6;
+}
+.party-card:nth-child(1) .party-face-up { background-position: 3.5% 17.5%; }
+.party-card:nth-child(2) .party-face-up { background-position: 37.5% 17.5%; }
+.party-card:nth-child(3) .party-face-up { background-position: 66.4% 17.5%; }
+.party-card:nth-child(4) .party-face-up { background-position: 94.4% 17.5%; }
+
+/* Caption below each card: "???" until the card is turned over */
+.party-caption {
+  margin: 0.55rem 0 0;
+  min-height: 5.4em;
+  text-align: center;
+  font-size: 0.82em;
+  line-height: 1.45;
+}
+.party-caption .party-unknown { color: #9aa0ab; letter-spacing: 0.15em; }
+.party-caption .party-known { display: none; }
+.party-card.revealed .party-caption .party-unknown { display: none; }
+.party-card.revealed .party-caption .party-known {
+  display: block;
+  animation: party-caption-in 0.45s ease 0.35s both;
+}
+@keyframes party-caption-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+.party-caption .party-name { display: block; font-weight: 700; color: #2c3e50; }
+.party-caption .party-class {
+  display: block;
+  font-variant: small-caps;
+  letter-spacing: 0.06em;
+  color: #8a5a12;
+}
+.party-caption .party-item { display: block; font-style: italic; color: #6a7280; }
+.party-caption .party-role { display: block; color: #6a7280; }
+
+/* Banner that appears once every card is face-up: first a prompt to tick the
+   quest box, then a confirmation once it is ticked */
+.party-done .party-logged { display: none; }
+.party-reveal.quest-logged .party-done .party-nudge { display: none; }
+.party-reveal.quest-logged .party-done .party-logged { display: inline; }
+.party-done {
+  margin: 0.5rem 0 0;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d9b477;
+  border-radius: 8px;
+  background: #fdf6ea;
+  color: #5b4a2f;
+  font-size: 0.9em;
+}
+
+/* Restoring saved progress on load: show the party without spinning the cards */
+.party-reveal.party-instant .party-inner { transition: none; }
+.party-reveal.party-instant .party-known { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .party-inner { transition: none; }
+  .party-caption .party-known { animation: none; }
+  .party-flip:hover .party-inner { transform: none; }
+  .party-card.revealed .party-flip:hover .party-inner { transform: rotateY(180deg); }
+}
 
 /* ── Dungeon entrance — floors left column, skills right column, rows aligned ── */
 .dungeon-layout {
@@ -128,3 +382,40 @@
     line-height: 1.2;
   }
 }
+
+/* Hint / spoiler collapsibles (<details>) in lesson content default to a plain
+   browser triangle that clashes with the theme. Render them as a full-width
+   "accordion": a gray summary bar with a chevron that rotates open, and the
+   revealed content boxed beneath it. Scoped to .main-content so it never
+   touches the quest-log panel's own UI. */
+.main-content details {
+  border: 1px solid #e1e4ea;
+  border-radius: 8px;
+  margin: 0.9rem 0;
+  overflow: hidden;              /* clips the summary bar to the rounded box */
+}
+.main-content details > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  cursor: pointer;
+  padding: 0.6rem 0.9rem;
+  background: #f3f4f7;
+  color: #2c3e50;
+  font-weight: 600;
+  list-style: none;              /* drop the default disclosure triangle... */
+}
+.main-content details > summary::-webkit-details-marker { display: none; }  /* ...incl. Safari */
+.main-content details > summary::before {
+  content: "\25b8";              /* ▸ our own chevron, rotates when open */
+  display: inline-block;
+  color: #6a7280;
+  transition: transform 0.15s ease;
+}
+.main-content details > summary:hover { background: #e9ecf2; }
+.main-content details[open] > summary {
+  border-bottom: 1px solid #e1e4ea;
+  margin: 0 -0.9rem;             /* pull the bar back out to the box edges... */
+}
+.main-content details[open] > summary::before { transform: rotate(90deg); }
+.main-content details[open] { padding: 0 0.9rem 0.9rem; }  /* ...so only the content is inset */

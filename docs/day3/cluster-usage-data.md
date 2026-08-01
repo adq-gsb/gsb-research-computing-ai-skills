@@ -8,7 +8,9 @@ permalink: /day3/cluster-usage-data/
 
 # Exploring Cluster Usage Data
 
-<div data-room-id="d3-data-mine"></div>
+<div data-room-id="d3-cluster-usage-data"></div>
+
+Before you run your own jobs on the Yens, it helps to see how the machine actually gets used — who's running what, how busy the cores are, how much memory is in play. Digging into a real snapshot is also the easiest way to build intuition for the vocabulary you'll lean on all day: what a **process** is, what a **user** is, the difference between **RAM** in use and **virtual** memory reserved. You'll explore it with Claude — the same instinct you'll use on any messy dataset in your own research.
 
 ---
 
@@ -38,9 +40,12 @@ The file below is one such snapshot from yen1, taken on July 10, 2026 at 20:56. 
 
 ---
 
-## Your Turn
+## Main quest — Explore the Usage Data
 
-Load the file and explore. Use Claude, a notebook, a script — whatever works for you. There are no required questions.
+{: .important }
+> **Task:** Load the yenstop snapshot, explore it with Claude, make a visualization, and write up one finding in your README.
+
+Load the file and explore it **with Claude** — ask it about the columns, dig into what's running, and have it help you **make a visualization** of an insight you find.
 
 ```python
 import pandas as pd
@@ -54,31 +59,41 @@ df = pd.read_csv(DATA, header=None, names=cols, on_bad_lines='skip')
 df.head()
 ```
 
-Some directions if you want a place to start — but don't feel limited to these:
-
-- Who is using the most CPU? The most memory? Are they the same person?
-- How many processes are actually running right now versus just sleeping?
-- What commands appear most often? What do you think they are?
-- How long have some of these processes been running? Does anything surprise you?
-- What does virtual memory look like compared to resident memory for the same process?
-- yen1 has about **1 TB of RAM**, and `mem_pct` is each process's share of that. What is the single biggest process using, in **GB**? Cross-check your answer against the `res` column — that's the actual bytes resident in RAM.
+{: .chest }
+> **Your turn — pick a thread to pull.** Some directions to start (don't feel limited to these):
+> - Who is using the most CPU? The most memory? Are they the same person?
+> - How many processes are actually running right now versus just sleeping?
+> - What commands appear most often? What do you think they are?
+> - How long have some of these processes been running? Does anything surprise you?
+> - What does virtual memory look like compared to resident memory for the same process?
+> - yen1 has about **1 TB of RAM**, and `mem_pct` is each process's share of that. What is the single biggest process using, in **GB**? Cross-check your answer against the `res` column — that's the actual bytes resident in RAM.
 
 Make a plot. Ask Claude to explain something. Follow a thread that looks interesting.
 
+{: .note }
+> **Seeing your plot on the cluster.** There's no screen to pop a plot window open on, so you have two options:
+>
+> - **In JupyterHub** — run your code in a notebook and the plot renders inline.
+> - **From a script or the terminal** — save the figure to a file, then open that file from Jupyter's file browser:
+>
+>     ```python
+>     import matplotlib
+>     matplotlib.use("Agg")          # no display needed
+>     import matplotlib.pyplot as plt
+>     # ... build your plot ...
+>     plt.savefig("usage_plot.png", dpi=150, bbox_inches="tight")
+>     ```
+
 ---
 
-## Write It Up
+### Write it up
 
 Find one thing in the data worth keeping. Add a short section to your `README.md` — a few sentences describing what you found and what it tells you about how shared research nodes actually get used.
 
-It doesn't have to be the most impressive finding. It just has to be true, specific, and explained in plain language.
-
 {: .note }
-> This `README.md` keeps growing today — you'll add a Resource Profile section in Profiling Resource Usage and a full pipeline writeup in Documenting Your Pipeline. Same file the whole time.
+> 🟢 **Green sticky** = I'm done and ready &nbsp;&nbsp; 🔴 **Red sticky** = I need help
 
-When you're ready — put a **🟢 green sticky** on your laptop.
-
-<label class="quest-check"><input type="checkbox" data-room="d3-data-mine" data-key="main"> I loaded the data, explored it, and wrote up one true, specific finding in my README</label>
+<label class="quest-check"><input type="checkbox" data-room="d3-cluster-usage-data" data-key="main"> I used Claude to explore the data, made a visualization, and wrote up one finding in README</label>
 
 ---
 
@@ -87,18 +102,18 @@ When you're ready — put a **🟢 green sticky** on your laptop.
 {: .note }
 > Finished early? Try any of these.
 
-<label class="quest-check"><input type="checkbox" data-room="d3-data-mine" data-key="side1"> I made at least one plot or visualization</label>
-
 **Side quest — Per-User Limits vs. the Whole Node**
 
 Group the processes by `user` and compute total `cpu_pct` and `mem_pct` per person. Then compare two different ceilings:
 
-- the **per-user limit** — the cap any single researcher gets (mentioned back in Profiling Resource Usage), and
-- the **whole node's capacity** — 256 logical CPUs and ~1 TB of RAM.
+- the **per-user limit** — the cap any single researcher gets, and
+- the **whole node's capacity** — the total cores and RAM on the specific Yen node you're on.
+
+Look both up on the [Yen user limits page](https://rcpedia.stanford.edu/_policies/user_limits/) — they vary by node, so don't assume a fixed number.
 
 Is anyone close to their per-user limit? And how much of the *entire node* is actually in use? A node can sit far from full even while one user is maxed out — that's the per-user limit doing its job: keeping any one job from starving everyone else on a shared machine.
 
-<label class="quest-check"><input type="checkbox" data-room="d3-data-mine" data-key="side3"> I compared per-user usage against both the per-user limit and the whole node's capacity</label>
+<label class="quest-check"><input type="checkbox" data-room="d3-cluster-usage-data" data-key="side3"> I compared per-user usage against both the per-user limit and the whole node's capacity</label>
 
 **Side quest — Watch It Live (`top`)**
 
@@ -117,7 +132,7 @@ While it's running, try these keys:
 - `u`, then type a username and press Enter — show only that person's processes
 - `q` — quit
 
-Watch for a few seconds: which processes churn near a full core, and which just sit `S` (sleeping)? Then quit and add one line to your `README.md` explaining how this live view relates to the frozen CSV snapshot you analyzed.
+Watch for a few seconds: which processes churn near a full core, and which just sit `S` (sleeping)? Press `q` to quit when you're done.
 
-<label class="quest-check"><input type="checkbox" data-room="d3-data-mine" data-key="side5"> I ran `top` live on a Yen node, read the header and per-process columns, and can explain how it relates to the CSV snapshot</label>
+<label class="quest-check"><input type="checkbox" data-room="d3-cluster-usage-data" data-key="side5"> I ran `top` live on a Yen node, read the header and per-process columns, and can explain how it relates to the CSV snapshot</label>
 

@@ -51,7 +51,7 @@ Do this on your **laptop** (a local Terminal / Git Bash tab), *not* on the Yens 
 run it on the Yens and you'd capture the *cluster's* address instead of yours.
 
 ```bash
-curl -s https://api.ipify.org > ~/Desktop/provenance.txt   # your laptop's public IP
+curl -s https://api.ipify.org > ~/Desktop/provenance.txt   # the public IP of your laptop
 cat ~/Desktop/provenance.txt                               # confirm you got an address
 ```
 
@@ -83,8 +83,9 @@ remote.
 Now hop onto the Yens, move into your repo, and launch Claude Code:
 
 ```bash
-ssh SUNetID@yen.stanford.edu     # if you're not already connected
+ssh SUNetID@yen.stanford.edu     # if not already connected
 cd ~/gsb-research-computing-ai-skills
+ml claude-code
 claude
 ```
 
@@ -123,7 +124,10 @@ cover all of these objectives:
   }
   ```
 - **Do the git work the research way.** Log an issue for the task, work on a new
-  branch, commit crediting Claude, and open a pull request.
+  branch, commit crediting Claude, and open a pull request. (Logging the issue
+  needs the **Issues** tab switched on for your fork — Step 1 of
+  [Version Control with Git](../repository/). If Claude reports that it can't
+  create an issue, that's why.)
 
 **Then read the plan Claude gives you.** Before you approve, check it yourself:
 
@@ -152,9 +156,9 @@ Merging it is optional — the open PR is enough to count as done.
 
 {: .note }
 > If Claude reports that `git push` failed for authentication, you haven't
-> signed in to GitHub on the Yens yet — run `module load gh && gh auth login`
-> (see Step 3 of [Version Control with Git](../repository/)), then ask Claude to
-> push again. Still stuck? Ask an instructor.
+> signed in to GitHub on the Yens yet. If you still haven't authenticated, follow Step 3 of
+> [Version Control with Git](../repository/) to set up your token — or ask an
+> instructor for help. Then ask Claude to push again.
 
 {: .note }
 > 🟢 **Green sticky** = I'm done and ready &nbsp;&nbsp; 🔴 **Red sticky** = I need help
