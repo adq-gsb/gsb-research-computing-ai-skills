@@ -201,6 +201,34 @@ treatment.
 `docs/day4/index.md:13` renders a bold red `TODO:` paragraph on the published Day 4
 landing page. Days 1–3 index pages have nothing like it.
 
+### `filing_date` comes back in inconsistent formats
+The extraction prompt names the field but never specifies a format:
+
+> `filing_date`: The filing date (prefer signatureDate or FILED AS OF DATE).
+
+So the model is free to echo whatever the filing used. Observed across three
+filings on 2026-08-01: `2022-04-07`, `20210830`, `20210122` — ISO and compact in the
+same batch. `Form3Filing` types the field as a bare `str`, so pydantic accepts all of
+them and nothing downstream notices. Any analysis that sorts or filters by date gets
+silently wrong answers.
+
+Two fixes, worth doing together:
+
+1. **Pin the format in the prompt** — "Return `filing_date` as `YYYY-MM-DD`."
+2. **Enforce it in the schema** — `datetime.date`, or a `str` with a pattern
+   constraint, so a violation fails loudly instead of being written to disk.
+
+Applies to all four extraction scripts, which share the prompt and the schema.
+
+**Scope caveat:** observed only under `gemini-2.5-flash-lite` (the current model). It
+is *not* known whether `gpt-4o-mini` behaved the same way, since the key can no longer
+reach it to test. The cause looks model-independent — an underspecified prompt — but
+that is reasoning, not measurement.
+
+Good teaching hook rather than just a bug fix: `docs/day4/validating-llm-outputs.md`
+already teaches format/type sanity checks, and this is a real instance from the
+course's own pipeline.
+
 ---
 
 ## Housekeeping
