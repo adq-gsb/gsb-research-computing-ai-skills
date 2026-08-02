@@ -26,8 +26,8 @@ fi
 # output (extract_one_url.py skips a filing whose .json already exists).
 # SLURM_ARRAY_JOB_ID is the same for every task of this array, so all tasks
 # share one directory — they write disjoint filings into it, never the same file.
-export OUT=/scratch/shared/$USER/demo_results/${SLURM_ARRAY_JOB_ID:-$SLURM_JOB_ID}
-LIST=/scratch/shared/$USER/demo_urls.txt
+export OUT=/scratch/users/$USER/demo_results/${SLURM_ARRAY_JOB_ID:-$SLURM_JOB_ID}
+LIST=/scratch/users/$USER/demo_urls.txt
 mkdir -p "$OUT"
 python .instructor/parallelization_demos/make_url_list.py "$LIST"   # every task rebuilds the same list; harmless
 

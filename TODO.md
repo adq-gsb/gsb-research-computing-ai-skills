@@ -153,17 +153,18 @@ for the array-exercise page, which is archived. The choice above still stands fo
 
 ### Load-imbalance exercise from the archived "When One Filing Runs Long"
 That section was cut from `docs/day4/parallelization.md` on 2026-08-01 as orthogonal
-to the page's argument, and moved to
-`docs/day4/archive/when-one-filing-runs-long.md` (nav- and search-excluded). It is a
-good basis for an exercise rather than exposition: it takes eight filings, makes
+to the page's argument. It was briefly archived under `docs/day4/archive/`, which was
+deleted on 2026-08-02 — recover the content with
+`git show 9baa5a5:docs/day4/archive/when-one-filing-runs-long.md`. It is a good basis
+for an exercise rather than exposition: it takes eight filings, makes
 filing 3 run 3× long, and shows that a shared pool of cores rebalances around it
 while fixed per-job chunks cannot — plus the "longest processing time first"
 heuristic and its one-third-of-optimal bound.
 
 Real filings do vary this way, so the exercise has a natural hook: have students
 process a batch where one filing is much denser than the rest, compare wall-clock
-under Approach 1 vs Approach 2, and explain the gap. The archived page has the
-finished animated figures already.
+under Approach 1 vs Approach 2, and explain the gap. The animated figures are finished and
+recoverable from that commit.
 
 ### Surface the parallelization demo to students
 **Partly done 2026-08-01.** `docs/day4/parallelization.md` now carries four `{: .demo }`
@@ -326,6 +327,114 @@ Options, roughly:
 
 Deciding this also settles whether the demos should be reproducible by students
 after class, which is really the underlying question.
+
+---
+
+### Ollama for Day 4: host one server, students query it
+**Plan settled 2026-08-02, not yet implemented.** Rather than each student
+requesting a GPU and pulling weights, run one Ollama server and give the class its
+endpoint. The `gpu` partition allows 4 GPUs per user across four nodes, so twenty
+students each grabbing one does not fit; and `llama3.2:3b` would be downloaded
+twenty times over.
+
+Based on DARC's own guide, [Running Ollama on Stanford Computing
+Clusters](https://rcpedia.stanford.edu/blog/2025/05/12/running-ollama-on-stanford-computing-clusters/)
+(May 2025) and the helper at `github.com/gsbdarc/ollama_helper`.
+
+**How it works.** `ollama.sh` binds the server to `0.0.0.0:<port>` — all
+interfaces — and prints "Advertising server to clients at `http://<hostname>:<port>`".
+Clients need only that URL; they run on the `normal` partition with no GPU. The
+repo ships `run_ollama_server.slurm` and `run_ollama_client.slurm` as a pair.
+
+**Paths.** Export `SCRATCH_BASE=/scratch/users/$USER` — note `/scratch/users/`,
+not the `/scratch/shared/$USER` the Day 4 pages used until today. Weights land in
+`$SCRATCH_BASE/ollama/models`, alongside `host.txt` and `port.txt`. Clone the
+helper itself to project storage rather than scratch or home: `ollama.sif` is
+resolved as a bare filename relative to the working directory, so the container
+image lands next to the clone, and home is small and backed up.
+
+**Permissions are not a blocker.** `/scratch/users/$USER` is `700`, which stops
+students reading `host.txt`/`port.txt` but has no bearing on the socket — the
+server is reached over the network, not the filesystem. Tell the class the URL
+instead; the capstone already says "Ask the instructor for the correct URL for
+your setup". The port is randomly chosen per run, so there is no stable value to
+bake into a page anyway.
+
+**Two things to be careful about.**
+
+1. **No authentication on the endpoint.** Anyone on the cluster who learns the
+   host and port can query the server, not only your students. DARC state the
+   same of their NIM endpoint. Stop the job at the end of each session rather
+   than leaving it up.
+2. **1-day maximum runtime** on the `gpu` partition, so the server will not
+   survive between sessions — restart it each day, and check the weights are
+   still cached, since scratch is "not backed up and periodically cleared"
+   (`docs/day1/cartographers-room.md:64`).
+
+**Three traps documented in DARC's own `tutorial.ipynb`** (in `ollama_helper`),
+all of which bear on the extraction exercise:
+
+1. **`num_ctx` silently truncates long input.** The notebook warns that without
+   setting it, "your input will be **truncated to the default context length**",
+   showing a log line with `limit=2048 prompt=94537`. SEC Form 3 filings are far
+   longer than 2048 tokens, so a default-context server would extract from the
+   first fragment of each filing and report no error at all. This is the most
+   dangerous of the three because it fails quietly — results look plausible and
+   are wrong.
+2. **`deepseek-r1:7b` prepends a `<think>` block.** Their teaching note: "Despite
+   clear instructions in the system prompt to respond only with a JSON block, the
+   model prepended a `<think>` section." That breaks
+   `Form3Filing.model_validate_json`, which parses the raw content. Their fix is
+   Ollama's schema-constrained `format` field — a JSON schema in the payload — not
+   the `response_format={"type": "json_object"}` our scripts use. **Resolved by
+   serving `llama3.2:3b` instead** (see below), which is not a reasoning model.
+   This only comes back if the served model ever changes.
+3. **DARC never use the OpenAI-compatible endpoint.** Every example in the
+   notebook and `test.py` posts to `/api/chat` or `/api/generate` with `requests`.
+   The "same client, one different `base_url`" framing that makes the capstone's
+   endpoint swap a one-line change is therefore unverified against Ollama here. It
+   may well work; nobody at DARC has shown it working.
+
+Also from the notebook: `keep_alive: -1` keeps the model resident between
+requests, which is what you want for a class server. And it hardcodes
+`SCRATCH_BASE = f"/scratch/shared/{os.environ['USER']}"` — the stale per-user path
+fixed elsewhere in this repo on 2026-08-02.
+
+**Model settled 2026-08-02: `llama3.2:3b`.** It is already what
+`running-llms.md:109`/`:124` and `validating-llm-outputs.md:77` name, so no page
+changes are needed, and it is not a reasoning model — which removes trap 2 above
+outright rather than working around it. Note DARC's material is all built on
+`deepseek-r1:7b` (the post, `test.py`, and every cell of `tutorial.ipynb`), so
+their examples need the model name swapped wherever they are adapted.
+
+**Unverified.** Twenty concurrent clients against one 3B model on an H200 should
+be comfortable but has not been tested. Two things left to check in a dry run:
+`num_ctx` on a real filing, and whether `/v1/chat/completions` works at all.
+
+**Showing incoming queries live.** The server logs every request to stdout, which
+in a Slurm job lands in the `--output` file, so `tail -f logs/ollama_server_<jobid>.out`
+is a live feed. The notebook shows the format:
+
+```
+[GIN] 2025/05/02 - 15:49:41 | 200 |  993.652625ms | 10.203.0.198 | POST "/api/chat"
+```
+
+— timestamp, status, latency, client IP, endpoint. The IP identifies the client
+*node*, so with students spread across `normal` there is partial attribution
+without any extra work. Worth projecting: the latency column makes queueing
+visible as twenty requests pile onto one model, which is the "waves" idea from
+the parallelization page arriving from the other direction.
+
+It does **not** show prompt contents — that log carries no bodies. Options if you
+want them: `OLLAMA_DEBUG=1` on the server (unverified, and what it emits has
+varied by version), a logging proxy in front, or simplest, have the students'
+own script write its prompts to a file. Note the last is the only one that does
+not amount to reading what students typed, which sits awkwardly against what Day
+2 teaches about who can see your prompts.
+
+**Consequence for the page.** `docs/day4/running-llms.md` currently has students
+run their own server (`srun --pty`, then `ollama pull`). It would need rewriting
+towards the client role, with the server side moved to instructor notes.
 
 ---
 

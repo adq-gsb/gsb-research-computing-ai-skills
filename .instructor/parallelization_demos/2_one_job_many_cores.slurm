@@ -24,8 +24,8 @@ fi
 # One results directory per run, so a rerun never inherits the last run's
 # output. extract_one_url.py skips a filing whose .json already exists, which
 # would otherwise make the second run look instant and spoil the comparison.
-export OUT=/scratch/shared/$USER/demo_results/$SLURM_JOB_ID
-LIST=/scratch/shared/$USER/demo_urls.txt
+export OUT=/scratch/users/$USER/demo_results/$SLURM_JOB_ID
+LIST=/scratch/users/$USER/demo_urls.txt
 mkdir -p "$OUT"
 python .instructor/parallelization_demos/make_url_list.py "$LIST"
 

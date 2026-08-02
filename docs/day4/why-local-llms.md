@@ -16,7 +16,7 @@ Since Day 2, every LLM call we've made — to the Stanford AI API Gateway, or an
 
 ---
 
-## What an API Call Actually Does
+## What an LLM API Call Actually Does
 
 When you call an LLM API, three things happen outside your control:
 

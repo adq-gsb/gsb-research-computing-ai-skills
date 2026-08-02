@@ -44,7 +44,7 @@ calls per demo, so budget 80 for a full four-way comparison.
 Expect well under a minute for the serial baseline (Day 3 measured ~2.25s per
 filing), and less for the rest.
 
-Results land in `/scratch/shared/$USER/demo_results/<job-id>/` — one directory
+Results land in `/scratch/users/$USER/demo_results/<job-id>/` — one directory
 per run, named for the job ID (for the array demos, the shared
 `SLURM_ARRAY_JOB_ID`, so a whole array writes into one directory). Every run
 therefore starts empty, and `extract_one_url.py`'s skip-if-exists never makes a
@@ -52,7 +52,7 @@ rerun look artificially fast. Nothing is deleted automatically, so the output
 stays around to inspect; clear old runs yourself when scratch gets cluttered:
 
 ```bash
-rm -rf /scratch/shared/$USER/demo_results
+rm -rf /scratch/users/$USER/demo_results
 ```
 
 ## Comparing time and resources
