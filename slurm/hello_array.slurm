@@ -9,7 +9,7 @@
 
 # slurm/hello.slurm with one directive added. That single line turns one
 # submission into four independent tasks, identical except for the task ID
-# each one is handed. See SLURM Job Arrays.
+# each one is handed. See Slurm Job Arrays.
 #
 # %A is the array's job ID and %a the task's index, so every task writes its
 # own log rather than four tasks overwriting one file.

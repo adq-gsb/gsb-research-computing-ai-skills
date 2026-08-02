@@ -180,7 +180,7 @@ for filing in filings:          # 100 filings in the list
 
 <svg viewBox="0 0 600 178" role="img" aria-labelledby="jc1-title jc1-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="jc1-title">One job, one core</title>
-  <desc id="jc1-desc">A single SLURM job box holds one CPU and eight filings in a row. The CPU moves from filing to filing one at a time.</desc>
+  <desc id="jc1-desc">A single Slurm job box holds one CPU and eight filings in a row. The CPU moves from filing to filing one at a time.</desc>
   <rect x="6" y="6" width="588" height="136" rx="12" fill="#f7f9fd" stroke="#cdd4e6" stroke-width="1.5"/>
   <text x="22" y="25" font-size="12" font-weight="700" fill="#8a93a3">Job</text>
   <rect x="22"  y="86" width="60" height="48" rx="9" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
@@ -220,7 +220,7 @@ If one filing takes 5 seconds, 100 filings take ~500 seconds — and the whole t
 
 <svg viewBox="0 0 600 178" role="img" aria-labelledby="jc2-title jc2-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="jc2-title">One job, many cores</title>
-  <desc id="jc2-desc">A single SLURM job box holds two CPUs and eight filings. The two CPUs work different filings at the same time, sweeping the row in four waves.</desc>
+  <desc id="jc2-desc">A single Slurm job box holds two CPUs and eight filings. The two CPUs work different filings at the same time, sweeping the row in four waves.</desc>
   <rect x="6" y="6" width="588" height="136" rx="12" fill="#f7f9fd" stroke="#cdd4e6" stroke-width="1.5"/>
   <text x="22" y="25" font-size="12" font-weight="700" fill="#8a93a3">Job</text>
   <rect x="22"  y="86" width="60" height="48" rx="9" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
@@ -266,7 +266,7 @@ Two cores clear the eight filings in four waves — ≈ 4 × 5s = 20s of wall-cl
 
 <svg viewBox="0 0 600 300" role="img" aria-labelledby="jc3-title jc3-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="jc3-title">Many jobs, one core each</title>
-  <desc id="jc3-desc">Two separate SLURM job boxes stacked vertically, each with its own CPU. The first job's CPU processes filings 1 to 4; the second job's CPU processes filings 5 to 8, both at the same time.</desc>
+  <desc id="jc3-desc">Two separate Slurm job boxes stacked vertically, each with its own CPU. The first job's CPU processes filings 1 to 4; the second job's CPU processes filings 5 to 8, both at the same time.</desc>
   <rect x="6" y="6" width="588" height="124" rx="12" fill="#f7f9fd" stroke="#cdd4e6" stroke-width="1.5"/>
   <text x="22" y="24" font-size="12" font-weight="700" fill="#8a93a3">Job 1</text>
   <rect x="40"  y="80" width="70" height="44" rx="9" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
@@ -314,7 +314,7 @@ We'll cover job arrays in detail on the [next page](../slurm-arrays/).
 
 <svg viewBox="0 0 600 300" role="img" aria-labelledby="jc4-title jc4-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="jc4-title">Many jobs, many cores</title>
-  <desc id="jc4-desc">Two stacked SLURM job boxes, each holding two CPUs and four filings. In each job the two CPUs split the four filings two-and-two, and the two jobs run at the same time.</desc>
+  <desc id="jc4-desc">Two stacked Slurm job boxes, each holding two CPUs and four filings. In each job the two CPUs split the four filings two-and-two, and the two jobs run at the same time.</desc>
   <rect x="6" y="6" width="588" height="124" rx="12" fill="#f7f9fd" stroke="#cdd4e6" stroke-width="1.5"/>
   <text x="22" y="24" font-size="12" font-weight="700" fill="#8a93a3">Job 1</text>
   <rect x="40"  y="80" width="70" height="44" rx="9" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>

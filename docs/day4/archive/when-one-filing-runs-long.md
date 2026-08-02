@@ -23,7 +23,7 @@ So far every filing took the same 5 seconds. Real filings aren't so uniform — 
 
 <svg viewBox="0 0 600 178" role="img" aria-labelledby="lf1-title lf1-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="lf1-title">One job, two cores, one long filing in the middle: the cores rebalance</title>
-  <desc id="lf1-desc">A single SLURM job box holds two CPUs and eight filings; the third filing takes three times as long as the others. One CPU settles into the long filing while the other sweeps up the remaining short filings, so both stay busy and finish together at time five.</desc>
+  <desc id="lf1-desc">A single Slurm job box holds two CPUs and eight filings; the third filing takes three times as long as the others. One CPU settles into the long filing while the other sweeps up the remaining short filings, so both stay busy and finish together at time five.</desc>
   <rect x="6" y="6" width="588" height="136" rx="12" fill="#f7f9fd" stroke="#cdd4e6" stroke-width="1.5"/>
   <text x="22" y="25" font-size="12" font-weight="700" fill="#8a93a3">Job</text>
   <text x="300" y="30" font-size="11" font-weight="600" fill="#009E73" text-anchor="middle" opacity="0">all eight done at t = 5<animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.66;0.70;0.88;1" dur="14s" repeatCount="indefinite" calcMode="linear"/></text>
@@ -65,7 +65,7 @@ That's the strength of a shared pool of work: as long as anything is left to do,
 
 <svg viewBox="0 0 600 300" role="img" aria-labelledby="lf2-title lf2-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="lf2-title">Two jobs, one core each, the long filing in job 1's chunk: chunks can't rebalance</title>
-  <desc id="lf2-desc">Two stacked SLURM job boxes, each with one CPU and four filings. The long third filing sits in the middle of the first job's chunk: job 1 works until time six, while job 2 clears its four short filings by time four, completes, and releases its core. The whole batch waits on the slowest chunk.</desc>
+  <desc id="lf2-desc">Two stacked Slurm job boxes, each with one CPU and four filings. The long third filing sits in the middle of the first job's chunk: job 1 works until time six, while job 2 clears its four short filings by time four, completes, and releases its core. The whole batch waits on the slowest chunk.</desc>
   <rect x="6" y="6" width="588" height="124" rx="12" fill="#f7f9fd" stroke="#cdd4e6" stroke-width="1.5"/>
   <text x="22" y="24" font-size="12" font-weight="700" fill="#8a93a3">Job 1</text>
   <rect x="40"  y="80" width="70" height="44" rx="9" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>

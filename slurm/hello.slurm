@@ -6,7 +6,7 @@
 #SBATCH --mem=1G
 #SBATCH --cpus-per-task=1
 
-# One script, one task — the baseline for the array demo on SLURM Job Arrays.
+# One script, one task — the baseline for the array demo on Slurm Job Arrays.
 # Stripped of real work so the only thing on show is the shape of a submission.
 # Pairs with slurm/hello_array.slurm, which is this script plus one directive.
 #

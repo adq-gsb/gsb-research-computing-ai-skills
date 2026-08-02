@@ -1,22 +1,22 @@
 ---
 layout: default
-title: "SLURM Job Arrays"
+title: "Slurm Job Arrays"
 parent: "Day 4 — Parallelization & GPUs"
 nav_order: 2
 permalink: /day4/slurm-arrays/
 ---
 
-# SLURM Job Arrays
+# Slurm Job Arrays
 
 <div data-room-id="d4-slurm-arrays"></div>
 
-You've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands-on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **SLURM job array**.
+You've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands-on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **Slurm job array**.
 
 ---
 
 ## Recap: One Script, One Task
 
-On Day 3 you didn't run your script directly on a login node — you handed it to **SLURM**, the cluster's scheduler, in an `sbatch` script. SLURM found a free slot on a compute node, ran your job there, and saved the output. That was one input, one job.
+On Day 3 you didn't run your script directly on a login node — you handed it to **Slurm**, the cluster's scheduler, in an `sbatch` script. Slurm found a free slot on a compute node, ran your job there, and saved the output. That was one input, one job.
 
 {: .demo }
 > For example, consider the following:
@@ -45,7 +45,7 @@ On Day 3 you didn't run your script directly on a login node — you handed it t
 
 Now suppose we want to run that script not once but many times. Each run is independent of the others, so rather than one core working through them in sequence, we want many running at once.
 
-You *could* do that by hand, submitting the script once for each run — a separate `sbatch` call, job ID, and output file every time. That's fine for four but unmanageable for a hundred. SLURM has a purpose-built tool for exactly this pattern instead.
+You *could* do that by hand, submitting the script once for each run — a separate `sbatch` call, job ID, and output file every time. That's fine for four but unmanageable for a hundred. Slurm has a purpose-built tool for exactly this pattern instead.
 
 {: .demo }
 > Now the same script as an array, with one directive added:
@@ -75,7 +75,7 @@ You *could* do that by hand, submitting the script once for each run — a separ
 {: .note }
 > **`%A` and `%a` in the log names.** On Day 3 you used `%j`, the job ID, so each run wrote its own log file. An array needs two numbers instead: `%A` is the ID of the array as a whole, and `%a` is the task's index within it. Together they give every task a file of its own — for example, `hello_402103_1.out`, `hello_402103_2.out`, and so on — rather than four tasks overwriting one another.
 
-We can see that specifying your job as an **array** tells SLURM to launch your one script many times, each run as an independent **task**.
+We can see that specifying your job as an **array** tells Slurm to launch your one script many times, each run as an independent **task**.
 
 <svg viewBox="0 0 618 270" role="img" aria-labelledby="array-title array-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:616px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="array-title">One array script fans out into many tasks</title>
@@ -86,7 +86,7 @@ We can see that specifying your job as an **array** tells SLURM to launch your o
   <line x1="188" y1="129" x2="330" y2="141" stroke="#cbd3e0" stroke-width="1.5"/>
   <line x1="188" y1="129" x2="330" y2="221" stroke="#cbd3e0" stroke-width="1.5"/>
   <rect x="24" y="103" width="164" height="52" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
-  <text x="106" y="124" font-size="12.5" font-weight="700" fill="#2c3e50" text-anchor="middle">SLURM script</text>
+  <text x="106" y="124" font-size="12.5" font-weight="700" fill="#2c3e50" text-anchor="middle">Slurm script</text>
   <text x="106" y="142" font-size="10.5" fill="#6a7280" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">--array=1–N</text>
   <rect x="330" y="15" width="264" height="44" rx="8" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
   <text x="462" y="31" font-size="12" fill="#2c3e50" text-anchor="middle">task 1</text>
@@ -110,7 +110,7 @@ The task number is what makes this general. Every task runs the identical script
 {: .warning }
 > **Counting from 1.** `--array=1-N` numbers the tasks 1, 2, … N. Slurm doesn't insist on that: numbering from 0 instead, so the tasks run 0 through N − 1, is equally valid. But starting at 1 is the convention used here, and it matters as soon as the task ID indexes something. In some languages a list of N items, `items`, is indexed 0 through N − 1, so a 1-based task ID has to be shifted — `items[task_id - 1]` rather than `items[task_id]`. Get it wrong and nothing complains up front: the first item is silently skipped, and the last task runs off the end of the list.
 
-<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="main"> I can explain what a SLURM job array is: one script, launched many times, each task identical except for its task ID</label>
+<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="main"> I can explain what a Slurm job array is: one script, launched many times, each task identical except for its task ID</label>
 
 ---
 
@@ -118,7 +118,7 @@ The task number is what makes this general. Every task runs the identical script
 
 Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array. The filings are hosted online, and `data/aws_links.csv` — already in your cloned repo, alongside `scripts/` and `slurm/` — provides the URLs of all of them for you to query.
 
-You'll end up with two files: a new Python script that handles a single filing, and a SLURM script to launch it as an array — either a new one, or the `slurm/extract_form_3_batch.slurm` you wrote on Day 3, adapted.
+You'll end up with two files: a new Python script that handles a single filing, and a Slurm script to launch it as an array — either a new one, or the `slurm/extract_form_3_batch.slurm` you wrote on Day 3, adapted.
 
 Work through it in four steps.
 
@@ -244,7 +244,7 @@ output_path = Path("results") / name         # results/0000003570-22-000041.json
 
 </details>
 
-**4. Have the SLURM array script invoke your new Python script,** handing over the task ID as its argument:
+**4. Have the Slurm array script invoke your new Python script,** handing over the task ID as its argument:
 
 ```bash
 python scripts/extract_array.py "$SLURM_ARRAY_TASK_ID"
@@ -266,9 +266,7 @@ The new thing to notice is the job IDs: an array shows up as many rows sharing o
 
 ---
 
-## Optional practice
-
-**Combine the results into one CSV**
+## Optional Practice: Combine the Results into One CSV
 
 The array leaves you a directory of JSON files, one per filing. For analysis you want a single table instead — one row per filing, one column per field.
 
@@ -301,7 +299,7 @@ df.to_csv(OUTPUT_CSV, index=False)
 print(f"Wrote {len(df)} rows to {OUTPUT_CSV}")
 ```
 
-A failed task simply left no file, so it never turns up in the glob and nothing crashes. That's also why the count matters: if `len(df)` is less than 100, some tasks didn't finish — resubmit and, thanks to the skip-if-exists check below, only the missing ones do any work.
+A failed task simply left no file, so it never turns up in the glob and nothing crashes. That's also why the count matters: if `len(df)` is less than 100, some tasks didn't finish.
 
 </details>
 
@@ -324,10 +322,9 @@ What doesn't change is how much you have to keep track of. It's still one job ID
 
 A job array limits the *damage* of a failure, as we just saw — but you still have to redo whatever failed. A node reboots, a task hits its time limit, the API times out, and a handful of your 100 come back empty. Rerunning the whole array to catch them wastes compute, and with a paid API, money.
 
-The fix is to make each task safe to run again. Before doing any work, a task checks whether its output already exists and exits if it does. Resubmit the *same* array after a partial failure and the finished tasks stop immediately; only the missing ones do real work.
+The fix is to make each task safe to run again. Before doing any work, a task should check whether its output already exists and exit if it does. Now if you resubmit the *same* array after a partial failure, the finished tasks stop immediately; only the missing ones do real work.
 
-{: .important }
-> **Task:** Add the check to your script, right after you build the output path in step 3 — then resubmit the array you just ran.
+Add this check to your script, then resubmit the array you just ran.
 
 <details markdown="1">
 <summary>💡 Hint — one way to do it</summary>
@@ -349,7 +346,7 @@ Nothing has been deleted, so every task should find its output and exit at once 
 
 ## What You Learned
 
-- You can explain what a SLURM **job array** is: one script, submitted once, that SLURM runs as many independent tasks
+- You can explain what a Slurm **job array** is: one script, submitted once, that Slurm runs as many independent tasks
 - You know that `#SBATCH --array=1-N` creates the tasks and `SLURM_ARRAY_TASK_ID` distinguishes them, and how to hand that number to a Python script
 - You can map a task ID to a unit of work — here, for instance, reading the filings from `data/aws_links.csv` and indexing into them, minding that tasks count from 1 and lists from 0
 - You've submitted an array, watched the tasks move through `squeue`, and found each one's output in its own `%A_%a` log

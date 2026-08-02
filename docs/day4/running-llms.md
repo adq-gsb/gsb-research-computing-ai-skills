@@ -75,7 +75,7 @@ The Yens have several GPU types. For our purposes they differ mainly in one thin
 
 A model's weights have to fit in VRAM, so VRAM — not disk or CPU RAM — is the binding constraint on which models you can run.
 
-You request a GPU the same way you set any other resource in a SLURM script — a directive at the top:
+You request a GPU the same way you set any other resource in a Slurm script — a directive at the top:
 
 ```bash
 #SBATCH --partition=gpu       # the GPU partition (confirm the name for your setup)
@@ -193,5 +193,5 @@ tail -f logs/gpu_job_JOBID.out
 
 - You can explain why LLMs need a GPU: inference is massively parallel matrix multiplication, which GPUs do far faster than CPUs
 - You know that **VRAM** sets the ceiling on the model size a given GPU can load, and how the Yen GPUs compare
-- You can request a GPU in a SLURM job with `--partition=gpu` and `--gres=gpu:1`
+- You can request a GPU in a Slurm job with `--partition=gpu` and `--gres=gpu:1`
 - You ran an open model locally with Ollama and queried it — and you know switching endpoints is just a change of `base_url`

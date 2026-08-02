@@ -18,7 +18,7 @@ This capstone combines everything from the week into one pipeline — all at onc
 
 {: .important }
 > **Part 1 — Scale with an array job:**
-> Reuse the array script you built in [SLURM Job Arrays](../slurm-arrays/) (`--array=1-100`). Each task processes one filing and writes its result to `/scratch/shared/$USER/results/filing_N.json`. After the array completes, merge all outputs into `results/extracted_filings.csv`.
+> Reuse the array script you built in [Slurm Job Arrays](../slurm-arrays/) (`--array=1-100`). Each task processes one filing and writes its result to `/scratch/shared/$USER/results/filing_N.json`. After the array completes, merge all outputs into `results/extracted_filings.csv`.
 >
 > **Part 2 — Swap the endpoint:**
 > Modify your array script to call **Ollama on the H200** instead of the Stanford AI API Gateway. The Ollama server must be running on `yen-gpu4` in a `screen` session before you submit the array.
@@ -58,10 +58,10 @@ Every row in this table is a tool you used this week and where you learned it �
 | Python environment | venv + pip + dotenv | Day 2 — environment setup |
 | LLM extraction | Stanford AI API Gateway + Pydantic | Day 2 — structured extraction |
 | Data governance | 3-bucket privacy rule | Day 2 — data classification |
-| Batch jobs | SLURM `sbatch` + profiling | Day 3 — batch jobs |
+| Batch jobs | Slurm `sbatch` + profiling | Day 3 — batch jobs |
 | Documentation | README + project layout | Day 3 — reproducibility |
-| Parallel scaling | SLURM job arrays | Day 4 — SLURM Job Arrays |
-| Fault tolerance | Skip work already done on rerun | Day 4 — SLURM Job Arrays |
+| Parallel scaling | Slurm job arrays | Day 4 — Slurm Job Arrays |
+| Fault tolerance | Skip work already done on rerun | Day 4 — Slurm Job Arrays |
 | GPU computing | GPU via `--gres=gpu:1` | Day 4 — How to Run LLMs on the Yens |
 | Local LLMs | Ollama on cluster hardware | Day 4 — How to Run LLMs on the Yens |
 | Handling failures | Validation + guardrails | Day 4 — Handling LLM Failure Modes |

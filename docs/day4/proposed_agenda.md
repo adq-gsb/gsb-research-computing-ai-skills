@@ -16,10 +16,10 @@ sequencing addresses.
 1. **Parallelization (conceptual introduction)**
     - Draw a diagram on the whiteboard: one input SEC filing, one core moving from filing to filing
         - Compare with having multiple cores (ideally, have more filings than cores)
-    - Potentially: demo this in practice (compare runtime of a SLURM script that repeatedly invokes the single-file script versus running an array)
+    - Potentially: demo this in practice (compare runtime of a Slurm script that repeatedly invokes the single-file script versus running an array)
 
 2. **How to operationalize parallelization**
-    - The simplest way on the Yens: SLURM array jobs
+    - The simplest way on the Yens: Slurm array jobs
         - And combining outputs
     - Avoiding recomputation when jobs fail
     - **Exercise:** Running through all this, as described in [`array-cavern.md`](array-cavern.md)

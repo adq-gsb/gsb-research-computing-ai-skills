@@ -13,7 +13,7 @@ The DARC team runs the Yens and supports GSB researchers year-round. You are not
 ## Slack — `#gsb-yen-users`
 
 Join the **#gsb-yen-users** channel on Stanford Slack. It's where Yen users and the DARC team:
-- Answer questions about the cluster, SLURM, storage, and software
+- Answer questions about the cluster, Slurm, storage, and software
 - Share tips and scripts that didn't make it into any tutorial
 - Announce workshops, maintenance windows, and new hardware
 - Collect feedback about what to improve
@@ -36,7 +36,7 @@ Response time is typically one business day.
 
 | Situation | Where to go |
 |-----------|-------------|
-| "My SLURM job keeps failing" | `#gsb-yen-users` — someone has seen it |
+| "My Slurm job keeps failing" | `#gsb-yen-users` — someone has seen it |
 | "Is this dataset ok to send to an LLM?" | Email DARC or ask your IRB coordinator |
 | "I want to run something much bigger" | Email DARC — we can advise on allocations |
 | "Is there a workshop on X?" | Watch `#gsb-yen-users` for announcements |
@@ -48,9 +48,9 @@ Response time is typically one business day.
 
 Everything you ran this week is in your fork. Future projects can start from the same patterns:
 
-- **More data, same pipeline:** swap the input list in your SLURM array script
+- **More data, same pipeline:** swap the input list in your Slurm array script
 - **Different model:** change `base_url` and `model` — the rest is identical
 - **New dataset type:** adapt your Pydantic schema, rerun the pipeline
-- **Need a GPU:** add `--gres=gpu:1` (and the GPU partition) to your SLURM script — see [How to Run LLMs on the Yens](../running-llms/)
+- **Need a GPU:** add `--gres=gpu:1` (and the GPU partition) to your Slurm script — see [How to Run LLMs on the Yens](../running-llms/)
 
 The leaderboard stays up, and any optional exercises you didn't finish are still there.

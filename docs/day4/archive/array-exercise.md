@@ -9,7 +9,7 @@ permalink: /day4/archive/array-exercise/
 
 **Archived — not part of the course flow.** Deprecated on 2026-08-01: the
 hands-on array work now lives in the Exercise section of
-[SLURM Job Arrays](../../slurm-arrays/). Kept for the `merge_results.py`
+[Slurm Job Arrays](../../slurm-arrays/). Kept for the `merge_results.py`
 walkthrough and the per-Part structure, which have no equivalent there yet.
 
 It refers to `scripts/extract_form_3_cli.py`, which was deleted with this page —
@@ -29,7 +29,7 @@ You'll submit a job array that processes 100 SEC filings in parallel, then combi
 ---
 
 {: .important }
-> **Goal:** Submit a SLURM job array that processes 100 SEC filings in parallel, then combine all outputs into one CSV.
+> **Goal:** Submit a Slurm job array that processes 100 SEC filings in parallel, then combine all outputs into one CSV.
 
 **Part 1 — Prepare the input list:**
 
@@ -61,7 +61,7 @@ python3 ~/gsb-research-computing-ai-skills/scripts/extract_form_3_cli.py "$FILIN
 ```
 
 {: .tip }
-> **Throttle concurrency with `%N`.** As written, `--array=1-100` lets SLURM run as many of the 100 tasks at once as the partition allows — and since each task calls the Stanford AI API Gateway, dozens of simultaneous requests can trip the API's rate limit and fail. Cap how many run *at the same time* by appending `%N` to the array range:
+> **Throttle concurrency with `%N`.** As written, `--array=1-100` lets Slurm run as many of the 100 tasks at once as the partition allows — and since each task calls the Stanford AI API Gateway, dozens of simultaneous requests can trip the API's rate limit and fail. Cap how many run *at the same time* by appending `%N` to the array range:
 >
 > ```bash
 > #SBATCH --array=1-100%10   # all 100 tasks still run, but at most 10 at once
@@ -130,7 +130,7 @@ python3 scripts/merge_results.py
 > sbatch --dependency=afterany:$ARRAY_ID jobs/merge_results.sh   # runs once all tasks finish
 > ```
 >
-> Wrap `merge_results.py` in a short SLURM script (`jobs/merge_results.sh`) and the two steps become one hands-off pipeline. If the merge reports failures, resubmit the array (finished tasks skip themselves) and re-run the merge.
+> Wrap `merge_results.py` in a short Slurm script (`jobs/merge_results.sh`) and the two steps become one hands-off pipeline. If the merge reports failures, resubmit the array (finished tasks skip themselves) and re-run the merge.
 
 **Part 5 — Verify the merged file:**
 
@@ -150,7 +150,7 @@ head -3 results/extracted_filings.csv   # sanity-check the columns and first row
 
 ## What You Learned
 
-- You built and submitted a real SLURM job array across 100 filings on the Yens
+- You built and submitted a real Slurm job array across 100 filings on the Yens
 - You mapped `SLURM_ARRAY_TASK_ID` to a filing and wrote one output file per task
 - You monitored the array with `squeue` and resubmitted safely thanks to the skip-if-done check
 - You combined the per-task JSON outputs into a single CSV for analysis
