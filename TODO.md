@@ -8,6 +8,23 @@ Last updated 2026-08-02.
 
 ---
 
+## ▶ Resume here
+
+**Paused mid-edit on 2026-08-02: `docs/day4/validating-llm-outputs.md`
+("Handling LLM Failure Modes").** The page was being read top to bottom and
+tightened. Done so far: the intro signpost rejoined its paragraph; the
+"Even the Best Models Fail" opener de-orphaned and its "How brittle?" dropped;
+the "isn't an exam" and "calibration" paragraphs cut as duplicative; both
+**Real-world case** callouts switched from `note` to the new `aside` type.
+
+Next unread section is **Hallucination** (`:29`) — the sweep had reached its
+callouts but not its prose. Sections below it are untouched: Validating Outputs
+at Scale (`:42`), Failure Modes in Automated Pipelines (`:75`), What You Learned
+(`:110`), which is worth checking against the page the way `running-llms.md`'s
+was.
+
+---
+
 ## Naming & consistency
 
 ### Standardise "SLURM" → "Slurm" on Days 1, 2, and 4

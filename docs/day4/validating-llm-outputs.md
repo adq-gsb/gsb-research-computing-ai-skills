@@ -10,15 +10,13 @@ permalink: /day4/validating-llm-outputs/
 
 <div data-room-id="d4-failure-modes"></div>
 
-LLMs are remarkable tools — but they are also **brittle**. Even the best models get things wrong, often confidently, and often enough to matter. Before you trust an LLM's output — especially at scale (thousands of filings, for example) — you need a way to check it.
-
-How brittle? Look at how the frontier models do on a genuinely hard benchmark.
+LLMs are remarkable tools — but they are also **brittle**. Even the best models get things wrong, often confidently, and often enough to matter. Before you trust an LLM's output — especially at scale (thousands of filings, for example) — you need a way to check it. The rest of this page covers the failure modes to watch for, and how to build in checks to catch them before they reach your results.
 
 ---
 
 ## Even the Best Models Fail
 
-[**Humanity's Last Exam**](https://artificialanalysis.ai/evaluations/humanitys-last-exam) is a 3,000-question benchmark built from expert questions that frontier models *can't* answer. Even the best model tops out around 53% — the strongest AI available still gets about half of them wrong.
+Look at how the frontier models do on a genuinely hard benchmark. [**Humanity's Last Exam**](https://artificialanalysis.ai/evaluations/humanitys-last-exam) is a 3,000-question benchmark built from expert questions that frontier models *can't* answer. Even the best model tops out around 53% — the strongest AI available still gets about half of them wrong.
 
 ![Bar chart of Humanity's Last Exam scores by model: the top model scores about 53%, most frontier models sit in the 40s, and many score far lower.]({{ site.baseurl }}/assets/images/humanitys-last-exam.png)
 
@@ -26,24 +24,18 @@ How brittle? Look at how the frontier models do on a genuinely hard benchmark.
 
 Capability is also uneven — the same models score about 94% on GPQA Diamond (graduate-level science). But even 94% is a 6% failure rate: fine for some uses, catastrophic for others. The question isn't "is the model accurate?" but "accurate enough *for this*?" — which you can only answer by measuring your own error rate.
 
-Your extraction job isn't an exam, but the lesson holds: across a batch of filings, the model will nail most and quietly get some wrong. The rest of this page covers the failure modes to watch for, and how to build in checks to catch them before they reach your results.
-
 ---
 
 ## Hallucination
 
 The most notorious failure mode is **hallucination**: the model produces fluent, confident, plausible-looking output that is simply false — and nothing in the output itself flags it. In high-stakes settings, that can be professionally consequential.
 
-{: .note }
+{: .aside }
 > **Real-world case:** in 2024, Stanford misinformation expert Jeff Hancock submitted expert testimony citing journal articles that ChatGPT had invented, and the court [threw it out](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/). (Lawyers have been sanctioned for the same thing.)
 >
 > ![Minnesota Reformer headline: "Misinformation expert used AI to draft testimony containing misinformation about AI"]({{ site.baseurl }}/assets/images/hancock-ai-testimony-headline.png)
 >
 > *Source: [Minnesota Reformer](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/).*
-
-The deeper issue is "calibration": the model doesn't reliably signal when it's unsure, so a confident tone tells you nothing about whether the answer is right. You usually have to gauge that uncertainty *externally* — which is what the next section is about.
-
-For your work the lesson is concrete: ask an LLM to extract a value and it may hand back a confident, well-formatted answer that's wrong — with no error and no warning.
 
 ---
 
@@ -90,7 +82,7 @@ The stakes rise sharply when an LLM's output drives an action — writing to a d
 
 Recall from [Day 1](../../day1/command-spire/) that `rm` deletes permanently — no trash, no undo; an agent runs the same commands, just without a human pausing to reconsider. Agents run with *your* full permissions, so "clean up this folder" can reach anything you can.
 
-{: .note }
+{: .aside }
 > **Real-world case:** in early 2026 a user asked Claude to organize a desktop, and it deleted a folder holding roughly 15 years of family photos — thousands of files — with terminal commands that bypassed the Trash entirely.
 >
 > ![Futurism headline: Blundering Husband Asks Claude AI to Organize Wife's PC, Accidentally Erases Her Cherished Family Photos]({{ site.baseurl }}/assets/images/claude-family-photos-headline.png)
