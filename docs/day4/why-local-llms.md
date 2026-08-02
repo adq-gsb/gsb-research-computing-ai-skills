@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Why Run LLMs on the Yens?"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 4
 permalink: /day4/why-local-llms/
 ---

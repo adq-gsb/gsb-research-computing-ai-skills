@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Parallelization Basics"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 1
 permalink: /day4/parallelization/
 ---

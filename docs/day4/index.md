@@ -1,6 +1,6 @@
 ---
 layout: floor
-title: "Day 4 — Parallelization & GPUs"
+title: "Day 4 — Parallelization & Local LLMs"
 nav_order: 4
 has_children: true
 has_toc: false
@@ -8,7 +8,7 @@ permalink: /day4/
 floor: 4
 ---
 
-# Day 4 — Parallelization & GPUs
+# Day 4 — Parallelization & Local LLMs
 
 <p style="color:#c0392b; font-weight:700;">TODO: Update this summary page — the intro summary below and the per-section summaries in the Sections table are out of date after the Day 4 content revisions (e.g., the restructured Parallelization Basics page).</p>
 

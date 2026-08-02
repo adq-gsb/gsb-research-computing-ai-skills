@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Handling LLM Failure Modes"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 6
 permalink: /day4/validating-llm-outputs/
 ---

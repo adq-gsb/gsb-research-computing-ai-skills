@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Slurm Job Arrays"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 2
 permalink: /day4/slurm-arrays/
 ---

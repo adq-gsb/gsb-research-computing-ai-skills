@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "How to Run LLMs on the Yens"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 5
 permalink: /day4/running-llms/
 ---
@@ -10,7 +10,40 @@ permalink: /day4/running-llms/
 
 <div data-room-id="d4-running-llms"></div>
 
-The last section covered *why* you'd run a model yourself. This one is the *how*: LLMs need a **GPU**, so you'll request one from the cluster, load an open model onto it, and query that model with the same OpenAI-compatible code you already used for the Playground.
+The last section covered *why* you'd run a model yourself. This is a high-level overview of *how*: loading an open model onto the cluster, starting a server that holds it, and running queries against that server — potentially on a GPU, which makes inference (the work of running the model to produce an answer) much faster.
+
+{: .note }
+> **Setting up your own local LLM server.** There aren't enough GPUs on the Yens for everyone to hold one at once, and setting a server up takes time — so we won't have you each do it today. If you want to do it yourself later, every step is documented in [Running Ollama on Stanford Computing Clusters](https://rcpedia.stanford.edu/blog/2025/05/12/running-ollama-on-stanford-computing-clusters/).
+
+---
+
+## The Three Steps, in Outline
+
+At a high level, running a model on the cluster comes down to three things:
+
+1. **Loading an open model onto the cluster.** Download the weights once and cache them on cluster storage, so nothing has to be fetched again on later runs.
+2. **Starting a server that holds it.** Loading a model into memory takes time, so you pay that cost once and leave the process running, rather than reloading for every query.
+3. **Running queries against that server.** From your own code, across the cluster's internal network — the request never leaves the Yens. The server does the work and sends back the answer.
+
+**[Ollama](https://ollama.com/)** is the standard way to do all three, and what we use here. It downloads open-weight models, keeps one loaded in memory, and serves it behind an HTTP API.
+
+---
+
+## Exercise: Querying a Local LLM
+
+{: .demo }
+> We've already done the work of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
+>
+> We'll write the server's URL on the board in a second — paste it in place of `<server-url>` below, then run the command to submit a query of your choosing.
+>
+> ```bash
+> curl <server-url>/v1/chat/completions \
+>   --json '{"model": "llama3.2:3b", "messages": [{"role": "user", "content": "<your query>"}]}'
+> ```
+>
+> While you do that, we'll watch them arrive — the server logs every request it receives.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="query"> I submitted a query to the local LLM and got a response back</label>
 
 ---
 
@@ -63,7 +96,7 @@ So: "running an LLM on the Yens" really means get your job onto a **GPU node**, 
 
 ---
 
-## GPUs on the Yens
+## Which Hardware You Need
 
 The Yens have several GPU types. For our purposes they differ mainly in one thing: **VRAM** (the GPU's own memory), which sets a ceiling on how big a model you can load.
 
@@ -95,29 +128,30 @@ Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler 
 >
 > **Release it when you're done.** Type `exit` the moment your experimentation is complete. An interactive allocation holds the GPU for the *full* `--time` you requested — even while it sits idle at your shell prompt — so no one else can use that GPU until you exit or the time limit runs out. GPUs are scarce shared resources; don't sit on one you've finished with.
 
-<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="main"> I know why LLMs need a GPU and how to request one on the Yens</label>
+<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="main"> I can say what hardware a given model needs, and why VRAM is the binding constraint</label>
 
 ---
 
-## Exercise: Run a Model on a GPU
+## Exercise: Query a Local Model
 
-We'll use **[Ollama](https://ollama.com)**, a tool that downloads an open model and serves it behind a local API. Run these on a GPU node (an interactive GPU session, or inside a GPU job).
+An Ollama server is already running on the Yens — your instructor will give you its address.
 
-**Part 1 — Pull and serve an open model:**
+**Part 1 — Check you can reach it.** Substitute the URL you were given — it looks like `http://yen-gpu4:41234`:
 
 ```bash
-ollama pull llama3.2:3b     # download the weights (cached locally on the cluster)
-ollama serve                # start the local model server (keep it running)
+curl <server-url>          # → Ollama is running
 ```
 
-**Part 2 — Query it from Python.** The interface is **OpenAI-compatible**, so this is the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes.
+That request left your node, crossed to another machine on the Yens, and came back — without leaving the cluster. You are not on the machine holding the model, and you don't need to be — you don't need a GPU, the weights, or an account on that node. All you need is the address.
+
+**Part 2 — Query it from Python.** The interface is **OpenAI-compatible**, so this is the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes:
 
 ```python
 from openai import OpenAI
 
 client = OpenAI(
-    base_url="http://localhost:11434/v1",   # the local Ollama server
-    api_key="ollama",                        # ignored, but the client requires a value
+    base_url="<server-url>/v1",              # the model server on the Yens
+    api_key="ollama",                          # ignored, but the client requires a value
 )
 
 response = client.chat.completions.create(
@@ -127,12 +161,15 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-Switching between a local model, the Playground, and a third-party API is just a matter of changing `base_url` (and `model`/`api_key`) — the rest of your pipeline stays identical.
+Switching between a local model, the Stanford AI API Gateway, and a third-party API is a matter of changing `base_url` (and `model`/`api_key`) — the rest of your pipeline stays identical.
 
 {: .note }
 > The model runs entirely on the Yens — your prompts and data never leave the cluster. That's the privacy point from the last section, made real.
 
-<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="exercise"> Exercise complete — pulled an open model on a GPU and queried it</label>
+{: .warning }
+> This only works while the server is running. It lives inside a Slurm job, so when that job ends the address stops answering — the model is not a permanent service on the cluster.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="exercise"> Exercise complete — queried a model running on another node from my own</label>
 
 ---
 
@@ -191,7 +228,9 @@ tail -f logs/gpu_job_JOBID.out
 
 ## What You Learned
 
-- You can explain why LLMs need a GPU: inference is massively parallel matrix multiplication, which GPUs do far faster than CPUs
+- You can explain why a GPU makes LLM inference fast: it is massively parallel matrix multiplication, which GPUs do far better than CPUs
 - You know that **VRAM** sets the ceiling on the model size a given GPU can load, and how the Yen GPUs compare
 - You can request a GPU in a Slurm job with `--partition=gpu` and `--gres=gpu:1`
-- You ran an open model locally with Ollama and queried it — and you know switching endpoints is just a change of `base_url`
+- You queried a model running on the Yens from a node that wasn't hosting it — and you know switching
+  between it, the Stanford AI API Gateway and a third-party API is just a change of `base_url`
+- You know where the setup steps live if you want to serve a model yourself

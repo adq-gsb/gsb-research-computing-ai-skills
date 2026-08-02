@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Putting It All Together"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 7
 permalink: /day4/putting-it-all-together/
 ---

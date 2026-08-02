@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "Staying In Touch"
-parent: "Day 4 — Parallelization & GPUs"
+parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 8
 permalink: /day4/staying-in-touch/
 ---
