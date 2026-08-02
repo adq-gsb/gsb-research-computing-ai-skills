@@ -28,7 +28,7 @@ At a high level, running a model on the cluster comes down to three things:
 
 ## Exercise: Querying a Local LLM
 
-We've already done the work for you of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
+We've already done the work for you of downloading a model — `llama3.2:1b`, Meta's **open-weight** Llama 3.2 at 1 billion parameters, freely downloadable by anyone — and setting up a server.
 
 {: .note }
 > **Setting up your own local LLM server.** There aren't enough GPUs on the Yens for everyone to hold one at once, and setting a server up takes time — so we won't have you each do it today. If you want to do it yourself later, every step is documented in [Running Ollama on Stanford Computing Clusters](https://rcpedia.stanford.edu/blog/2025/05/12/running-ollama-on-stanford-computing-clusters/).
@@ -43,7 +43,8 @@ curl <server-url>
 
 You should see `Ollama is running` after running the command.
 
-That request left your node, crossed to another machine on the Yens, and came back — without leaving the cluster.
+{: .note }
+> That request left your node, crossed to another machine on the Yens, and came back — without leaving the cluster. The model runs there too, so your prompts and data never leave the Yens.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="reach"> I reached the server and got `Ollama is running` back</label>
 
@@ -58,7 +59,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="llama3.2:3b",
+    model="llama3.2:1b",
     messages=[{"role": "user", "content": "<your query>"}],
 )
 print(response.choices[0].message.content)
@@ -66,6 +67,9 @@ print(response.choices[0].message.content)
 
 {: .note }
 > The interface to the local LLM is **OpenAI-compatible**, so this is effectively the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes.
+
+{: .warning }
+> This only works while the server is running. It lives inside a Slurm job, so when that job ends the address stops answering — the model is not a permanent service on the cluster.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="query"> I submitted a query to the local LLM and got a response back</label>
 
@@ -148,105 +152,11 @@ Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler 
 > srun --partition=gpu --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=01:00:00 --pty bash
 > ```
 >
-> This drops you into a shell *on a GPU node* with one GPU reserved — run `nvidia-smi` to confirm. To pin a specific GPU type (e.g. the H200 for a large model), add `--constraint="GPU_MODEL:H200"`. Reach for an interactive session when you're exploring or testing; use a batch job (the Optional Practice below) for long or production runs that should queue unattended.
+> This drops you into a shell *on a GPU node* with one GPU reserved — run `nvidia-smi` to confirm. To pin a specific GPU type (e.g. the H200 for a large model), add `--constraint="GPU_MODEL:H200"`. Reach for an interactive session when you're exploring or testing; use a batch job for long or production runs that should queue unattended.
 >
 > **Release it when you're done.** Type `exit` the moment your experimentation is complete. An interactive allocation holds the GPU for the *full* `--time` you requested — even while it sits idle at your shell prompt — so no one else can use that GPU until you exit or the time limit runs out. GPUs are scarce shared resources; don't sit on one you've finished with.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="main"> I can say what hardware a given model needs, and why VRAM is the binding constraint</label>
-
----
-
-## Exercise: Query a Local Model
-
-An Ollama server is already running on the Yens — your instructor will give you its address.
-
-**Part 1 — Check you can reach it.** Substitute the URL you were given:
-
-```bash
-curl <server-url>          # → Ollama is running
-```
-
-That request left your node, crossed to another machine on the Yens, and came back — without leaving the cluster. You are not on the machine holding the model, and you don't need to be — you don't need a GPU, the weights, or an account on that node. All you need is the address.
-
-**Part 2 — Query it from Python.** The interface is **OpenAI-compatible**, so this is effectively the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes:
-
-```python
-from openai import OpenAI
-
-client = OpenAI(
-    base_url="<server-url>/v1",              # the model server on the Yens
-    api_key="ollama",                          # ignored, but the client requires a value
-)
-
-response = client.chat.completions.create(
-    model="llama3.2:3b",
-    messages=[{"role": "user", "content": "In one sentence, what is an SEC Form 3 filing?"}],
-)
-print(response.choices[0].message.content)
-```
-
-Switching between a local model, the Stanford AI API Gateway, and a third-party API is a matter of changing `base_url` (and `model`/`api_key`) — the rest of your pipeline stays identical.
-
-{: .note }
-> The model runs entirely on the Yens — your prompts and data never leave the cluster. That's the privacy point from the last section, made real.
-
-{: .warning }
-> This only works while the server is running. It lives inside a Slurm job, so when that job ends the address stops answering — the model is not a permanent service on the cluster.
-
-<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="exercise"> Exercise complete — queried a model running on another node from my own</label>
-
----
-
-## Optional Practice — Submit a GPU Job to the Partition
-
-Finished early? Instead of working interactively, submit a **batch job** to the GPU partition and confirm it actually landed on a GPU.
-
-Write `jobs/first_gpu_job.sh`:
-
-```bash
-#!/bin/bash
-#SBATCH --job-name=first_gpu_job
-#SBATCH --output=logs/gpu_job_%j.out
-#SBATCH --error=logs/gpu_job_%j.err
-#SBATCH --time=00:15:00
-#SBATCH --mem=16G
-#SBATCH --cpus-per-task=4
-#SBATCH --gres=gpu:1                     # request 1 GPU (any type is fine for this check)
-#SBATCH --partition=gpu                 # GPU partition (confirm with instructor)
-
-echo "Running on: $(hostname)"
-echo "GPU info:"
-nvidia-smi
-
-source ~/gsb-research-computing-ai-skills/.venv/bin/activate
-pip install torch --quiet   # if not already installed
-
-python3 - <<'EOF'
-import torch
-print(f"CUDA available: {torch.cuda.is_available()}")
-print(f"GPU: {torch.cuda.get_device_name(0)}")
-print(f"VRAM total: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
-
-# Simple GPU computation to confirm it's working
-x = torch.randn(10000, 10000, device="cuda")
-y = x @ x.T
-print(f"Matrix multiply complete. Result shape: {y.shape}")
-EOF
-```
-
-Submit it and watch the log once it runs:
-
-```bash
-sbatch jobs/first_gpu_job.sh
-tail -f logs/gpu_job_JOBID.out
-```
-
-`nvidia-smi` should list a GPU, and the Python check should print `CUDA available: True` along with the GPU's name and VRAM.
-
-{: .note }
-> `torch`, or PyTorch, is one of the canonical deep-learning libraries that LLMs are architected in — which makes it a natural way to confirm the GPU is usable from Python. **CUDA** is NVIDIA's software layer that lets ordinary code run on its GPUs; `CUDA available: True` means PyTorch can actually reach the GPU.
-
-<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="side1"> Optional Practice complete — submitted a GPU job and confirmed it ran on a GPU</label>
 
 ---
 
