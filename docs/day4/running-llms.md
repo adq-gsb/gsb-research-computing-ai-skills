@@ -10,7 +10,7 @@ permalink: /day4/running-llms/
 
 <div data-room-id="d4-running-llms"></div>
 
-The last section covered *why* you'd run a model yourself. This is a high-level overview of *how*: loading an open model onto the cluster, starting a server that holds it, and running queries against that server — potentially on a GPU, which makes inference (the work of running the model to produce an answer) much faster.
+The last section covered *why* you'd run a model yourself. This is a high-level overview of *how*: loading an open model onto the cluster, starting a server that holds it, and running queries against that server — potentially on a GPU (graphics processing unit), which makes inference (the work of running the model to produce an answer) much faster.
 
 ---
 
@@ -69,20 +69,43 @@ print(response.choices[0].message.content)
 > The interface to the local LLM is **OpenAI-compatible**, so this is effectively the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes.
 
 {: .warning }
-> This only works while the server is running. It lives inside a Slurm job, so when that job ends the address stops answering — the model is not a permanent service on the cluster.
+> This only works while the server is running. To use a local LLM in the future, you'll have to set one up yourself.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="query"> I submitted a query to the local LLM and got a response back</label>
 
 ---
 
-## Why LLMs Need a GPU
+## Running Local LLMs on Different Types of Hardware
 
-Running an LLM is, under the hood, an enormous chain of **matrix multiplications** — the same arithmetic repeated across billions of numbers. A CPU does a few of these at a time, whereas a **GPU** (graphics processing unit) has thousands of small cores that do them all at once. Because those billions of multiplications don't depend on each other, spreading them across thousands of cores clears the whole batch far faster — so a model that crawls on a CPU runs at a usable speed on a GPU.
+{: .demo }
+> You may have noticed that the server URL pointed to a GPU node on the Yens.
+>
+> Now let's run queries on a local LLM that's running on a **CPU** instead.
+>
+> We'll send the same query to each and time them — same model, same prompt, same code, with only the hardware underneath differing.
+>
+> What do you notice about the runtime?
 
-So: "running an LLM on the Yens" really means get your job onto a **GPU node**, where the model can actually run sufficiently quickly.
+<details markdown="1">
+<summary>What we saw (expand after discussion)</summary>
 
-{: .note }
-> The dependence of LLMs on GPUs has made them enormously valuable. Indeed, the surge in the share price of NVIDIA, the dominant GPU maker, tracks the AI boom:
+The CPU still answers — but slower, and *how much* slower depends on:
+
+- The prompt length;
+- The length of the answer the model generates;
+- The GPU and CPU — chip model, and how many cores the CPU has; and
+- The model size.
+
+A small difference per query can still be a meaningful one, for a task that runs a lot of them — a few seconds each becomes hours across thousands of queries.
+
+And our example is on the favourable end for the CPU: a short query, of low complexity, against a small model. A longer prompt, a longer answer, or a bigger model all widen the gap.
+
+</details>
+
+We won't go into the details of why a GPU is faster than a CPU at running LLM queries. It's enough to say that the demo above illustrates GPUs are much faster in general — though we've also seen that a CPU may be enough for basic tasks.
+
+{: .aside }
+> The efficacy of GPUs for training LLMs and serving LLM queries has made them enormously valuable. Indeed, the surge in the share price of NVIDIA, the dominant GPU maker, tracks the AI boom:
 >
 > <svg viewBox="0 0 600 278" role="img" aria-labelledby="nvda-title nvda-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:600px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
 >   <title id="nvda-title">NVIDIA share price over time</title>
@@ -124,9 +147,9 @@ So: "running an LLM on the Yens" really means get your job onto a **GPU node**, 
 
 ---
 
-## Which Hardware You Need
+## Types of GPUs Available on the Yens
 
-The Yens have several GPU types. For our purposes they differ mainly in one thing: **VRAM** (the GPU's own memory), which sets a ceiling on how big a model you can load.
+The Yens have several GPU types. For our purposes they differ mainly in one thing: **VRAM** (video random-access memory — the GPU's own memory), which sets a ceiling on how big a model you can load.
 
 | GPU type | VRAM | Roughly good for |
 |-----|------|------------------|
@@ -143,7 +166,7 @@ You request a GPU the same way you set any other resource in a Slurm script — 
 #SBATCH --gres=gpu:1          # request one GPU
 ```
 
-Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler what your job needs — here, one GPU. Match the partition name (and any specific-node targeting) to your cluster's current setup; ask an instructor if unsure.
+Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler what your job needs — here, one GPU. Match the partition name (and any specific-node targeting) to your cluster's current setup.
 
 {: .tip }
 > **For interactive work** — exploring, pulling a model, quick tests — you don't need a batch script. Grab a GPU node directly with `srun --pty`, the same command you used for a CPU allocation on [Day 3](../../day3/ticket-rail/), plus the GPU flags:
@@ -153,18 +176,20 @@ Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler 
 > ```
 >
 > This drops you into a shell *on a GPU node* with one GPU reserved — run `nvidia-smi` to confirm. To pin a specific GPU type (e.g. the H200 for a large model), add `--constraint="GPU_MODEL:H200"`. Reach for an interactive session when you're exploring or testing; use a batch job for long or production runs that should queue unattended.
->
+
+{: .warning }
 > **Release it when you're done.** Type `exit` the moment your experimentation is complete. An interactive allocation holds the GPU for the *full* `--time` you requested — even while it sits idle at your shell prompt — so no one else can use that GPU until you exit or the time limit runs out. GPUs are scarce shared resources; don't sit on one you've finished with.
 
-<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="main"> I can say what hardware a given model needs, and why VRAM is the binding constraint</label>
+<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="main"> I understand, at a high level, the GPUs available on the Yens and how to access them</label>
 
 ---
 
 ## What You Learned
 
-- You can explain why a GPU makes LLM inference fast: it is massively parallel matrix multiplication, which GPUs do far better than CPUs
+- You know what running an LLM on the cluster involves: loading the weights, starting a server that holds the model, and querying that server
+- You queried a model hosted on another node of the Yens from your own — and your prompt never left the cluster
+- You know that pointing your code at a local model rather than the Stanford AI API Gateway is a change of `base_url`
+- You've seen the same model answer on a GPU and on a CPU, and know the GPU is generally much faster
 - You know that **VRAM** sets the ceiling on the model size a given GPU can load, and how the Yen GPUs compare
-- You can request a GPU in a Slurm job with `--partition=gpu` and `--gres=gpu:1`
-- You queried a model running on the Yens from a node that wasn't hosting it — and you know switching
-  between it, the Stanford AI API Gateway and a third-party API is just a change of `base_url`
+- You can request a GPU in a Slurm job with `--partition=gpu` and `--gres=gpu:1`, or interactively with `srun --pty`
 - You know where the setup steps live if you want to serve a model yourself

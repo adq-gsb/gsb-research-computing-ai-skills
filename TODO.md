@@ -402,6 +402,33 @@ overstates what this hardware shows, and a student who runs the comparison
 themselves will find that out. Either the prose softens to a ratio claim, or the
 demo is built on the long-prompt case.
 
+**The callout now exists on the page** — `## Running Local LLMs on Different
+Hardware`, after the `query` checkbox — but says only "the same query", which on a
+short prompt demonstrates the 3.2x case that undercuts the sentence one section
+below it. Decide the prompt before the session and make the callout say so.
+
+**The reveal under it needs editing before anyone reads it.** The callout ends
+"What do you notice about the runtime?" followed by a Day-1-style
+`<summary>What we saw (expand after discussion)</summary>`. Claude drafted its
+contents on 2026-08-02; four things to settle:
+
+1. ~~The numbers are hardware-specific.~~ **Resolved** — Ben cut the measured
+   ratios and the A30/8-core specifics from the reveal on 2026-08-02, so nothing
+   on the page now depends on which card the server draws. The measurements above
+   are still the basis for choosing the demo prompt; they just aren't quoted to
+   students.
+2. ~~It introduces prefill and decode.~~ **Resolved** in the same edit — the
+   mechanism is gone; the reveal now makes the practical point (small per-query
+   differences compound over many queries) and flags that the demo is the
+   CPU-favourable case.
+3. ~~It contradicts the next section.~~ **Resolved 2026-08-02** — the "crawls on
+   a CPU" sentence is gone, along with the "Why LLMs Need a GPU" heading and its
+   matrix-multiplication argument. What survives — a short paragraph deferring to
+   the demo, plus the NVIDIA note — now sits under "Running Local LLMs on
+   Different Types of Hardware".
+4. **It is Claude's prose, lightly reviewed.** Ben rewrote the substance; the
+   framing sentences around it have not been read against the rest of the page.
+
 **Prompt length is the lever, and the mechanism is worth teaching.** Inference is
 prefill (the prompt, one big parallel matrix multiply) then decode (generation, one
 token at a time, memory-bandwidth-bound). GPUs dominate prefill; CPUs keep up far

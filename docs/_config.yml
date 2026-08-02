@@ -70,6 +70,13 @@ callouts:
   demo:
     title: Demo
     color: grey-dk
+  # Tangential material — worth knowing, not needed to follow the page.
+  # grey-dk only satisfies the theme's SCSS (it needs a $<color>-300 variable);
+  # the muted colour it actually renders in is set in assets/css/dungeon.css,
+  # so an aside reads as quieter than the demo box it would otherwise match.
+  aside:
+    title: Aside
+    color: grey-dk
 
 markdown: kramdown
 kramdown:
