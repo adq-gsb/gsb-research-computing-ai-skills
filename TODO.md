@@ -330,6 +330,30 @@ after class, which is really the underlying question.
 
 ---
 
+### Remind students to release GPUs they've reserved
+Wherever the material has students hold a GPU, it should also tell them to give it
+back. An interactive `srun --pty` allocation holds the GPU for the *full* `--time`
+requested, idle or not, and there are only four GPU nodes with a 4-per-user cap —
+so one forgotten session can block a classmate for hours.
+
+`docs/day4/running-llms.md:96` already does this well, inside the `srun` tip:
+
+> **Release it when you're done.** Type `exit` the moment your experimentation is
+> complete. An interactive allocation holds the GPU for the *full* `--time` you
+> requested — even while it sits idle at your shell prompt — so no one else can use
+> that GPU until you exit or the time limit runs out. GPUs are scarce shared
+> resources; don't sit on one you've finished with.
+
+**To check:** that the same reminder reaches the other places a GPU gets held —
+the Optional Practice section on that page, the capstone (which has students run
+Ollama on `yen-gpu4`), and anywhere the instructor notes end up describing the
+shared server. Batch jobs need `scancel`, not `exit`, so the wording differs;
+Day 3 teaches `scancel JOBID` at `slurm-job.md`, and `squeue --me` is how you find
+strays.
+
+Worth a glance before each session too: `squeue --me` will show anything left
+holding a GPU from earlier.
+
 ### Ollama for Day 4: host one server, students query it
 **Plan settled 2026-08-02, not yet implemented.** Rather than each student
 requesting a GPU and pulling weights, run one Ollama server and give the class its
@@ -411,9 +435,42 @@ their examples need the model name swapped wherever they are adapted.
 be comfortable but has not been tested. Two things left to check in a dry run:
 `num_ctx` on a real filing, and whether `/v1/chat/completions` works at all.
 
-**Showing incoming queries live.** The server logs every request to stdout, which
-in a Slurm job lands in the `--output` file, so `tail -f logs/ollama_server_<jobid>.out`
-is a live feed. The notebook shows the format:
+**Showing incoming queries live.** The server logs every request to stdout — but
+*where* that lands depends on how the server was started, which is not yet settled:
+
+- **`sbatch`** → the job's `--output` file, so `tail -f logs/ollama_server_<jobid>.out`.
+- **`screen` or `srun --pty`** → the terminal itself; you reattach (`screen -r ollama`)
+  rather than tailing anything. This is what `putting-it-all-together.md:24` currently
+  assumes ("must be running on `yen-gpu4` in a `screen` session").
+
+Pick one and make the capstone, the demo callout on `running-llms.md`, and the
+server script agree. `sbatch` is the better fit for a class — it survives a dropped
+connection and gives a file to tail — but it contradicts the capstone as written.
+
+**If the server does stay interactive**, redirect its output at launch so there is
+still a file to watch, rather than tying up the terminal it runs in:
+
+```bash
+ollama serve > /scratch/users/$USER/ollama/server.log 2>&1 &
+tail -f /scratch/users/$USER/ollama/server.log
+```
+
+That gives a `tail -f` in one window, `grep` in another, and a record kept after
+the session of what the class actually sent. `ollama.sh` uses `exec` in its serve
+branch, but `&` forks a subshell first, so `exec` replaces *that* — backgrounding
+is safe, and `$!` is the Apptainer process. (Checked against the helper's source,
+not run on the cluster.)
+
+Two things the helper's source also shows, both handled in
+`.instructor/ollama/start_ollama_server.sh`:
+
+- `port.txt` and `host.txt` are written *before* the container starts, so their
+  existence does not mean anything is listening. Poll the endpoint instead.
+- `--nv` is hardcoded in both branches of the `ollama()` wrapper. Whether a
+  CPU-only node warns (legacy `--nv`) or errors (`--nvccli`) is untested, and
+  decides whether the run-it-on-CPU contrast is possible at all.
+
+The notebook shows the log format:
 
 ```
 [GIN] 2025/05/02 - 15:49:41 | 200 |  993.652625ms | 10.203.0.198 | POST "/api/chat"
