@@ -161,11 +161,11 @@ while [ "$SECONDS" -lt "$deadline" ]; do
 
       $url
 
-  Students test it with:
+  Students' first step is the reach check on running-llms.md:
 
-      curl $url/v1/chat/completions \\
-        -H 'Content-Type: application/json' \\
-        -d '{"model": "${MODEL}", "messages": [{"role": "user", "content": "hello"}]}'
+      curl $url          # → Ollama is running
+
+  then the same address as base_url="$url/v1" from Python.
 
   Job $jobid — logs in ${COORD_DIR}/
   Stop it with: scancel $jobid

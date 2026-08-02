@@ -12,9 +12,6 @@ permalink: /day4/running-llms/
 
 The last section covered *why* you'd run a model yourself. This is a high-level overview of *how*: loading an open model onto the cluster, starting a server that holds it, and running queries against that server — potentially on a GPU, which makes inference (the work of running the model to produce an answer) much faster.
 
-{: .note }
-> **Setting up your own local LLM server.** There aren't enough GPUs on the Yens for everyone to hold one at once, and setting a server up takes time — so we won't have you each do it today. If you want to do it yourself later, every step is documented in [Running Ollama on Stanford Computing Clusters](https://rcpedia.stanford.edu/blog/2025/05/12/running-ollama-on-stanford-computing-clusters/).
-
 ---
 
 ## The Three Steps, in Outline
@@ -33,7 +30,10 @@ At a high level, running a model on the cluster comes down to three things:
 
 We've already done the work for you of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
 
-To access this server, you'll need its URL, which corresponds to the node the server is on as well as a port (a numbered door into that machine — one node can be running many services at once, and the port is how you say which one you're knocking on).
+{: .note }
+> **Setting up your own local LLM server.** There aren't enough GPUs on the Yens for everyone to hold one at once, and setting a server up takes time — so we won't have you each do it today. If you want to do it yourself later, every step is documented in [Running Ollama on Stanford Computing Clusters](https://rcpedia.stanford.edu/blog/2025/05/12/running-ollama-on-stanford-computing-clusters/).
+
+To access this server, you'll need its URL, which corresponds to the node the server is on as well as a port (a numbered door into that machine — one node can be running many services at once, and the port is how you say which door you're knocking on).
 
 **First, check you can reach the server.** The way you do this is by running the following command, substituting the URL we've given you:
 

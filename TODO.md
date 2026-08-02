@@ -513,33 +513,14 @@ and `num_ctx` on a real filing. Note the `default_num_ctx=262144` seen in that
 run is VRAM-derived on a 141 GiB H200 — an A30 or A40 will default lower, so
 measure it on the card you will actually teach from.
 
-**Showing incoming queries live.** The server logs every request to stdout — but
-*where* that lands depends on how the server was started, which is not yet settled:
+**Still open: `sbatch` or `screen` for the server.** `ensure_ollama_server.sh`
+submits a batch job, which is the better fit for a class — it survives a dropped
+connection and a closed laptop. But `putting-it-all-together.md:24` tells students
+the server "must be running on `yen-gpu4` in a `screen` session", so the capstone
+and the instructor tooling currently describe different setups. Pick one and make
+them agree.
 
-- **`sbatch`** → the job's `--output` file, so `tail -f logs/ollama_server_<jobid>.out`.
-- **`screen` or `srun --pty`** → the terminal itself; you reattach (`screen -r ollama`)
-  rather than tailing anything. This is what `putting-it-all-together.md:24` currently
-  assumes ("must be running on `yen-gpu4` in a `screen` session").
-
-Pick one and make the capstone, the demo callout on `running-llms.md`, and the
-server script agree. `sbatch` is the better fit for a class — it survives a dropped
-connection and gives a file to tail — but it contradicts the capstone as written.
-
-**If the server does stay interactive**, redirect its output at launch so there is
-still a file to watch, rather than tying up the terminal it runs in:
-
-```bash
-ollama serve > /scratch/users/$USER/ollama/server.log 2>&1 &
-tail -f /scratch/users/$USER/ollama/server.log
-```
-
-That gives a `tail -f` in one window, `grep` in another, and a record kept after
-the session of what the class actually sent. `ollama.sh` uses `exec` in its serve
-branch, but `&` forks a subshell first, so `exec` replaces *that* — backgrounding
-is safe, and `$!` is the Apptainer process. (Checked against the helper's source,
-not run on the cluster.)
-
-Two things the helper's source also shows, both handled in
+Two things the helper's source shows, both handled in
 `.instructor/ollama/start_ollama_server.sh`:
 
 - `port.txt` and `host.txt` are written *before* the container starts, so their
@@ -551,7 +532,17 @@ Two things the helper's source also shows, both handled in
   runs happily alongside the GPU one, provided it gets its own `SCRATCH_BASE` —
   `ensure_ollama_server.sh` takes `PARTITION=normal GPUS=0` for this.
 
-The notebook shows the log format:
+**Showing incoming queries live — superseded 2026-08-02.** The exercise on
+`running-llms.md` no longer has the room watch requests arrive; it now ends at the
+student's own response. `start_ollama_server.sh` accordingly `wait`s on the server
+rather than `tail -f`-ing it, and the log is kept for debugging only. Everything
+below is retained in case the demo comes back — none of it is wrong, it is just
+not currently used.
+
+The server logs every request to stdout, which the script redirects to
+`${SCRATCH_BASE}/ollama/server.log`. `ollama.sh` uses `exec` in its serve branch,
+but `&` forks a subshell first, so `exec` replaces *that* — backgrounding is safe
+and `$!` is the Apptainer process. The format, from DARC's notebook:
 
 ```
 [GIN] 2025/05/02 - 15:49:41 | 200 |  993.652625ms | 10.203.0.198 | POST "/api/chat"

@@ -74,8 +74,9 @@ mkdir -p "${SCRATCH_BASE}/ollama"
 source ollama.sh
 
 # --- start the server ------------------------------------------------------
-# Redirect to a log rather than the terminal: that way the requests are both
-# watchable live and kept after the session. `ollama serve` otherwise blocks.
+# Redirect to a log rather than the terminal: `ollama serve` otherwise blocks,
+# and a file keeps a record of what the class actually sent if a query needs
+# debugging afterwards.
 echo "Starting the server — logging to $LOG"
 ollama serve > "$LOG" 2>&1 &
 SERVER_PID=$!
@@ -133,17 +134,20 @@ cat <<EOF
 
       http://${HOST}:${PORT}
 
-  Students test it with:
+  Students' first step is the reach check on running-llms.md:
 
-      curl http://${HOST}:${PORT}/v1/chat/completions \\
-        -H 'Content-Type: application/json' \\
-        -d '{"model": "${MODEL}", "messages": [{"role": "user", "content": "hello"}]}'
+      curl http://${HOST}:${PORT}          # → Ollama is running
+
+  then the same address as base_url="http://${HOST}:${PORT}/v1" from Python.
 ────────────────────────────────────────────────────────────
 
-Following the log. Ctrl-C stops the server.
+Serving. Ctrl-C stops the server; requests are logged to
+${LOG} if you need to debug one.
 
 EOF
 
-# Keeps the script in the foreground, so the server is not orphaned, and shows
-# each request as it arrives.
-tail -f "$LOG"
+# Hold the script in the foreground so the server is not orphaned — under
+# `screen` this is the session you detach from, under sbatch it is what keeps
+# the job alive. The log is written but not followed: the exercise no longer
+# involves watching queries arrive, so it exists for debugging only.
+wait "$SERVER_PID"
