@@ -33,8 +33,19 @@ import time
 
 from openai import OpenAI
 
-DEFAULT_QUERY = "In one sentence, what is an SEC Form 3 filing?"
-DEFAULT_MODEL = "llama3.2:3b"
+DEFAULT_QUERY = "Who is the president of the USA, and what is their background?"
+DEFAULT_MODEL = "llama3.2:1b"
+
+# Cap the answer length. "In one sentence" is a request the model may ignore,
+# and wall-clock here is almost entirely tokens generated — so without a cap a
+# chatty answer can run for minutes on CPU, which is fatal for a demo that has
+# to hold a room's attention.
+#
+# The cap costs nothing in rigour: it bounds wall-clock without touching the
+# tokens-per-second figure the GPU/CPU comparison actually rests on. Both sides
+# generate the same number of tokens; only the time to do so differs, which is
+# the whole point.
+DEFAULT_MAX_TOKENS = 100
 
 
 def url_from_scratch() -> str:
@@ -58,6 +69,12 @@ def main() -> None:
     parser.add_argument("query", nargs="?", default=DEFAULT_QUERY)
     parser.add_argument("--url", help="server URL, e.g. http://yen-gpu1:41234")
     parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        default=DEFAULT_MAX_TOKENS,
+        help=f"cap the answer length (default {DEFAULT_MAX_TOKENS}); 0 for no cap",
+    )
     args = parser.parse_args()
 
     base_url = args.url or url_from_scratch()
@@ -74,6 +91,7 @@ def main() -> None:
     response = client.chat.completions.create(
         model=args.model,
         messages=[{"role": "user", "content": args.query}],
+        max_tokens=args.max_tokens or None,   # 0 means "no cap"
     )
     elapsed = time.perf_counter() - started
 

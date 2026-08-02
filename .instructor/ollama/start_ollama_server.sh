@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-MODEL="${MODEL:-llama3.2:3b}"
+MODEL="${MODEL:-llama3.2:1b}"
 SCRATCH_BASE="${SCRATCH_BASE:-/scratch/users/$USER}"
 HELPER_DIR="${HELPER_DIR:-$HOME/ollama_helper}"   # holds ollama.sh and ollama.sif
 LOG="${SCRATCH_BASE}/ollama/server.log"
@@ -33,7 +33,7 @@ LOG="${SCRATCH_BASE}/ollama/server.log"
 export SCRATCH_BASE
 
 # --- where are we running? -------------------------------------------------
-# CPU is supported deliberately: llama3.2:3b is small enough to answer on CPU,
+# CPU is supported deliberately: llama3.2:1b is small enough to answer on CPU,
 # just slowly, which is worth showing. But a CPU node is almost never what you
 # want by accident, so say so loudly. (nvidia-smi can exist on a node with no
 # GPU allocated to you, hence -L rather than a bare command -v.)
@@ -72,6 +72,23 @@ mkdir -p "${SCRATCH_BASE}/ollama"
 
 # defines the `ollama` wrapper; it exports the function so subshells inherit it
 source ollama.sh
+
+# Keep the model resident once loaded, rather than Ollama's default of unloading
+# after 5 minutes idle. Two reasons, and the second is the subtle one:
+#
+#   1. A server warmed before class would otherwise go cold during the walk-in,
+#      and the first student to query pays the load again.
+#   2. `keep_alive` is an Ollama extension with no place in the OpenAI schema, so
+#      requests arriving at /v1/chat/completions — which is every request the
+#      course makes — cannot carry it and fall back to the default. Pinning it
+#      per-request is therefore not enough; only changing the default is, which
+#      is what OLLAMA_KEEP_ALIVE does.
+#
+# APPTAINERENV_ prefix because the server runs inside the container: Apptainer
+# strips the prefix and sets OLLAMA_KEEP_ALIVE within. Patching ollama.sh's
+# --env list would work too, but that file is DARC's and we would rather not
+# carry a local fork of it.
+export APPTAINERENV_OLLAMA_KEEP_ALIVE="${OLLAMA_KEEP_ALIVE:--1}"
 
 # --- start the server ------------------------------------------------------
 # Redirect to a log rather than the terminal: `ollama serve` otherwise blocks,
@@ -125,6 +142,59 @@ fi
 # A no-op once the weights are in ${SCRATCH_BASE}/ollama/models.
 echo "Ensuring $MODEL is available"
 ollama pull "$MODEL"
+
+# --- pin the thread count --------------------------------------------------
+# Not a tuning nicety — without this the CPU server is unusable. llama.cpp sizes
+# its thread pool from the machine's CPU count and ignores the cgroup Slurm
+# confines the job to: on yen12 it chose `n_threads = 128 ... / 256` while
+# holding an 8-core allocation. It busy-waits at its synchronisation barriers,
+# so 16x oversubscription costs far more than idle threads would suggest — a
+# 100-token answer had still not returned after two and a half minutes. With the
+# pin, the same query took 7.7s (13 tok/s, llama3.2:1b, verified 2026-08-02).
+#
+# It has to be baked into the model rather than sent with a request, and the
+# failure is silent. Passing num_thread with the preload does take effect, and
+# is then undone by the first real query: /v1/chat/completions carries no Ollama
+# options, so Ollama reads the resident runner as having the wrong option set
+# and reloads it with the defaults restored. The server log shows n_threads
+# going 128 -> 8 -> 128 across preload then query. A baked parameter is not
+# overridable that way, so it survives.
+#
+# `ollama create` taking $MODEL as its own FROM keeps the name the class is
+# given, so nothing downstream needs to know this happened. The container has
+# ${SCRATCH_BASE}/ollama mounted at /root, hence the two paths for one file.
+#
+# SLURM_CPUS_PER_TASK is what we asked for; nproc honours CPU affinity and so
+# covers running outside Slurm. Threads are matched to cores rather than logical
+# CPUs: llama.cpp generally loses throughput once threads exceed cores.
+THREADS="${OLLAMA_THREADS:-${SLURM_CPUS_PER_TASK:-$(nproc)}}"
+echo "Pinning $MODEL to $THREADS threads"
+printf 'FROM %s\nPARAMETER num_thread %s\n' "$MODEL" "$THREADS" \
+  > "${SCRATCH_BASE}/ollama/Modelfile"
+ollama create "$MODEL" -f /root/Modelfile
+
+# --- load it into memory ---------------------------------------------------
+# Caching the weights on disk is not the same as having them in memory, and the
+# gap between the two is minutes on CPU. Ollama loads lazily on first query, so
+# without this the cost lands on whoever queries first — in class, twenty people
+# at once; in a timed comparison, the measurement itself.
+#
+# A /api/generate request with no prompt is Ollama's load-only form: it returns
+# once the model is resident, having generated nothing. It has to be the native
+# endpoint rather than /v1, since that is where keep_alive is accepted.
+echo -n "Loading $MODEL into memory (slow on CPU) "
+LOAD_STARTED=$SECONDS
+if curl -sf --max-time 900 "http://${HOST}:${PORT}/api/generate" \
+     -H 'Content-Type: application/json' \
+     -d "{\"model\": \"${MODEL}\", \"keep_alive\": -1}" >/dev/null; then
+  echo "— resident after $((SECONDS - LOAD_STARTED))s."
+else
+  # Not fatal: the model is on disk and will load lazily on the first real
+  # query. Say so rather than exiting, since a server that answers slowly is
+  # still more use mid-class than no server at all.
+  echo >&2
+  echo "WARNING: preload failed; the first query will pay the load cost." >&2
+fi
 
 # --- what to put on the board ----------------------------------------------
 cat <<EOF

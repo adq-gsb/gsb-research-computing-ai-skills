@@ -16,7 +16,8 @@
 # Environment overrides:
 #   WALLTIME=4:00:00      how long the server should live; see the note below
 #   CONSTRAINT=...        which cards are eligible; see the default below
-#   MODEL=llama3.2:3b     passed through to the server script
+#   CPUS=8                cores for the server; matters a lot on CPU, see below
+#   MODEL=llama3.2:1b     passed through to the server script
 #
 # Co-authored by Claude (Anthropic).
 
@@ -72,6 +73,23 @@ JOB_NAME="${JOB_NAME:-ollama-server}"
 PARTITION="${PARTITION:-gpu}"
 GPUS="${GPUS:-1}"
 
+# Cores matter, and they matter asymmetrically. On a GPU node the weights sit in
+# VRAM and the CPU only tokenises and marshals requests, so a couple of cores is
+# plenty. On a CPU node llama.cpp *is* the inference engine and it threads across
+# whatever it is given, so the core count sets the token rate directly.
+#
+# This defaulted to Slurm's implicit --cpus-per-task=1 until 2026-08-02, which
+# made the CPU server a single-core worst case rather than a representative CPU
+# node: job 406385 spent over four minutes merely loading llama3.2:3b before it
+# could answer at all. Timing a GPU against that overstates the gap, and it is a
+# fair thing for a student to object to.
+#
+# 8 is modest on a 256-core node and does not meaningfully slow scheduling.
+# Memory follows cores rather than being requested separately: DefMemPerCPU is
+# 4000M on `normal` and 3000M on `gpu`, so 8 cores brings ~32 GB and ~24 GB
+# respectively — both comfortably above the ~2 GB the model needs.
+CPUS="${CPUS:-8}"
+
 # Day 4 is ~3 hours (docs/day4/index.md), so 4 gives an hour of slack for a late
 # start or an overrun. The GPU is held for the *whole* walltime whether or not
 # anyone is querying, so don't inflate this "just in case" — there are 14 GPUs on
@@ -81,11 +99,11 @@ GPUS="${GPUS:-1}"
 WALLTIME="${WALLTIME:-4:00:00}"
 # Stay off yen-gpu4. It holds the only two H200s (141 GiB each) — the scarcest
 # hardware on the cluster and what colleagues with genuinely large models need.
-# llama3.2:3b is ~2 GB quantised and fits comfortably on an A30, so pinning the
+# llama3.2:1b is ~1.3 GB quantised and fits comfortably on an A30, so pinning the
 # demo to the big card would be pure waste. This still leaves 12 of the 14 GPUs
 # eligible, so it costs little queue time. Set CONSTRAINT= to allow any node.
 CONSTRAINT="${CONSTRAINT-GPU_MODEL:A30|GPU_MODEL:A40}"
-MODEL="${MODEL:-llama3.2:3b}"
+MODEL="${MODEL:-llama3.2:1b}"
 WAIT_SECONDS="${WAIT_SECONDS:-1800}"   # covers a cold image+model pull, and queueing
 
 SERVER_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/start_ollama_server.sh"
@@ -98,15 +116,23 @@ SERVER_SCRIPT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/start_ollama_server
 # And probe for the *model*, not the port. start_ollama_server.sh runs
 # `ollama pull` only after the server has bound, so there is a window — minutes
 # wide on a cold cache — in which GET / cheerfully answers "Ollama is running"
-# while every real query returns `model 'llama3.2:3b' not found`. Announcing the
+# while every real query returns `model 'llama3.2:1b' not found`. Announcing the
 # URL during that window is the worst possible time to be wrong about it: the
 # whole class queries at once and every one of them gets an error.
+#
+# /api/ps rather than /api/tags (changed 2026-08-02). `tags` lists what is on
+# disk, which goes true the moment `ollama pull` finishes and so reopens the
+# same problem one stage later: the server would be announced as ready while
+# still loading the weights into memory, and on CPU that is minutes, not
+# seconds. `ps` lists what is *resident*, which is the condition we actually
+# mean by ready — and it is what the preload in start_ollama_server.sh
+# establishes.
 current_url() {
   [ -s "${COORD_DIR}/host.txt" ] && [ -s "${COORD_DIR}/port.txt" ] || return 1
   local host port
   host=$(<"${COORD_DIR}/host.txt")
   port=$(<"${COORD_DIR}/port.txt")
-  curl -sf --max-time 5 "http://${host}:${port}/api/tags" 2>/dev/null \
+  curl -sf --max-time 5 "http://${host}:${port}/api/ps" 2>/dev/null \
     | grep -q "\"${MODEL}\"" || return 1
   printf 'http://%s:%s\n' "$host" "$port"
 }
@@ -134,6 +160,7 @@ else
           --job-name="$JOB_NAME"
           --partition="$PARTITION"
           --ntasks=1
+          --cpus-per-task="$CPUS"
           --time="$WALLTIME"
           --output="${COORD_DIR}/slurm-%j.out")
   # The GPU-model constraint only means anything when we are asking for a GPU;

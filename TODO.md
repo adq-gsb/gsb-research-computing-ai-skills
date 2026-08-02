@@ -386,20 +386,49 @@ Feasible as of the 2026-08-02 dry run (`.instructor/ollama/dry-run-2026-08-02.md
 `port.txt`/`host.txt`/`models` under a single `${SCRATCH_BASE}/ollama`, so sharing
 one overwrites the first server's coordinates.
 
-**Blocking gap:** that dry run only probed the CPU server's `/api/tags`. No chat
-request was ever sent to it, and there is no timing for either side — so the
-contrast this demo rests on is the one thing not yet measured. `llama3.2:3b` on CPU
-is *expected* to be slow rather than unusable, which is what makes it a good
-demonstration, but that is a prediction. Measure it before building anything around
-it: one identical prompt to each server, `time` on both, on the hardware the class
-will actually see. If CPU turns out to be unusably slow or surprisingly fine, the
-demo changes shape or dies.
+**Measured 2026-08-02.** Both sides now have numbers, from `llama3.2:1b` served on
+an A30 (`yen-gpu1`, job 407449) and on 8 CPU cores (`yen20`, job 407447), same
+model, same query, same 100-token cap, via `.instructor/ollama/query_server.py`:
 
-Presentation, once there are numbers: streaming responses side by side is the
-vivid version — tokens visibly crawling on one and not the other — but it needs two
-terminals and cooperative pacing in a live room. A pre-recorded timing, or just the
-two numbers on the board, is the safe fallback. Note the demo also needs a second
-GPU-node allocation held for its duration; see the reservation item below.
+| Prompt | GPU | CPU | Ratio (tok/s) |
+|---|---|---|---|
+| short (~12 tokens) | 1.7s, 59.7 tok/s | 5.3s, 18.7 tok/s | 3.2x |
+| long (~1,100 words) | 1.5s, 38.7 tok/s | 7.5s, 4.9 tok/s | 7.9x |
+
+**The headline is that the gap is smaller than the material claims.** At 3.2x the
+CPU is not crawling — 18.7 tok/s reads at conversational speed. So
+`running-llms.md`'s "a model that crawls on a CPU runs at a usable speed on a GPU"
+overstates what this hardware shows, and a student who runs the comparison
+themselves will find that out. Either the prose softens to a ratio claim, or the
+demo is built on the long-prompt case.
+
+**Prompt length is the lever, and the mechanism is worth teaching.** Inference is
+prefill (the prompt, one big parallel matrix multiply) then decode (generation, one
+token at a time, memory-bandwidth-bound). GPUs dominate prefill; CPUs keep up far
+better at decode. A short prompt is almost all decode, which is the configuration
+least favourable to the argument. Real filings are long, so the honest version of
+the demo is also the more persuasive one.
+
+**Two traps for whoever builds this:**
+
+1. **Warm the GPU with a throwaway query.** The first GPU request took 8.2s / 11.0
+   tok/s — *slower than CPU* — before settling at 1.7s on the second. CUDA context
+   setup and kernel autotuning happen on first use, after the weights are already
+   resident, so the preload does not cover it. Unwarmed, the GPU loses its own demo.
+2. **`num_ctx` defaults to 4096 and truncates silently** (trap 1 below). The
+   long-prompt figures above stay inside it deliberately. Anything longer needs
+   `PARAMETER num_ctx` baked into the Modelfile alongside `num_thread`, or the demo
+   quietly measures a fraction of the prompt.
+
+Presentation: streaming responses side by side is the vivid version — tokens
+visibly crawling on one and not the other — but it needs two terminals and
+cooperative pacing in a live room. A pre-recorded timing, or just the two numbers
+on the board, is the safe fallback. Note the demo also needs a second GPU-node
+allocation held for its duration; see the reservation item below.
+
+*Measurements taken by Claude (Opus 5), 2026-08-02. Ben has not yet reviewed the
+runs; the numbers above are single-shot except the short-prompt CPU case, which was
+repeated twice (5.3s, 5.4s).*
 
 ---
 
