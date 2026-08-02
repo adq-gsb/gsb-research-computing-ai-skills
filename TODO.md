@@ -17,6 +17,24 @@ tightened. Done so far: the intro signpost rejoined its paragraph; the
 the "isn't an exam" and "calibration" paragraphs cut as duplicative; both
 **Real-world case** callouts switched from `note` to the new `aside` type.
 
+**Added since:** an exercise, "Where Do Two Models Disagree?", between Validating
+Outputs at Scale and Failure Modes in Automated Pipelines — students re-run their
+array-job filings through a second model, count agreements, and read the
+mismatches. Registered as `d4-failure-modes.exercise`.
+
+**It rests on something untested.** Nobody has checked that a second model can do
+this extraction usably. If it is `llama3.2:1b`, a 1-billion-parameter model on a
+full filing is unproven, and the open `num_ctx` question means it may silently
+truncate — in which case every "disagreement" is an artefact of the context
+window rather than the model, and the exercise teaches the wrong thing. Run one
+filing through both models before the session. If the local model can't do it,
+the fallback is two Gateway models, which needs the `gpt-4o-mini` entitlement
+question resolved (see *Blocked on external fix*).
+
+The prose also assumes the array exercise wrote one JSON per filing with a
+`reporting_person` field. Check that against what `slurm-arrays.md` actually has
+students produce — the hint code names that key directly.
+
 Next unread section is **Hallucination** (`:29`) — the sweep had reached its
 callouts but not its prose. Sections below it are untouched: Validating Outputs
 at Scale (`:42`), Failure Modes in Automated Pipelines (`:75`), What You Learned

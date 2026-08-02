@@ -175,7 +175,7 @@ Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler 
 > srun --partition=gpu --gres=gpu:1 --cpus-per-task=4 --mem=16G --time=01:00:00 --pty bash
 > ```
 >
-> This drops you into a shell *on a GPU node* with one GPU reserved — run `nvidia-smi` to confirm. To pin a specific GPU type (e.g. the H200 for a large model), add `--constraint="GPU_MODEL:H200"`. Reach for an interactive session when you're exploring or testing; use a batch job for long or production runs that should queue unattended.
+> This drops you into a shell *on a GPU node* with one GPU reserved — run `nvidia-smi` to confirm. To pin a specific GPU type, add `--constraint="GPU_MODEL:<type>"`, substituting one of the types from the table above. Reach for an interactive session when you're exploring or testing; use a batch job for long or production runs that should queue unattended.
 
 {: .warning }
 > **Release it when you're done.** Type `exit` the moment your experimentation is complete. An interactive allocation holds the GPU for the *full* `--time` you requested — even while it sits idle at your shell prompt — so no one else can use that GPU until you exit or the time limit runs out. GPUs are scarce shared resources; don't sit on one you've finished with.

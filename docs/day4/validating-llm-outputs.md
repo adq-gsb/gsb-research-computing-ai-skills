@@ -10,7 +10,44 @@ permalink: /day4/validating-llm-outputs/
 
 <div data-room-id="d4-failure-modes"></div>
 
-LLMs are remarkable tools — but they are also **brittle**. Even the best models get things wrong, often confidently, and often enough to matter. Before you trust an LLM's output — especially at scale (thousands of filings, for example) — you need a way to check it. The rest of this page covers the failure modes to watch for, and how to build in checks to catch them before they reach your results.
+LLMs are remarkable tools — but, as we've all found out by now, they are also **brittle**. Even the best models get things wrong, often confidently, and often enough to matter. Before you trust an LLM's output — especially at scale — you need a way to check it. The rest of this page discusses some of the failure modes to watch for, and how to build in checks to catch them before they reach your results.
+
+---
+
+## Common Failure Modes
+
+Let's crowdsource your experiences with LLM failure modes. What are some different kinds you've experienced?
+
+<details markdown="1">
+<summary>Some we'll come back to (expand after discussion)</summary>
+
+- **Hallucination** — the model produces false output, such as an invented citation, number, or quotation.
+
+  {: .aside }
+  > **Real-world case:** in 2024, Stanford misinformation expert Jeff Hancock submitted expert testimony citing journal articles that ChatGPT had invented, and the court [threw it out](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/). (Lawyers have been sanctioned for the same thing.)
+  >
+  > ![Minnesota Reformer headline: "Misinformation expert used AI to draft testimony containing misinformation about AI"]({{ site.baseurl }}/assets/images/hancock-ai-testimony-headline.png)
+  >
+  > *Source: [Minnesota Reformer](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/).*
+
+- **Inconsistency** — ask the same question twice and you may get two different answers (model outputs are probabilistic). Downstream tasks often depend on the output having a consistent format or type, and that is not something you get for free.
+- **A lack of guardrails** — this matters most for **agentic** LLMs (like Claude Code), which don't just answer but act on your system. An agent inherits the permissions you give it, so be deliberate about which ones you hand over: some actions can't be taken back, and deleting or overwriting a file on the command line leaves nothing to recover.
+
+  {: .aside }
+  > **Real-world case:** in early 2026 a user asked Claude to organize a desktop, and it deleted a folder holding roughly 15 years of family photos — thousands of files — with irreversible terminal commands.
+  >
+  > ![Futurism headline: Blundering Husband Asks Claude AI to Organize Wife's PC, Accidentally Erases Her Cherished Family Photos]({{ site.baseurl }}/assets/images/claude-family-photos-headline.png)
+  >
+  > *Source: [Futurism](https://futurism.com/artificial-intelligence/claude-wife-photos).*
+
+- **An imperfect substitute for your own thinking** — it can be easy to confuse rapid progress enabled by LLMs with true understanding.
+
+  {: .aside }
+  > AI researchers at Anthropic conducted a randomized experiment and found that developers who learned a new programming library with access to LLMs came out weaker at reading and debugging that code, and were no faster in executing tasks than the group without access to LLMs.
+  >
+  > *Source: [Shen & Tamkin, "How AI Impacts Skill Formation" (2026)](https://arxiv.org/abs/2601.20245).*
+
+</details>
 
 ---
 
@@ -29,13 +66,6 @@ Capability is also uneven — the same models score about 94% on GPQA Diamond (g
 ## Hallucination
 
 The most notorious failure mode is **hallucination**: the model produces fluent, confident, plausible-looking output that is simply false — and nothing in the output itself flags it. In high-stakes settings, that can be professionally consequential.
-
-{: .aside }
-> **Real-world case:** in 2024, Stanford misinformation expert Jeff Hancock submitted expert testimony citing journal articles that ChatGPT had invented, and the court [threw it out](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/). (Lawyers have been sanctioned for the same thing.)
->
-> ![Minnesota Reformer headline: "Misinformation expert used AI to draft testimony containing misinformation about AI"]({{ site.baseurl }}/assets/images/hancock-ai-testimony-headline.png)
->
-> *Source: [Minnesota Reformer](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/).*
 
 ---
 
@@ -72,6 +102,62 @@ Because the model won't flag its own mistakes, you have to check correctness *ex
 
 ---
 
+## Exercise: Where Do Two Models Disagree?
+
+You already have one set of extractions — the JSON files your array job wrote in [Slurm Job Arrays](../slurm-arrays/). Now produce a second set from a different model, and count how often the two agree.
+
+**First, decide what "agreement" means.** Pick one field from your extractions to compare — `insider_name`, say — and decide what counts as the same answer. `Smith, John` and `John Smith` are the same person written two ways; whether your code should call that agreement is your call to make, and worth making before you see the numbers.
+
+**Second, run the same filings through a second model.** Point the client at the other service and leave everything else alone — the prompt, the schema, the loop. Write the results to `results/model_b/` so you keep both sets.
+
+**Third, count.** Report two numbers: how many filings the two models agreed on, and how many they didn't.
+
+**Fourth, read the disagreements.** Open the filings behind them and work out who was right — or whether both were wrong.
+
+<details markdown="1">
+<summary>💡 Hint — one way to compare</summary>
+
+Load both sets, normalize before comparing, and keep the mismatches rather than just counting them:
+
+```python
+import json
+from pathlib import Path
+
+FIELD = "insider_name"
+
+def normalize(value):
+    """Fold away the differences you've decided not to care about."""
+    return " ".join(str(value).lower().split())
+
+agreements, disagreements = 0, []
+
+for path_a in sorted(Path("results").glob("*.json")):      # your array job's output
+    path_b = Path("results/model_b") / path_a.name         # the second model's
+    if not path_b.is_file():
+        continue
+    a = json.loads(path_a.read_text())
+    b = json.loads(path_b.read_text())
+    if normalize(a[FIELD]) == normalize(b[FIELD]):
+        agreements += 1
+    else:
+        disagreements.append((path_a.name, a[FIELD], b[FIELD]))
+
+print(f"{agreements} agreed, {len(disagreements)} disagreed")
+for name, left, right in disagreements:
+    print(f"  {name}: {left!r} vs {right!r}")
+```
+
+</details>
+
+The point isn't to decide which model is better. It's that **disagreement is a cheap flag for "look here"** — you get it without knowing the right answer for a single filing, and it costs one extra run rather than a human reading all twenty.
+
+{: .note }
+> The two models won't be evenly matched — a small local model and a frontier model are not peers, and most disagreements will be the smaller one slipping. That doesn't spoil the signal. You're not asking the second model to be right; you're asking it to be *different enough* that the hard cases stand out.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="exercise"> Exercise complete — I ran two models over the same filings, counted the disagreements, and read them</label>
+
+---
+
 ## Failure Modes in Automated Pipelines
 
 Validation catches wrong *outputs*. A different class of failure appears once you run LLMs *unattended* — in an automated pipeline or agent that reads, writes, and loops on your behalf, with no human watching each step. These need architectural guards, not validation.
@@ -81,13 +167,6 @@ Validation catches wrong *outputs*. A different class of failure appears once yo
 The stakes rise sharply when an LLM's output drives an action — writing to a database, sending emails, deleting files. LLMs make mistakes, and mistakes that change state are the most expensive kind: you often can't undo them.
 
 Recall from [Day 1](../../day1/command-spire/) that `rm` deletes permanently — no trash, no undo; an agent runs the same commands, just without a human pausing to reconsider. Agents run with *your* full permissions, so "clean up this folder" can reach anything you can.
-
-{: .aside }
-> **Real-world case:** in early 2026 a user asked Claude to organize a desktop, and it deleted a folder holding roughly 15 years of family photos — thousands of files — with terminal commands that bypassed the Trash entirely.
->
-> ![Futurism headline: Blundering Husband Asks Claude AI to Organize Wife's PC, Accidentally Erases Her Cherished Family Photos]({{ site.baseurl }}/assets/images/claude-family-photos-headline.png)
->
-> *Source: [Futurism](https://futurism.com/artificial-intelligence/claude-wife-photos).*
 
 **Guarding against it:** the reliable defense is "least privilege": giving the agent only the access it truly needs (read-only where possible; scoped, minimal credentials), and requiring confirmation for anything that changes state. Keep automated pipelines read-only where you can; for writes, log the intended action first, act second, and verify before committing — and build a **dry-run mode** that prints what *would* happen without doing it.
 
