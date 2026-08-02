@@ -10,7 +10,7 @@ permalink: /day4/slurm-arrays/
 
 <div data-room-id="d4-slurm-arrays"></div>
 
-You've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **SLURM job array**.
+You've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands-on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **SLURM job array**.
 
 ---
 
@@ -114,63 +114,151 @@ The task number is what makes this general. Every task runs the identical script
 
 ## Exercise
 
-Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array.
+Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array. The filings are hosted online, and `data/aws_links.csv` — already in your cloned repo, alongside `scripts/` and `slurm/` — provides the URLs of all of them for you to query.
 
 The task ID is just an integer — *you* decide what it points to. The usual pattern has these steps:
 
-**1. List the filings, one file path per line.** Write the paths to a file such as `filings_list.txt`; the line number is what each task ID will refer to.
+**1. Figure out how to associate each task with a filing.**
 
-**2. Have each task grab its own line.** Use `SLURM_ARRAY_TASK_ID` to pull the matching line from that list:
+{: .note }
+> **Getting the task ID into Python.** Slurm sets `SLURM_ARRAY_TASK_ID` in each task's environment. Your `.slurm` script passes it to your Python script as a command-line argument:
+>
+> ```bash
+> python scripts/extract_form_3_cli.py "$SLURM_ARRAY_TASK_ID"
+> ```
+>
+> and Python reads it back from `sys.argv` — a different number in every task:
+>
+> ```python
+> import sys
+>
+> task_id = int(sys.argv[1])                      # 1, 2, … 100
+> ```
+>
+> That's one way of doing it. The script could equally read the variable straight from its environment with `os.environ["SLURM_ARRAY_TASK_ID"]` and take no argument at all. Passing it in keeps the handover visible in the `.slurm`, and lets you run a single task by hand to test it.
 
-```bash
-# each line of filings_list.txt is the path to one filing;
-# grab the line whose number matches this task's ID
-FILING=$(sed -n "${SLURM_ARRAY_TASK_ID}p" filings_list.txt)
-```
+<details markdown="1">
+<summary>💡 Hint — one way to do it</summary>
 
-Now `$FILING` holds the path to a different filing in each task — task 1 gets the path on line 1, task 2 the path on line 2, and so on.
-
-**3. Use a script that accepts the path as an argument.** The Day 3 `extract_form_3_one_file.py` hard-codes its `FILING_PATH`, so it can't be pointed at a different filing per task. We've provided `scripts/extract_form_3_cli.py` — the same extraction logic, with a few lines added so it reads the paths from the command line:
+Every task runs the same script and differs only in its task ID, so the script can do the lookup itself — read the filings out of `data/aws_links.csv` and take the one matching this task:
 
 ```python
 import sys
-from pathlib import Path
+import pandas as pd
 
-FILING_PATH = Path(sys.argv[1])     # 1st argument: the filing to process
-OUTPUT_PATH = Path(sys.argv[2])     # 2nd argument: where to write the result
+task_id = int(sys.argv[1])                      # handed over by the array script
+
+# the CSV has a single `urls` column; drop any blank rows
+urls = pd.read_csv("data/aws_links.csv")["urls"].dropna()
+
+# keep only the filings themselves — the first row is the folder they live in,
+# not a filing — and take the first 100
+filings = [u for u in urls if u.endswith(".txt")][:100]
+
+filing = filings[task_id - 1]                   # task_id == 1 implies take the first filing
 ```
 
-Now you can point it at any filing (the two paths are passed in order):
+That `- 1` is the off-by-one from the warning above: the tasks count from 1, the list from 0.
 
-```bash
-python scripts/extract_form_3_cli.py path/to/filing.txt results/filing.json
+</details>
+
+**2. Given a filing, write the usual extraction code.** Nothing new here — fetch the filing, send it to the API, validate the response with your Pydantic model. It's the same logic you wrote on Day 2 and looped over on Day 3, except there's no loop: this task handles exactly one filing.
+
+<details markdown="1">
+<summary>💡 Hint — the extraction code, ready to copy</summary>
+
+This is the script you wrote on Day 2, `scripts/extract_form_3_one_file.py`, with one change: it fetches the filing over the network rather than reading a fixed path off disk, since step 1 gives you a URL.
+
+```python
+import json
+import os
+
+import requests
+from openai import OpenAI
+from pydantic import BaseModel
+from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
+client = OpenAI(
+    base_url="https://aiapi-prod.stanford.edu/v1",
+    api_key=os.getenv("STANFORD_API_KEY"),
+)
+
+
+class Form3Filing(BaseModel):
+    insider_name: str
+    insider_role: List[str]
+    company_name: str
+    company_cik: str
+    filing_date: str
+
+
+system_prompt = """
+You are a data extraction agent for SEC Form 3 filings.
+
+Extract the following fields:
+- insider_name: The name of the insider (from reportingOwner or anywhere in the document).
+- insider_role: A list of roles the insider holds (Director, Officer, 10% Owner, Other).
+- company_name: The issuer's company name.
+- company_cik: The CIK number of the issuer (from issuerCik or COMPANY DATA).
+- filing_date: The filing date (prefer signatureDate or FILED AS OF DATE).
+
+Return valid JSON matching the schema exactly.
+Return a SINGLE JSON object, not a list. Do not wrap it in an array.
+"""
+
+# `filing` is the URL you picked in step 1 — fetch it over the network
+filing_text = requests.get(filing).text
+
+api_response = client.chat.completions.create(
+    model="gemini-2.5-flash-lite",
+    response_format={"type": "json_object"},
+    messages=[
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": filing_text},
+    ],
+)
+
+# validate the reply against the schema before trusting it
+result = Form3Filing.model_validate_json(api_response.choices[0].message.content)
 ```
 
-**4. Put it all in the array script,** which hands each task its own input and output paths:
+</details>
+
+**3. Save the output to its own file,** so the result says what it came from and no two tasks write to the same place.
+
+<details markdown="1">
+<summary>💡 Hint — one way to do it</summary>
+
+Name it after the filing, the way the Day 3 batch script does:
+
+```python
+name = filing.split("/")[-1].replace(".txt", ".json")
+output_path = Path("results") / name         # results/0000003570-22-000041.json
+```
+
+</details>
+
+**4. Have the SLURM array script invoke your Python script,** handing over the task ID as its argument:
 
 ```bash
-#!/bin/bash
-#SBATCH --job-name=extract_array
-#SBATCH --output=logs/extract_%A_%a.out    # %A = array job ID, %a = task ID
-#SBATCH --error=logs/extract_%A_%a.err
-#SBATCH --time=00:15:00
-#SBATCH --mem=4G
-#SBATCH --cpus-per-task=1
-#SBATCH --array=1-100                        # one task per filing
-
-source .venv/bin/activate
-
-# this task's filing path = the matching line of the list
-FILING=$(sed -n "${SLURM_ARRAY_TASK_ID}p" filings_list.txt)
-
-# hand that path — and a per-task output file — to the script
-python scripts/extract_form_3_cli.py "$FILING" "results/filing_${SLURM_ARRAY_TASK_ID}.json"
+python scripts/extract_form_3_cli.py "$SLURM_ARRAY_TASK_ID"
 ```
 
 {: .note }
-> **More filings than the scheduler allows?** SLURM caps how many tasks an array can have, so if you have more filings than that limit, you can't give each one its own task. The fix is to hand each task a *chunk* of filings: task *n* processes a fixed block of lines from the list, with a `for` loop working through that block in sequence. The array runs the chunks in parallel; the loop handles the filings within each chunk.
+> **Two things not to forget.** That line only works once the environment is ready, so the script still needs to `cd` to the repo root and activate the virtual environment first — the same two lines you wrote on Day 3. And the `#SBATCH --array=` directive has to be up with the other directives at the top: without it you've submitted one ordinary job, not an array, and `SLURM_ARRAY_TASK_ID` won't be set at all.
 
-**5. Combine the outputs (optional).** Each task writes its *own* file (`results/filing_1.json`, `filing_2.json`, …), and that separation is deliberate. The tasks run at the same time, so if they all tried to append to one shared output file, their writes would interleave and overwrite each other — a **"race condition"** (a bug whose outcome depends on the unpredictable order in which simultaneous operations happen to run), leaving you with a garbled, unusable file. Giving each task its own file sidesteps that entirely. Once the array finishes, you stitch those per-task files into a single dataset (such as one CSV) as a quick post-processing step — the [exercise](../array-exercise/) walks through it.
+Then submit it and watch it run. `watch` re-runs a command every couple of seconds, so you can see the tasks start in parallel and drop off as they finish:
+
+```bash
+sbatch slurm/extract_array.slurm
+watch squeue --me
+```
+
+An array shows up as many rows sharing one job ID — `12345678_1`, `12345678_2`, and so on. Tasks in state `R` are running; ones still `PD` are waiting for a free core. Press `Ctrl+C` to stop watching, then check the per-task logs in `logs/` and the results in `results/`.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="exercise"> I submitted a job array, watched the tasks run in `squeue`, and confirmed it finished with one result file per filing</label>
 
 ---
 

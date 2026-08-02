@@ -14,8 +14,14 @@
 # %A is the array's job ID and %a the task's index, so every task writes its
 # own log rather than four tasks overwriting one file.
 #
-# Run from the repo root (logs/ must exist — SLURM won't create it):
+# Slurm resolves --output/--error when the job is submitted, relative to the
+# directory you ran sbatch from — so logs/ must already exist there. The cd
+# below only fixes paths used inside the script, not the log paths above.
+#
+# Run from the repo root:
 #     mkdir -p logs
 #     sbatch slurm/hello_array.slurm
 #     cat logs/hello_<arrayid>_*.out
+cd $HOME/gsb-research-computing-ai-skills
+
 echo "Hello, world! My task number is $SLURM_ARRAY_TASK_ID"

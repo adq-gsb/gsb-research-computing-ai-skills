@@ -99,6 +99,43 @@ stack with a single `✅ Check your answer` block (`profiling.md:303`) — worth
 if these are ever read outside a live class, since the answers are non-obvious and
 two of the three are "yes, but".
 
+### Which script Day 4's array exercise should build on
+The three extraction scripts source their filings differently, and Day 4 has to
+pick one:
+
+| Script | Day | Where the filing comes from |
+|---|---|---|
+| `extract_form_3_one_file.py` | 2 | a hardcoded local path — `/zfs/data/NODR/EDGAR_HTTPS/…` (`:16`) |
+| `extract_form_3_batch.py` | 3 | URLs from `data/aws_links.csv` (`:23`), fetched with `requests` |
+| `extract_form_3_cli.py` | 4 | a local path passed as `sys.argv[1]` |
+
+The Slurm-arrays exercise reads URLs out of `aws_links.csv`, so its copy-paste hint
+currently points at the **Day 2** script — the right pedagogical reference, since
+students wrote it and it handles exactly one filing — but has to say "with one
+change: it fetches over the network rather than reading a fixed path off disk."
+That caveat is a smell.
+
+Two ways out:
+
+1. **Point the hint at the Day 3 batch script instead.** It already fetches URLs, so
+   the caveat disappears. Costs the "this is the code you already wrote" framing,
+   and students have to mentally strip the loop.
+2. **Move Day 2 onto `aws_links.csv` too**, so one sourcing paradigm runs from Day 2
+   through Day 4 and the Day 4 hint needs no caveat at all. More work, and it
+   changes a page that is otherwise settled — but it is the version where the week
+   tells one story.
+
+Worth checking either way: whether that `/zfs/data/NODR/EDGAR_HTTPS/…` path is even
+readable by students on the Yens, or whether it is an instructor-only mount. If it
+isn't readable, option 2 stops being optional.
+
+**Related, and currently broken:** the exercise's step 4 invokes
+`scripts/extract_form_3_cli.py "$SLURM_ARRAY_TASK_ID"`, but that script takes two
+*paths* (`sys.argv[1]` and `[2]`) and reads from disk. A student following steps 1–3
+builds a different script from the one step 4 runs. Whichever option above is taken,
+`extract_form_3_cli.py` and the page have to be made to agree — it is also called
+from `docs/day4/array-exercise.md:46`, so changing its signature ripples.
+
 ### Load-imbalance exercise from the archived "When One Filing Runs Long"
 That section was cut from `docs/day4/parallelization.md` on 2026-08-01 as orthogonal
 to the page's argument, and moved to
