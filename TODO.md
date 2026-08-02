@@ -99,6 +99,21 @@ stack with a single `✅ Check your answer` block (`profiling.md:303`) — worth
 if these are ever read outside a live class, since the answers are non-obvious and
 two of the three are "yes, but".
 
+### Decide whether the Rule of Thumb keeps its forward-pointing sentence
+`docs/day4/why-local-llms.md:143` ends the Rule of Thumb section with:
+
+> You'll make this call in practice — and compare a model you run yourself against
+> the Playground — in the sections that follow.
+
+**Dropped 2026-08-02.** It was a forward reference of exactly the kind being
+pruned elsewhere on Day 4. If something like it is ever restored, note it named
+"the Playground" where the comparison is actually against the **AI API
+Gateway** — separate Stanford services, as Day 2 was corrected to say.
+
+**Still outstanding:** the capstone has the same slip —
+`putting-it-all-together.md:27` says "the Playground (`gpt-4o-mini`)" for what is
+an API Gateway call. That one is live and wants fixing.
+
 ### Which script Day 4's array exercise should build on
 The three extraction scripts source their filings differently, and Day 4 has to
 pick one:

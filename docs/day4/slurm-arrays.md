@@ -10,7 +10,7 @@ permalink: /day4/slurm-arrays/
 
 <div data-room-id="d4-slurm-arrays"></div>
 
-You've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands-on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **Slurm job array**.
+We've seen when a workload qualifies for parallelization and when it helps. Now let's get more hands-on: *how* to implement it on the Yens. There are a few ways to run work in parallel on a cluster; for embarrassingly parallel jobs like ours, a standard tool is a **Slurm job array**.
 
 ---
 

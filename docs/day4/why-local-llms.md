@@ -10,7 +10,9 @@ permalink: /day4/why-local-llms/
 
 <div data-room-id="d4-why-local-llms"></div>
 
-Since Day 2, every LLM call you've made — to the Stanford AI API Gateway, or any third-party model — has gone to an **API** (application programming interface): your prompt and your data travel to someone else's server, the model runs there, and the answer comes back. This section asks the opposite question: when should you run the model *yourself*, on Stanford's own hardware (the Yens)?
+Now for a change of tack. We've been looking at how to spread work across the cluster; next comes the work itself.
+
+Since Day 2, every LLM call we've made — to the Stanford AI API Gateway, or any third-party model — has gone to an **API** (application programming interface): your prompt and your data travel to someone else's server, the model runs there, and the answer comes back. This section asks the opposite question: when should you run the model *yourself*, on Stanford's own hardware (the Yens)?
 
 ---
 
@@ -20,21 +22,22 @@ When you call an LLM API, three things happen outside your control:
 
 - **Your data leaves.** The filing text — and whatever else is in your prompt — is sent over the network to the model provider.
 - **The compute is theirs.** The model runs on the *model provider's* machines, not yours.
-- **The model can change.** You get whatever weights the model provider is serving that day.
+- **The model can change.** You get the weights the model provider is serving that day.
 
 <svg viewBox="0 0 600 164" role="img" aria-labelledby="api-title api-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:600px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="api-title">Calling an LLM API sends your data to a remote server and back</title>
-  <desc id="api-desc">Your code on the left and the model provider's server on the right, separated by a dashed vertical boundary line. Your code sends a packet labelled "prompt plus data" across the boundary to the provider, which runs the model and sends a "response" packet back.</desc>
+  <desc id="api-desc">Your code on the left, labelled "on your or Stanford's machines", and the model provider's server on the right, labelled "in the cloud", separated by a dashed vertical boundary line. Your code sends a packet labelled "prompt plus data" across the boundary to the provider, which runs the model and sends a "response" packet back.</desc>
+  <!-- side labels, above the boxes — same wording as the "Why Run It Yourself?" figure -->
+  <text x="117" y="26" font-size="11" font-weight="700" fill="#2c3e50" text-anchor="middle">On your or Stanford's machines</text>
+  <text x="505" y="26" font-size="11" font-weight="700" fill="#2c3e50" text-anchor="middle">In the cloud</text>
   <!-- trust boundary: the point where your data leaves your machine -->
-  <line x1="300" y1="42" x2="300" y2="132" stroke="#b3bccb" stroke-width="1.5" stroke-dasharray="5 4"/>
-  <!-- left node: your code (widened so the sub-caption fits on one line) -->
-  <rect x="14" y="66" width="206" height="64" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
-  <text x="117" y="90" font-size="13" font-weight="700" fill="#2c3e50" text-anchor="middle">Your code</text>
-  <text x="117" y="105" font-size="10.5" fill="#6a7280" text-anchor="middle">(on your or Stanford's machines)</text>
+  <line x1="300" y1="44" x2="300" y2="140" stroke="#b3bccb" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <!-- left node: your code -->
+  <rect x="14" y="74" width="206" height="48" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
+  <text x="117" y="103" font-size="13" font-weight="700" fill="#2c3e50" text-anchor="middle">Your code</text>
   <!-- right node: model provider -->
-  <rect x="430" y="66" width="150" height="64" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
-  <text x="505" y="90" font-size="13" font-weight="700" fill="#2c3e50" text-anchor="middle">Model provider</text>
-  <text x="505" y="105" font-size="10.5" fill="#6a7280" text-anchor="middle">(in the cloud)</text>
+  <rect x="430" y="74" width="150" height="48" rx="10" fill="#eef1f8" stroke="#cdd4e6" stroke-width="1.5"/>
+  <text x="505" y="103" font-size="13" font-weight="700" fill="#2c3e50" text-anchor="middle">Model provider</text>
   <!-- outbound packet: prompt + data (starts just right of the wider box) -->
   <g>
     <rect x="226" y="85" width="120" height="26" rx="8" fill="#E69F00"/>
@@ -103,13 +106,12 @@ When you call an LLM API, three things happen outside your control:
 
 ---
 
-## Open vs. Proprietary Models
-
-There's a catch to "run it yourself": you can only run models whose **weights you can download**. The frontier models from OpenAI (GPT-5.6) and Anthropic (Claude Fable 5) are **proprietary** — the companies never release the weights, so those models exist *only* behind their cloud APIs. There is no way to run them on the Yens.
-
-Running locally therefore means using **open-weight** models — ones whose parameters are published for anyone to download and serve, such as Llama (Meta), Mistral, Qwen, or DeepSeek. These are the kind of models you'll run on the Yens later today.
-
-So the real choice isn't "any model, local or cloud." It's: a **proprietary model in the cloud**, or an **open-weight model you run yourself**.
+{: .note }
+> There's a catch to "run it yourself": you can only run models whose **weights you can download**. The frontier models from OpenAI (GPT-5.6) and Anthropic (Claude Fable 5) are **proprietary** — the companies never release the weights, so those models exist *only* behind their cloud APIs. There is no way to run them on the Yens.
+>
+> Running locally therefore means using **open-weight** models — ones whose parameters are published for anyone to download and serve, such as Llama (Meta), Mistral, Qwen, or DeepSeek. These are the kind of models you'll run on the Yens later today.
+>
+> So the real choice isn't "any model, local or cloud." It's: a **proprietary model in the cloud**, or an **open-weight model you run yourself**.
 
 ---
 
@@ -117,7 +119,7 @@ So the real choice isn't "any model, local or cloud." It's: a **proprietary mode
 
 Running locally isn't always the answer. The honest tradeoffs:
 
-- **Capability** — the strongest models (GPT-5.6, Claude Fable 5) are proprietary and cloud-only, and often outperform the open models you can run locally. For the hardest tasks, the API wins.
+- **Capability** — the proprietary models (GPT-5.6, Claude Fable 5) typically outperform the open-weight ones you can run yourself. For the hardest tasks, the API wins.
 - **Convenience** — an API key and one line of code: no cluster job to submit, no model server to start, no queue wait.
 - **Elastic scale** — a hosted API scales on demand; the capacity you can run on the Yens is finite, so very large models or very high volume can exceed it.
 
@@ -138,9 +140,9 @@ For the Stanford AI API Gateway's tradeoffs in more depth, see the [Upsides and 
 
 ## Rule of Thumb
 
-**Restricted data → run it locally, no exceptions.** Otherwise, weigh cost, reproducibility, and throughput (which favor local) against capability and convenience (which favor the API). You'll make this call in practice — and compare a model you run yourself against the Playground — in the sections that follow.
+**Restricted data → run it locally, no exceptions.** Otherwise, weigh cost, reproducibility, and throughput (which favor local) against capability and convenience (which favor the API).
 
-<label class="quest-check"><input type="checkbox" data-room="d4-why-local-llms" data-key="main"> I can explain when to run an LLM on the Yens instead of calling an API</label>
+<label class="quest-check"><input type="checkbox" data-room="d4-why-local-llms" data-key="main"> I can explain the trade-offs between running an LLM on the Yens and calling an API, and when each one wins</label>
 
 ---
 
