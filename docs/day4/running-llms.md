@@ -32,13 +32,14 @@ At a high level, running a model on the cluster comes down to three things:
 ## Exercise: Querying a Local LLM
 
 {: .demo }
-> We've already done the work of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
+> We've already done the work for you of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
 >
 > We'll write the server's URL on the board in a second — paste it in place of `<server-url>` below, then run the command to submit a query of your choosing.
 >
 > ```bash
 > curl <server-url>/v1/chat/completions \
->   --json '{"model": "llama3.2:3b", "messages": [{"role": "user", "content": "<your query>"}]}'
+>   -H 'Content-Type: application/json' \
+>   -d '{"model": "llama3.2:3b", "messages": [{"role": "user", "content": "<your query>"}]}'
 > ```
 >
 > While you do that, we'll watch them arrive — the server logs every request it receives.

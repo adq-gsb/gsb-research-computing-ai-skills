@@ -4,7 +4,7 @@ Cross-cutting items that span more than one day. Day-4-specific content gaps liv
 `docs/day4/TODO.md`; this file is for things that touch several days or the site
 machinery. Not part of the Jekyll build (it sits outside `docs/`).
 
-Last updated 2026-08-01.
+Last updated 2026-08-02.
 
 ---
 
@@ -431,9 +431,14 @@ outright rather than working around it. Note DARC's material is all built on
 `deepseek-r1:7b` (the post, `test.py`, and every cell of `tutorial.ipynb`), so
 their examples need the model name swapped wherever they are adapted.
 
-**Unverified.** Twenty concurrent clients against one 3B model on an H200 should
-be comfortable but has not been tested. Two things left to check in a dry run:
-`num_ctx` on a real filing, and whether `/v1/chat/completions` works at all.
+**Partly verified 2026-08-02** — see [`.instructor/ollama/dry-run-2026-08-02.md`](.instructor/ollama/dry-run-2026-08-02.md).
+`/v1/chat/completions` **does** work against `llama3.2:3b` (well-formed
+OpenAI-shaped reply, confirmed from a login node and a `normal` compute node), so
+the capstone's one-line `base_url` swap rests on something demonstrated rather
+than assumed. Still unverified: twenty concurrent clients against one 3B model,
+and `num_ctx` on a real filing. Note the `default_num_ctx=262144` seen in that
+run is VRAM-derived on a 141 GiB H200 — an A30 or A40 will default lower, so
+measure it on the card you will actually teach from.
 
 **Showing incoming queries live.** The server logs every request to stdout — but
 *where* that lands depends on how the server was started, which is not yet settled:
@@ -466,9 +471,12 @@ Two things the helper's source also shows, both handled in
 
 - `port.txt` and `host.txt` are written *before* the container starts, so their
   existence does not mean anything is listening. Poll the endpoint instead.
-- `--nv` is hardcoded in both branches of the `ollama()` wrapper. Whether a
-  CPU-only node warns (legacy `--nv`) or errors (`--nvccli`) is untested, and
-  decides whether the run-it-on-CPU contrast is possible at all.
+- `--nv` is hardcoded in both branches of the `ollama()` wrapper. **Resolved
+  2026-08-02:** on a CPU node Apptainer prints `WARNING: Could not find any nv
+  files on this host!` and continues (exit 0, verified on `yen20`), so the
+  run-it-on-CPU contrast works with no patch to the helper. A CPU server also
+  runs happily alongside the GPU one, provided it gets its own `SCRATCH_BASE` —
+  `ensure_ollama_server.sh` takes `PARTITION=normal GPUS=0` for this.
 
 The notebook shows the log format:
 
@@ -492,6 +500,48 @@ not amount to reading what students typed, which sits awkwardly against what Day
 **Consequence for the page.** `docs/day4/running-llms.md` currently has students
 run their own server (`srun --pty`, then `ollama pull`). It would need rewriting
 towards the client role, with the server side moved to instructor notes.
+
+### Ask DARC for a GPU reservation covering the Day 4 session
+**Not yet requested (noted 2026-08-02).** Now that the shared server is submitted
+with `sbatch` (`.instructor/ollama/ensure_ollama_server.sh`), a full `gpu`
+partition no longer produces an error — the job simply sits `PENDING`. Submitting
+returns a job id in under a second either way, so "queued behind someone's
+multi-hour training run" and "server is up" look identical until you read the
+output. A Slurm reservation removes that failure mode outright rather than
+mitigating it.
+
+Current capacity, for the ask:
+
+| Node | GPU model | GPUs | Memory |
+|------|-----------|------|--------|
+| `yen-gpu1` | A30 | 4 | 24 GiB |
+| `yen-gpu2` | A40 | 4 | 48 GiB |
+| `yen-gpu3` | A40 | 4 | 48 GiB |
+| `yen-gpu4` | H200 | 2 | 141 GiB |
+
+**The ask is small, which is the point worth making to DARC.** In the
+host-one-server design the students need no GPUs at all — they query over the
+network from the `normal` partition. So the reservation only has to cover *one*
+GPU, on one non-H200 node, for the length of the session. That is 1 of 14 GPUs,
+not one per student.
+
+**To settle when asking:** DARC's lead time and whether they reserve for teaching
+at all; whether the reservation can name a feature (`GPU_MODEL:A40`) or only a
+node; and the exact reservation name, since using it means adding
+`--reservation=<name>` to the `sbatch` call in `ensure_ollama_server.sh` (there is
+no env override for it yet — add one, or hardcode it once known).
+
+**Fallback if there is no reservation.** Run `ensure_ollama_server.sh` the evening
+before rather than at 9am: the script blocks and polls, so a long queue then costs
+nothing but wall-clock overnight. Note the walltime must then span the wait *and*
+the session — a 9pm submission for a morning class wants `WALLTIME=15:00:00`, not
+the 4-hour default — which still fits inside the 1-day `gpu` cap noted above.
+The cost of this fallback is that the GPU is held, and idle, all night; a
+reservation avoids paying that.
+
+*Drafted by Claude (Opus 5) 2026-08-02 from the sbatch discussion; the capacity
+table is from `sinfo -p gpu -N` on that date, everything about DARC's reservation
+policy is unverified.*
 
 ---
 

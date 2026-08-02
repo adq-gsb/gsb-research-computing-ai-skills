@@ -136,7 +136,8 @@ cat <<EOF
   Students test it with:
 
       curl http://${HOST}:${PORT}/v1/chat/completions \\
-        --json '{"model": "${MODEL}", "messages": [{"role": "user", "content": "hello"}]}'
+        -H 'Content-Type: application/json' \\
+        -d '{"model": "${MODEL}", "messages": [{"role": "user", "content": "hello"}]}'
 ────────────────────────────────────────────────────────────
 
 Following the log. Ctrl-C stops the server.
