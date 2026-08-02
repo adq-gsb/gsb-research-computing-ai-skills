@@ -1,9 +1,20 @@
 ---
 layout: default
-title: "Submitting an Array Job"
+title: "Submitting an Array Job (archived)"
 parent: "Day 4 — Parallelization & GPUs"
-nav_order: 3
-permalink: /day4/array-exercise/
+nav_exclude: true
+search_exclude: true
+permalink: /day4/archive/array-exercise/
+---
+
+**Archived — not part of the course flow.** Deprecated on 2026-08-01: the
+hands-on array work now lives in the Exercise section of
+[SLURM Job Arrays](../../slurm-arrays/). Kept for the `merge_results.py`
+walkthrough and the per-Part structure, which have no equivalent there yet.
+
+Note this page's Part 1 was already broken — it lists `data/sec_filings/*.txt`
+and says "should be 100", but only five filings are tracked there.
+
 ---
 
 # Submitting an Array Job
@@ -63,7 +74,7 @@ watch -n 5 squeue -u $USER    # Ctrl-C when done
 ```
 
 {: .note }
-> If some tasks fail, just resubmit the same script — `extract_form_3_cli.py` skips any filing whose output already exists (see [Failure Resilience](../slurm-arrays/#failure-resilience)), so only the missing ones rerun.
+> If some tasks fail, just resubmit the same script — `extract_form_3_cli.py` skips any filing whose output already exists (see [Exercise — Make the Array Safe to Rerun](../../slurm-arrays/#exercise--make-the-array-safe-to-rerun)), so only the missing ones rerun.
 
 **Part 4 — Combine outputs into one CSV:**
 

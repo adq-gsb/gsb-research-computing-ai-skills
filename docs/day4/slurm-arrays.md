@@ -110,9 +110,11 @@ The task number is what makes this general. Every task runs the identical script
 {: .warning }
 > **Counting from 1.** `--array=1-N` numbers the tasks 1, 2, … N. Slurm doesn't insist on that: numbering from 0 instead, so the tasks run 0 through N − 1, is equally valid. But starting at 1 is the convention used here, and it matters as soon as the task ID indexes something. In some languages a list of N items, `items`, is indexed 0 through N − 1, so a 1-based task ID has to be shifted — `items[task_id - 1]` rather than `items[task_id]`. Get it wrong and nothing complains up front: the first item is silently skipped, and the last task runs off the end of the list.
 
+<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="main"> I can explain what a SLURM job array is: one script, launched many times, each task identical except for its task ID</label>
+
 ---
 
-## Exercise
+## Exercise — Run the Array
 
 Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array. The filings are hosted online, and `data/aws_links.csv` — already in your cloned repo, alongside `scripts/` and `slurm/` — provides the URLs of all of them for you to query.
 
@@ -256,53 +258,100 @@ sbatch slurm/extract_array.slurm
 watch squeue --me
 ```
 
-An array shows up as many rows sharing one job ID — `12345678_1`, `12345678_2`, and so on. Tasks in state `R` are running; ones still `PD` are waiting for a free core. Press `Ctrl+C` to stop watching, then check the per-task logs in `logs/` and the results in `results/`.
+The new thing to notice is the job IDs: an array shows up as many rows sharing one ID, with a task number after it — `12345678_1`, `12345678_2`, and so on — each moving through the same `PD` → `R` → gone lifecycle you watched on [Day 3](../../day3/slurm-scheduler/). Once it's done, check the per-task logs in `logs/` and the results in `results/`.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="exercise"> I submitted a job array, watched the tasks run in `squeue`, and confirmed it finished with one result file per filing</label>
 
 ---
 
-## Why an Array Beats Submitting by Hand
+## Optional practice
 
-- **SLURM schedules the tasks for you** across whatever cores are free — including the ["waves"](../parallelization/) that happen when there are more filings than cores.
-- **The tasks are independent.** One task failing doesn't touch the others, and you can resubmit just the failures instead of rerunning everything.
-- **There's one thing to track.** A single job ID (with per-task sub-IDs) to monitor with `squeue` or cancel with `scancel`.
-- **The outputs are predictable.** `filing_${SLURM_ARRAY_TASK_ID}.json` gives you a tidy set of files, ready to combine into one CSV.
+**Combine the results into one CSV**
+
+The array leaves you a directory of JSON files, one per filing. For analysis you want a single table instead — one row per filing, one column per field.
+
+Write a short script that reads every JSON in `results/` and writes them out as one CSV.
+
+*Think before you type: what happens to a task that failed and never wrote a file?*
+
+<details markdown="1">
+<summary>Solution (expand after trying)</summary>
+
+```python
+# scripts/merge_results.py — combine the array's per-filing JSON into one CSV
+import json
+from pathlib import Path
+
+import pandas as pd
+
+RESULTS_DIR = Path("results")
+OUTPUT_CSV = Path("results/extracted_filings.csv")
+
+rows = []
+for f in sorted(RESULTS_DIR.glob("*.json")):
+    data = json.loads(f.read_text())
+    data["filing"] = f.stem          # keep a record of which filing each row came from
+    rows.append(data)
+
+df = pd.DataFrame(rows)
+df.to_csv(OUTPUT_CSV, index=False)
+
+print(f"Wrote {len(df)} rows to {OUTPUT_CSV}")
+```
+
+A failed task simply left no file, so it never turns up in the glob and nothing crashes. That's also why the count matters: if `len(df)` is less than 100, some tasks didn't finish — resubmit and, thanks to the skip-if-exists check below, only the missing ones do any work.
+
+</details>
+
+<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="side1"> Optional practice complete</label>
 
 ---
 
-## Failure Resilience
+## Why a Job Array Beats a Loop
 
-Array jobs fail in pieces. A node reboots, a task hits its time limit, the API times out — and a handful of your 100 tasks come back empty. You don't want to redo the ones that already succeeded: that wastes compute, and with a paid API, money.
+Day 3 did this same work with a `for` loop inside a single job. Two things change:
 
-The fix is to make each task safe to run again. Before doing the work, a task checks whether its output already exists and skips if it does. Then, after a partial failure, you resubmit the *same* array: the finished tasks see their output and exit immediately, and only the missing ones do real work.
+- **The filings are processed at the same time, rather than one after another.** The loop worked through them in sequence on one core; a job array hands them to whatever cores are free — including in ["waves"](../parallelization/) when there are more filings than cores.
+- **A failure costs you one filing, not the rest of the run.** `extract_form_3_batch.py` has no error handling, so an exception at filing 40 ends the script and filings 41 to 100 never run at all. In a job array, task 40 fails and the other 99 finish regardless.
 
-`scripts/extract_form_3_cli.py` includes exactly this check, right after it reads the output path:
+What doesn't change is how much you have to keep track of. It's still one job ID, one `squeue` line to watch and one `scancel` to stop the lot — now with per-task sub-IDs underneath.
+
+---
+
+## Exercise — Make the Array Safe to Rerun
+
+A job array limits the *damage* of a failure, as we just saw — but you still have to redo whatever failed. A node reboots, a task hits its time limit, the API times out, and a handful of your 100 come back empty. Rerunning the whole array to catch them wastes compute, and with a paid API, money.
+
+The fix is to make each task safe to run again. Before doing any work, a task checks whether its output already exists and exits if it does. Resubmit the *same* array after a partial failure and the finished tasks stop immediately; only the missing ones do real work.
+
+{: .important }
+> **Failure resilience.** Add the check to your script, right after you build the output path in step 3 — then resubmit the array you just ran.
+
+<details markdown="1">
+<summary>💡 Hint — one way to do it</summary>
 
 ```python
-import sys
-from pathlib import Path
-
-OUTPUT_PATH = Path(sys.argv[2])
-
 # already done? skip — makes the array safe to resubmit after a partial failure
-if OUTPUT_PATH.exists():
-    print(f"{OUTPUT_PATH} already exists — skipping")
+if output_path.exists():
+    print(f"{output_path} already exists — skipping")
     sys.exit(0)
 ```
 
----
+</details>
 
-<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="main"> I understand how a SLURM job array turns one script into many parallel tasks</label>
+Nothing has been deleted, so every task should find its output and exit at once — the whole array finishing in seconds rather than minutes is the sign it worked.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="resubmit"> I added the skip-if-exists check, resubmitted the array, and saw the finished tasks exit immediately</label>
+
+---
 
 ---
 
 ## What You Learned
 
 - You can explain what a SLURM **job array** is: one script, submitted once, that SLURM runs as many independent tasks
-- You know that `#SBATCH --array=1-N` creates the tasks and `SLURM_ARRAY_TASK_ID` distinguishes them
-- You can map a task ID to a unit of work — e.g. selecting the matching line from a list of filings
+- You know that `#SBATCH --array=1-N` creates the tasks and `SLURM_ARRAY_TASK_ID` distinguishes them, and how to hand that number to a Python script
+- You can map a task ID to a unit of work — here, for instance, reading the filings from `data/aws_links.csv` and indexing into them, minding that tasks count from 1 and lists from 0
+- You've submitted an array, watched the tasks move through `squeue`, and found each one's output in its own `%A_%a` log
 - You know how to make a task safe to rerun — skip it if its output already exists — so a partially failed array only redoes the missing work
-- You can say why an array beats submitting jobs by hand: scheduling, independence, tracking, and tidy outputs
-
-The hands-on exercise, [Submitting an Array Job](../array-exercise/), puts this into practice.
+- You can say why a job array beats the Day 3 loop: the filings are processed at the same time, and one failure costs you one filing rather than the rest of the run

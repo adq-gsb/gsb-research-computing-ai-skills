@@ -36,7 +36,6 @@ Work through the sections in order — later ones build on earlier ones, and Put
 |------|--------|-----------------|
 | [Parallelization Basics](parallelization/) | 🖊️ Concept | What running work in parallel means, when it helps, and why independent tasks are the key |
 | [SLURM Job Arrays](slurm-arrays/) | 🖊️ Concept | How to operationalize parallelization on the cluster: job arrays, `--array`, `SLURM_ARRAY_TASK_ID`, and making tasks safe to rerun |
-| [Submitting an Array Job](array-exercise/) | 💻 Hands-on | Build, submit, and monitor a 100-filing array job, then combine the per-task outputs into one CSV |
 | [Why Run LLMs on the Yens?](why-local-llms/) | 🖊️ Concept | When to run a model yourself on the Yens vs. calling a cloud API — privacy, cost, reproducibility, and open vs. proprietary models |
 | [How to Run LLMs on the Yens](running-llms/) | 🖊️💻 Concept + Hands-on | Why LLMs need a GPU, how to request one on the Yens, and running an open model with Ollama (same code as the Playground, different `base_url`) |
 | [Handling LLM Failure Modes](validating-llm-outputs/) | 🖊️ Concept | Why even top models are brittle, the main LLM failure modes (hallucination, prompt injection, irreversibility, runaway loops), and how to guard against them |
