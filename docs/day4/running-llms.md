@@ -31,18 +31,41 @@ At a high level, running a model on the cluster comes down to three things:
 
 ## Exercise: Querying a Local LLM
 
-{: .demo }
-> We've already done the work for you of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
->
-> We'll write the server's URL on the board in a second — paste it in place of `<server-url>` below, then run the command to submit a query of your choosing.
->
-> ```bash
-> curl <server-url>/v1/chat/completions \
->   -H 'Content-Type: application/json' \
->   -d '{"model": "llama3.2:3b", "messages": [{"role": "user", "content": "<your query>"}]}'
-> ```
->
-> While you do that, we'll watch them arrive — the server logs every request it receives.
+We've already done the work for you of downloading a model — `llama3.2:3b`, Meta's **open-weight** Llama 3.2 at 3 billion parameters, freely downloadable by anyone — and setting up a server.
+
+To access this server, you'll need its URL, which corresponds to the node the server is on as well as a port (a numbered door into that machine — one node can be running many services at once, and the port is how you say which one you're knocking on).
+
+**First, check you can reach the server.** The way you do this is by running the following command, substituting the URL we've given you:
+
+```bash
+curl <server-url>
+```
+
+You should see `Ollama is running` after running the command.
+
+That request left your node, crossed to another machine on the Yens, and came back — without leaving the cluster.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="reach"> I reached the server and got `Ollama is running` back</label>
+
+**Second, run a query on the LLM from Python.** You can do this interactively from your Yen login node, by running the following script, substituting your query:
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="<server-url>/v1",              # the model server on the Yens
+    api_key="ollama",                          # ignored, but the client requires a value
+)
+
+response = client.chat.completions.create(
+    model="llama3.2:3b",
+    messages=[{"role": "user", "content": "<your query>"}],
+)
+print(response.choices[0].message.content)
+```
+
+{: .note }
+> The interface to the local LLM is **OpenAI-compatible**, so this is effectively the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-running-llms" data-key="query"> I submitted a query to the local LLM and got a response back</label>
 
@@ -137,7 +160,7 @@ Just like the `#SBATCH` directives you wrote on Day 3, this tells the scheduler 
 
 An Ollama server is already running on the Yens — your instructor will give you its address.
 
-**Part 1 — Check you can reach it.** Substitute the URL you were given — it looks like `http://yen-gpu4:41234`:
+**Part 1 — Check you can reach it.** Substitute the URL you were given:
 
 ```bash
 curl <server-url>          # → Ollama is running
@@ -145,7 +168,7 @@ curl <server-url>          # → Ollama is running
 
 That request left your node, crossed to another machine on the Yens, and came back — without leaving the cluster. You are not on the machine holding the model, and you don't need to be — you don't need a GPU, the weights, or an account on that node. All you need is the address.
 
-**Part 2 — Query it from Python.** The interface is **OpenAI-compatible**, so this is the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes:
+**Part 2 — Query it from Python.** The interface is **OpenAI-compatible**, so this is effectively the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes:
 
 ```python
 from openai import OpenAI

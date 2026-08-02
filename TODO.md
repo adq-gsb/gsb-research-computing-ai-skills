@@ -330,6 +330,79 @@ after class, which is really the underlying question.
 
 ---
 
+### `running-llms.md` carries two exercises that may be one exercise
+The page now has **two** hands-on sections against the same shared server, split by
+the two hardware sections:
+
+| § | Heading | Key | What it asks |
+|---|---|---|---|
+| `:32` | Exercise: Querying a Local LLM | `query` | `curl <server-url>` to check reach, then the same call from Python via the OpenAI client |
+| `:155` | Exercise: Query a Local Model | `exercise` | the same two parts, plus a closing note on swapping `base_url`, and two callouts |
+
+**As of 2026-08-02 the duplication is near-total.** The demo callout used to hold a
+single `curl` to `/v1/chat/completions`; Ben replaced it with Parts 1 and 2 lifted
+from the exercise below, differing only in that the demo leaves the prompt as
+`<your query>` where the exercise hardcodes an SEC Form 3 question. The two headings
+are also near-homographs — a student scanning the page cannot tell them apart. So
+this is no longer a question of whether they overlap; it is a question of which one
+survives.
+
+But they are not redundant, and the case for keeping both is the **demo/exercise**
+distinction the day already draws elsewhere. The first is a `{: .demo }`: everyone
+runs one line at the same moment, the room watches the requests land in the server
+log, and the payoff is collective. The second is solo work with a different point —
+that the `base_url` swap is the *whole* difference from Day 2's Gateway code.
+Merging them costs the shared moment, and it costs the placement: the demo works
+precisely because it comes *before* "Why LLMs Need a GPU", so the class has queried
+a model before being told what it takes to run one.
+
+Three ways out:
+
+1. **Keep both, rename.** Cheapest. The demo becomes something like "Demo: Query
+   the Class Server" and the second keeps "Exercise". Fixes the collision without
+   touching structure or the two quest keys.
+2. **Merge into one exercise** after the hardware sections, `curl` then Python, one
+   key. Simplest page; loses the demo beat and leaves the day's opening
+   LLM section with nothing hands-on.
+3. **Keep both and sharpen the split** — demo does `curl` only, exercise does
+   Python only, with the reach check folded into the demo. Least duplication, but
+   the exercise then depends on the demo having happened, which breaks for anyone
+   working from the page after class.
+
+Option 1 unless there's a reason to restructure. Whatever is chosen, the quest keys
+(`query`, `exercise`) and `docs/assets/js/quest-log.js` have to stay in step —
+regenerate `docs/_data/quest_keys.json` with `node .instructor/gen_quest_keys.js`.
+
+### Demo: the same query on GPU and on CPU, timed head to head
+The material asserts a GPU is what makes a local model usable, and asks students to
+take it on faith. It is demonstrable: run the *same* prompt against two servers —
+one on a GPU node, one on a CPU node in `normal` — and time both. Same model, same
+command, different hardware; the number is the argument.
+
+Feasible as of the 2026-08-02 dry run (`.instructor/ollama/dry-run-2026-08-02.md`):
+`--nv` warns and continues on a CPU node rather than failing, so no patch to DARC's
+`ollama.sh` is needed, and a CPU server was observed running alongside the GPU one
+(job 406149, `yen20`). Two servers need two `SCRATCH_BASE` trees — `ollama.sh` keeps
+`port.txt`/`host.txt`/`models` under a single `${SCRATCH_BASE}/ollama`, so sharing
+one overwrites the first server's coordinates.
+
+**Blocking gap:** that dry run only probed the CPU server's `/api/tags`. No chat
+request was ever sent to it, and there is no timing for either side — so the
+contrast this demo rests on is the one thing not yet measured. `llama3.2:3b` on CPU
+is *expected* to be slow rather than unusable, which is what makes it a good
+demonstration, but that is a prediction. Measure it before building anything around
+it: one identical prompt to each server, `time` on both, on the hardware the class
+will actually see. If CPU turns out to be unusably slow or surprisingly fine, the
+demo changes shape or dies.
+
+Presentation, once there are numbers: streaming responses side by side is the
+vivid version — tokens visibly crawling on one and not the other — but it needs two
+terminals and cooperative pacing in a live room. A pre-recorded timing, or just the
+two numbers on the board, is the safe fallback. Note the demo also needs a second
+GPU-node allocation held for its duration; see the reservation item below.
+
+---
+
 ### Remind students to release GPUs they've reserved
 Wherever the material has students hold a GPU, it should also tell them to give it
 back. An interactive `srun --pty` allocation holds the GPU for the *full* `--time`
