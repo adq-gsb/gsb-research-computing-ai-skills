@@ -114,19 +114,21 @@ The task number is what makes this general. Every task runs the identical script
 
 ---
 
-## Exercise — Run the Array
+## Exercise
 
 Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array. The filings are hosted online, and `data/aws_links.csv` — already in your cloned repo, alongside `scripts/` and `slurm/` — provides the URLs of all of them for you to query.
 
-The task ID is just an integer — *you* decide what it points to. The usual pattern has these steps:
+You'll end up with two files: a new Python script that handles a single filing, and a SLURM script to launch it as an array — either a new one, or the `slurm/extract_form_3_batch.slurm` you wrote on Day 3, adapted.
+
+Work through it in four steps.
 
 **1. Figure out how to associate each task with a filing.**
 
 {: .note }
-> **Getting the task ID into Python.** Slurm sets `SLURM_ARRAY_TASK_ID` in each task's environment. Your `.slurm` script passes it to your Python script as a command-line argument:
+> **Getting the task ID into Python.** Slurm sets `SLURM_ARRAY_TASK_ID` in each task's environment. Your `.slurm` script passes it to your new Python script as a command-line argument:
 >
 > ```bash
-> python scripts/extract_form_3_cli.py "$SLURM_ARRAY_TASK_ID"
+> python scripts/extract_array.py "$SLURM_ARRAY_TASK_ID"
 > ```
 >
 > and Python reads it back from `sys.argv` — a different number in every task:
@@ -242,10 +244,10 @@ output_path = Path("results") / name         # results/0000003570-22-000041.json
 
 </details>
 
-**4. Have the SLURM array script invoke your Python script,** handing over the task ID as its argument:
+**4. Have the SLURM array script invoke your new Python script,** handing over the task ID as its argument:
 
 ```bash
-python scripts/extract_form_3_cli.py "$SLURM_ARRAY_TASK_ID"
+python scripts/extract_array.py "$SLURM_ARRAY_TASK_ID"
 ```
 
 {: .note }
@@ -318,14 +320,14 @@ What doesn't change is how much you have to keep track of. It's still one job ID
 
 ---
 
-## Exercise — Make the Array Safe to Rerun
+## Exercise: Avoiding Wasteful Computation
 
 A job array limits the *damage* of a failure, as we just saw — but you still have to redo whatever failed. A node reboots, a task hits its time limit, the API times out, and a handful of your 100 come back empty. Rerunning the whole array to catch them wastes compute, and with a paid API, money.
 
 The fix is to make each task safe to run again. Before doing any work, a task checks whether its output already exists and exits if it does. Resubmit the *same* array after a partial failure and the finished tasks stop immediately; only the missing ones do real work.
 
 {: .important }
-> **Failure resilience.** Add the check to your script, right after you build the output path in step 3 — then resubmit the array you just ran.
+> **Task:** Add the check to your script, right after you build the output path in step 3 — then resubmit the array you just ran.
 
 <details markdown="1">
 <summary>💡 Hint — one way to do it</summary>
@@ -342,8 +344,6 @@ if output_path.exists():
 Nothing has been deleted, so every task should find its output and exit at once — the whole array finishing in seconds rather than minutes is the sign it worked.
 
 <label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="resubmit"> I added the skip-if-exists check, resubmitted the array, and saw the finished tasks exit immediately</label>
-
----
 
 ---
 

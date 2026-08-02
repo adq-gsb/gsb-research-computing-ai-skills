@@ -129,12 +129,12 @@ Worth checking either way: whether that `/zfs/data/NODR/EDGAR_HTTPS/…` path is
 readable by students on the Yens, or whether it is an instructor-only mount. If it
 isn't readable, option 2 stops being optional.
 
-**Related, and currently broken:** the exercise's step 4 invokes
-`scripts/extract_form_3_cli.py "$SLURM_ARRAY_TASK_ID"`, but that script takes two
-*paths* (`sys.argv[1]` and `[2]`) and reads from disk. A student following steps 1–3
-builds a different script from the one step 4 runs. Whichever option above is taken,
-`extract_form_3_cli.py` and the page have to be made to agree — it is also called
-from `docs/day4/array-exercise.md:46`, so changing its signature ripples.
+**Resolved 2026-08-01.** The exercise used to invoke `scripts/extract_form_3_cli.py`
+with a task ID while that script took two paths and read from disk — students built
+one script and ran a different one. The page now names `scripts/extract_array.py`,
+which they write themselves, and `extract_form_3_cli.py` is deleted: it existed only
+for the array-exercise page, which is archived. The choice above still stands for the
+*hint* in step 2, which points at the Day 2 one-file script.
 
 ### Load-imbalance exercise from the archived "When One Filing Runs Long"
 That section was cut from `docs/day4/parallelization.md` on 2026-08-01 as orthogonal

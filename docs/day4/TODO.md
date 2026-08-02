@@ -10,7 +10,8 @@ search_exclude: true
 the Day 4 material. Excluded from site nav and search via front matter.
 
 The Day 4 rewrite is essentially complete. **Done:** the sequencing plan;
-`extract_form_3_cli.py` (with `sys.argv` introduced at first use in `slurm-arrays.md`);
+the array exercise on `slurm-arrays.md` (students now write the script themselves;
+the provided `extract_form_3_cli.py` was deleted 2026-08-01);
 fault-tolerance / skip-if-exists; the "why a GPU" and local-vs-cloud motivation; the
 interactive GPU session (`srun --pty`); the Day 3-style leaderboard sync; and the
 cross-page link audit — all course-page links and anchors resolve. (The only dead
