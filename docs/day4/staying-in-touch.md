@@ -8,7 +8,9 @@ permalink: /day4/staying-in-touch/
 
 # Staying In Touch
 
-The DARC team runs the Yens and supports GSB researchers year-round. You are not expected to remember everything from this week — you are expected to know where to ask.
+Thank you so much for participating!
+
+The DARC team runs the Yens and supports GSB researchers year-round. You are not expected to remember everything from this week — but you are expected to know where to ask.
 
 ## Slack — `#gsb-yen-users`
 
@@ -26,7 +28,7 @@ If the link does not open automatically, open the Slack app, search for **#gsb-y
 
 For questions that need a direct answer from the team, or anything you'd rather not post in a channel:
 
-📧 **[gsb_darcresearch@stanford.edu](mailto:gsb_darcresearch@stanford.edu)**
+**[gsb_darcresearch@stanford.edu](mailto:gsb_darcresearch@stanford.edu)**
 
 Response time is typically one business day.
 
