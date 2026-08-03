@@ -34,10 +34,13 @@ So one filing per task is no longer available to you. Deciding how many tasks to
 
 **This is a good example of what scaling up to a real-world workload looks like: the approach that worked on a small run stops fitting, and you have to adapt it to the constraints of the machine.**
 
-**2. Document it.**
+**2. Check how many filings actually landed.**
+Count the results you ended up with. If it isn't 992, work out which are missing and why — then decide what you'd change so that a rerun doesn't start from nothing (see [Avoiding Wasteful Computation](../slurm-arrays/#exercise-avoiding-wasteful-computation)).
+
+**3. Document it.**
 Keep adding to the same `README.md` you've been building since Day 1 — the one you wrote up for your pipeline in [Documenting Your Pipeline](../../day3/documenting-pipeline/). It should describe the latest state of the pipeline.
 
-**3. Commit and push from the Yens.**
+**4. Commit and push from the Yens.**
 
 Ask Claude Code to handle it:
 

@@ -8,7 +8,7 @@ permalink: /day4/staying-in-touch/
 
 # Staying In Touch
 
-Thank you so much for participating!
+Thank you for participating!
 
 The DARC team runs the Yens and supports GSB researchers year-round. You are not expected to remember everything from this week — but you are expected to know where to ask.
 

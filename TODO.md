@@ -1,10 +1,9 @@
 # Repo TODOs
 
-Cross-cutting items that span more than one day. Day-4-specific content gaps live in
-`docs/day4/TODO.md`; this file is for things that touch several days or the site
-machinery. Not part of the Jekyll build (it sits outside `docs/`).
+Everything still outstanding — content gaps, naming inconsistencies, and things
+blocked on someone else. Not part of the Jekyll build (it sits outside `docs/`).
 
-Last updated 2026-08-02.
+Last updated 2026-08-03.
 
 ---
 
@@ -37,6 +36,27 @@ actually present, and account for any that aren't. That preserves the reward for
 optional work, keeps the merge from being the obstacle, and puts the weight on the
 diagnostic that matters once a task holds many filings. Related:
 [[the course never teaches catch-and-continue]] below.
+
+### Confirm `MaxArraySize` on the Yens before teaching the challenge
+The Day 4 Challenge is built on the claim that an array is capped at **512 tasks**,
+which is what makes one-filing-per-task impossible for 992 filings — the whole
+premise of the exercise. Ben reported 512 from memory; nobody has run:
+
+```bash
+scontrol show config | grep -i MaxArraySize
+```
+
+Worth thirty seconds, because the number is load-bearing twice over. Slurm's
+*default* is 1001, and if the Yens run the default then `--array=1-992` is legal, a
+student will discover that in about a minute, and the challenge collapses. The page
+also prints the exact command and invites them to check for themselves, so a wrong
+figure is one a student is being actively encouraged to catch.
+
+If it does turn out to be 1001 or higher, the framing that survives is per-task
+overhead rather than the cap: 992 tasks each pay for queueing, venv activation and
+Python startup against roughly a second of real work, and a concurrency limit means
+they don't finish any sooner than 50 fatter tasks would. That argument holds
+regardless of configuration, and transfers better to the students' own work.
 
 ### The course never teaches catch-and-continue error handling
 `try`/`except` appears **once**, at `docs/day2/oracles-chamber.md:216`: a
