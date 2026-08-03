@@ -17,13 +17,13 @@ permalink: /day2/stanford-ai-playground/
 ## 🗡️ Main Quest
 
 {: .important }
-> **Quest:** Log in to the Stanford AI Playground with your SUNet credentials, send your first prompt through Stanford's governed gateway, and know which data-risk levels you may (and may not) send through it.
+> **Quest:** Log in to the Stanford AI Playground with your SUNetID credentials, send your first prompt through Stanford's governed gateway, and know which data-risk levels you may (and may not) send through it.
 
 ---
 
 ## 🖊️ Data Security
 
-Datasets that aren't public come with rules, imposed by multiple entities. Two systems matter most for your research.
+Datasets that aren't public come with rules, and those rules are imposed by **three** different entities at once. They are independent of each other, they don't consult each other, and you have to satisfy all three. When they disagree, the **strictest one wins**.
 
 **1. Stanford's data risk classification**
 
@@ -46,12 +46,30 @@ DUAs come from datasets purchased or licensed for faculty use. Stanford's lawyer
 | 🔴 Restrictive | "You may not use ANY form of AI on this data" |
 | 🔴 Restrictive | "All analysis must be done on company servers with approved libraries" |
 
-You follow both systems (Stanford's classification and your DUA) so Stanford stays protected.
+**3. The computing system you're working on**
+
+Every system you touch is itself approved up to some maximum risk level, and that ceiling belongs to the **machine**, not to your data or your good intentions. This is the one researchers forget, because nothing stops you: you can copy a restricted file onto a system that isn't cleared for it and everything will appear to work fine. The violation is the copy, not the crash.
+
+| Where you're working | Approved up to |
+|----------------------|----------------|
+| **<a href="https://rcpedia.stanford.edu/_policies/security/?h=high+risk#data-risk" target="_blank" rel="noopener noreferrer">The Yens</a>** (GSB research computing) | 🟡 Moderate |
+| **<a href="https://www.sherlock.stanford.edu/docs/concepts/" target="_blank" rel="noopener noreferrer">Sherlock</a>** (Stanford's shared HPC cluster) | 🟡 Moderate |
+| **<a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">Nero</a>** (secure computing for regulated data) | 🔴 High, **including** PHI |
+| **AI Playground** (chat window) | 🔴 High, but **not** PHI |
+| **AI API Gateway** (from your code) | 🔴 High, **including** PHI |
+| A personal laptop or consumer AI account | 🟢 Low |
+
+So "can I analyze this data with AI?" is really three questions: *what risk level is the data*, *what does my DUA allow*, and *what is this machine cleared to hold*. High-risk data on the Yens fails the third test even when the first two are satisfied.
+
+{: .note }
+> 💡 **Know which machine to reach for.** The Yens are your home for this course and for most GSB research; their data-risk policy is spelled out in <a href="https://rcpedia.stanford.edu/_policies/security/?h=high+risk#data-risk" target="_blank" rel="noopener noreferrer">RCpedia</a>. <a href="https://www.sherlock.stanford.edu/docs/concepts/" target="_blank" rel="noopener noreferrer">**Sherlock**</a> is Stanford's shared HPC cluster, where you go when a job outgrows the Yens. <a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">**Nero**</a> is the secure platform for regulated data, and it is where High-Risk work belongs, including anything involving PHI. Sort that out *before* you copy a single file, because the moment restricted data lands on a system that isn't cleared for it, the problem already exists.
+
+You satisfy all three (Stanford's classification, your DUA, and the ceiling of the system you're on) so both you and Stanford stay protected.
 
 {: .warning }
 > **Improper use of a dataset can mean lawsuits, and losing access to the data or the tools entirely.**
 
-**🖊️ Quick Check: Classify These Five**
+**🖊️ Exercise: Classify These Five**
 
 For each, is it **Low**, **Moderate**, or **High** Risk under Stanford's definitions above?
 
@@ -88,7 +106,16 @@ Stanford builds and runs **two** of its own AI services, two different ways in t
 - **The AI Playground:** a **chat window** in your browser, built on the open-source **LibreChat** platform. Point, click, and type; nothing to install. *(This room.)*
 - **The AI API Gateway:** **API access** to the same class of models for your *code*, over an OpenAI-compatible endpoint (`aiapi-prod.stanford.edu`). A separate system you call programmatically. You'll wire into it from [The Key Vault](../key-vault/) onward.
 
-Both keep every prompt inside Stanford's contracted perimeter. The rest of this room walks the **chat window** first, then the **API**.
+{: .note }
+> 💡 **Two words before we go further, in case they're new.**
+>
+> **An API** (Application Programming Interface) is a door into a service built for **programs** rather than for people. The chat window and the API reach the very same models; what differs is who is standing at the door. You type into a chat window and read the reply yourself. Your *code* sends a request to an API and gets structured data back that the rest of your script can use.
+>
+> Why a researcher should care: reading one SEC filing in a chat window is easy. Reading **ten thousand** of them means a `for` loop, and a loop needs a door that code can open. Same models, same Stanford contract, different door.
+>
+> **An API key** is the credential that opens that door. A server has no other way to know who is knocking, so your key identifies you and carries your permissions and your budget with it. That leads to the two rules you'll practise next room: keep it **secret**, because anyone holding it can spend against your account, and never let it end up in your code, a screenshot, a chat window, or a commit. [The Key Vault](../key-vault/) is entirely about handling it properly.
+
+Both put every prompt under one of Stanford's enterprise agreements rather than a personal account's consumer terms. The rest of this room walks the **chat window** first, then the **API**.
 
 Stanford also brokers access to a growing list of **third-party** services (each with its own data rules):
 
@@ -108,13 +135,13 @@ Stanford also brokers access to a growing list of **third-party** services (each
 
 ## 🖊️ The AI Playground: A Chat Window
 
-The AI Playground is a University-hosted **chat interface**, built on the open-source **LibreChat** platform, that gives every Stanford researcher one safe, governed space to work with many cutting-edge models. You log in with your SUNet credentials and chat much as you would with ChatGPT, but every prompt stays inside Stanford's contracted perimeter, and it is cleared for data up to **High Risk, but *not* PHI** (protected health information).
+The AI Playground is a University-hosted **chat interface**, built on the open-source **LibreChat** platform, that gives every Stanford researcher one safe, governed space to work with many cutting-edge models. You log in with your SUNetID credentials and chat much as you would with ChatGPT, but every prompt is covered by Stanford's enterprise agreement with the cloud provider instead of consumer terms, and it is cleared for data up to **High Risk, but *not* PHI** (protected health information).
 
 It offers many of the same models you'd reach commercially (Claude Opus 4.8, GPT-5.2, and Gemini 2.5 Flash, among others) with no personal account or credit card. (The exact model ids come from the models endpoint you'll query in [The Oracle's Chamber](../oracles-chamber/).)
 
 ### 🔰 Try the AI Playground
 
-Open <a href="https://uit.stanford.edu/aiplayground" target="_blank" rel="noopener noreferrer">https://uit.stanford.edu/aiplayground</a> in your browser and log in with SUNet.
+Open <a href="https://uit.stanford.edu/aiplayground" target="_blank" rel="noopener noreferrer">https://uit.stanford.edu/aiplayground</a> in your browser and log in with SUNetID.
 
 Ask it something:
 - *"Summarize what a virtual environment is in one sentence."*
@@ -126,10 +153,10 @@ Notice: the responses come from the same models you'd reach through the API. You
 
 | | Detail |
 |-|--------|
-| ✅ **No personal billing** | Budget caps enforced by Stanford; you cannot accidentally run up a $10,000 bill |
-| ✅ **Stanford data perimeter** | Covered under Stanford's data processing agreement with the model provider |
-| ✅ **No account required** | Every Stanford researcher has access via SUNet login |
-| ⚠️ **Prompts are logged** | Stanford can review usage logs, so it isn't anonymous. The upside: that audited, contracted perimeter is exactly what clears the Playground for sensitive data up to **High Risk, though not PHI** (and always subject to your DUA) |
+| ✅ **Free to you** | Stanford covers the cost. No credit card to attach and no per-use charge to keep an eye on, unlike a personal ChatGPT or Claude subscription |
+| ✅ **Stanford's agreement applies** | Your prompts fall under Stanford's enterprise contract and data processing agreement, not a consumer account's terms |
+| ✅ **No account required** | Every Stanford researcher has access via SUNetID login |
+| ⚠️ **Prompts are logged** | Stanford can review usage logs, so it isn't anonymous. The upside: that audited, contracted arrangement is exactly what clears the Playground for sensitive data up to **High Risk, though not PHI** (and always subject to your DUA) |
 | ⚠️ **Model selection** | Available models are determined by Stanford's contract, not your preference |
 
 ---
@@ -150,15 +177,11 @@ client = OpenAI(
 Here's what happens on the wire when that code runs:
 
 <svg viewBox="0 0 1000 420" role="img" aria-labelledby="api-flow-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:1000px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
-  <title id="api-flow-title">How the Stanford AI API Gateway works: your code sends a request to Stanford's gateway, which sits inside the campus perimeter. The gateway authenticates you through SUNet, applies Stanford's contract with the provider, enforces budget caps, and logs the call, then forwards it across the perimeter to the model provider and returns the response back along the same path.</title>
+  <title id="api-flow-title">How the Stanford AI API Gateway works: your code sends a request to Stanford's gateway. The gateway authenticates you through SUNetID, applies Stanford's contract, enforces budget caps, and logs the call, then routes it to the model, which is served by an enterprise cloud provider under one of Stanford's enterprise agreements rather than on a personal vendor account. The response returns along the same path.</title>
   <defs>
     <marker id="api-ah-green" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#2e8b57"/></marker>
     <marker id="api-ah-slate" markerWidth="10" markerHeight="10" refX="7" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7 Z" fill="#556a95"/></marker>
   </defs>
-
-  <!-- perimeter: gateway is inside Stanford, the provider is outside -->
-  <line x1="700" y1="55" x2="700" y2="380" stroke="#b09668" stroke-width="2" stroke-dasharray="6 6"/>
-  <text x="700" y="42" text-anchor="middle" font-size="15" font-weight="700" letter-spacing="0.5" fill="#b09668">STANFORD PERIMETER</text>
 
   <!-- your code -->
   <rect x="40" y="170" width="230" height="130" rx="14" fill="#fdf6ea" stroke="#e6cfa8" stroke-width="1.5"/>
@@ -171,16 +194,17 @@ Here's what happens on the wire when that code runs:
   <text x="510" y="150" text-anchor="middle" font-size="18" font-weight="700" fill="#2c3e50">🛡️  Stanford AI API Gateway</text>
   <text x="510" y="174" text-anchor="middle" font-size="14" fill="#8a6d3b">aiapi-prod.stanford.edu</text>
   <line x1="410" y1="190" x2="610" y2="190" stroke="#e0c48a" stroke-width="1"/>
-  <text x="510" y="222" text-anchor="middle" font-size="15" fill="#6a5326">🪪  authenticates you (SUNet)</text>
+  <text x="510" y="222" text-anchor="middle" font-size="15" fill="#6a5326">🪪  authenticates you (SUNetID)</text>
   <text x="510" y="252" text-anchor="middle" font-size="15" fill="#6a5326">🔒  applies Stanford's contract</text>
   <text x="510" y="282" text-anchor="middle" font-size="15" fill="#6a5326">💵  enforces budget caps</text>
   <text x="510" y="312" text-anchor="middle" font-size="15" fill="#6a5326">📋  keeps an audit trail</text>
 
   <!-- model -->
   <rect x="755" y="170" width="205" height="130" rx="16" fill="#eef5ff" stroke="#bcd4f2" stroke-width="1.5"/>
-  <text x="857" y="216" text-anchor="middle" font-size="21" font-weight="700" fill="#2c3e50">🧠  The model</text>
-  <text x="857" y="246" text-anchor="middle" font-size="16" fill="#6a7280">provider executes</text>
-  <text x="857" y="272" text-anchor="middle" font-size="14.5" fill="#8a94a6">outside the perimeter</text>
+  <text x="857" y="214" text-anchor="middle" font-size="21" font-weight="700" fill="#2c3e50">🧠  The model</text>
+  <text x="857" y="244" text-anchor="middle" font-size="14.5" fill="#6a7280">served by an enterprise</text>
+  <text x="857" y="266" text-anchor="middle" font-size="14.5" fill="#6a7280">cloud provider</text>
+  <text x="857" y="288" text-anchor="middle" font-size="12.5" fill="#8a94a6">under Stanford's agreement</text>
 
   <!-- your code <-> gateway (green) -->
   <line x1="270" y1="205" x2="383" y2="205" stroke="#2e8b57" stroke-width="2.5" marker-end="url(#api-ah-green)"/>
@@ -188,7 +212,7 @@ Here's what happens on the wire when that code runs:
   <line x1="383" y1="265" x2="272" y2="265" stroke="#2e8b57" stroke-width="2.5" marker-end="url(#api-ah-green)"/>
   <text x="326" y="284" text-anchor="middle" font-size="14.5" font-weight="700" fill="#1f6b45" stroke="#ffffff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">④ response</text>
 
-  <!-- gateway <-> model (slate), crossing the perimeter -->
+  <!-- gateway <-> model (slate) -->
   <line x1="637" y1="205" x2="753" y2="205" stroke="#556a95" stroke-width="2.5" marker-end="url(#api-ah-slate)"/>
   <text x="695" y="196" text-anchor="middle" font-size="14.5" font-weight="700" fill="#3f4f74" stroke="#ffffff" stroke-width="5" paint-order="stroke" stroke-linejoin="round">② forward</text>
   <line x1="753" y1="265" x2="639" y2="265" stroke="#556a95" stroke-width="2.5" marker-end="url(#api-ah-slate)"/>
@@ -199,14 +223,14 @@ Every model call, prompt, and response flows through `aiapi-prod.stanford.edu`, 
 
 ### Why Stanford Runs Its Own Server
 
-That gateway is a server Stanford stands up and maintains itself, placed between your code and the model provider on purpose. Owning the middle is what lets the University put every request under its contract with the provider (the **DPA**), authenticate you through **SUNet**, enforce **budget caps**, and keep an **audit trail**. Send data straight to a vendor on a personal account instead, and none of those protections apply. One governed door for all of campus beats thousands of ungoverned ones.
+That gateway is a server Stanford stands up and maintains itself, placed between your code and the model provider on purpose. Owning the middle is what lets the University put every request under its contract with the provider (the **DPA**), authenticate you through **SUNetID**, enforce **budget caps**, and keep an **audit trail**. Send data straight to a vendor on a personal account instead, and none of those protections apply. One governed door for all of campus beats thousands of ungoverned ones.
 
 {: .important }
 > **The chat window and the API have different PHI ceilings.** The Playground **chat window** is cleared for data up to High Risk but **not PHI** (protected health information). The **API Gateway** *is* approved for High Risk **including PHI** (always subject to your DUA). So when PHI is involved, reach for the **API path**, not the chat window.
 
 ### Requesting Your Own Key
 
-Today you're using the shared bootcamp key. If you or your PI need a personal Stanford AI API Gateway key later, you'll submit a request with:
+Today you're using the shared course key. If you or your PI need a personal Stanford AI API Gateway key later, you'll submit a request with:
 
 - **Organization**: Stanford University, Stanford Health Care (SHC), or Stanford Children's Health (SCH)
 - **Requester**: yourself, someone else, or your department/service team
@@ -229,24 +253,26 @@ In the next room (The Key Vault), you'll load the key securely from a `.env` fil
 
 {: .note }
 > Finished early? Try any of these.
+>
+> 🌐 **All three happen in the <a href="https://uit.stanford.edu/aiplayground" target="_blank" rel="noopener noreferrer">AI Playground</a> chat window in your browser** — the same tab you logged into above. No code, no API key, nothing to install. You're exploring what the chat window can do before you start driving the same models from Python.
 
 **Side quest: Save a Course Context Prompt**
 
-Save a reusable prompt that gives the AI quick background on the class you're taking: what the course is, what you're working on, and what tools you have access to. Paste it in at the top of a new conversation instead of re-explaining yourself every time.
+**In the AI Playground**, save a reusable prompt that gives the AI quick background on the class you're taking: what the course is, what you're working on, and what tools you have access to. Paste it in at the top of a new conversation instead of re-explaining yourself every time.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-stanford-ai-playground" data-key="side1"> I saved a reusable course-context prompt</label>
+<label class="quest-check"><input type="checkbox" data-room="d2-stanford-ai-playground" data-key="side1"> I saved a reusable course-context prompt in the AI Playground</label>
 
 **Side quest: Compare Two Models**
 
-Ask two different cutting-edge models the same Yen-specific question. Compare the answers: which one do you trust more, and why?
+**In the AI Playground**, use the model picker to ask two different cutting-edge models the same Yen-specific question. Compare the answers: which one do you trust more, and why?
 
-<label class="quest-check"><input type="checkbox" data-room="d2-stanford-ai-playground" data-key="side2"> I compared two models on the same question</label>
+<label class="quest-check"><input type="checkbox" data-room="d2-stanford-ai-playground" data-key="side2"> I compared two models on the same question in the AI Playground</label>
 
 **Side quest: Customize the System Prompt**
 
-Set the system prompt so the AI knows who you are, your current knowledge level, and how you like to be spoken to. Ask the same question with the system prompt empty versus filled in, and see whether the tone or depth actually changes.
+**In the AI Playground**, set the system prompt so the AI knows who you are, your current knowledge level, and how you like to be spoken to. Ask the same question with the system prompt empty versus filled in, and see whether the tone or depth actually changes.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-stanford-ai-playground" data-key="side3"> I customized the system prompt and compared the results</label>
+<label class="quest-check"><input type="checkbox" data-room="d2-stanford-ai-playground" data-key="side3"> I customized the system prompt and compared the results in the AI Playground</label>
 
 ---
 

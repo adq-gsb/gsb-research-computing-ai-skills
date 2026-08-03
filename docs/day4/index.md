@@ -28,4 +28,4 @@ Six chambers stand between you and the capstone. Each one unlocks a different we
 | [The Engine Room](engine-room/) | 💬 Concept | Local vs cloud — Ollama on Yens, Stanford AI Playground, and third-party APIs compared |
 | [The Trap Garden](trap-garden/) | 💬 Discussion | Spot LLM agent failure modes before they blow up your pipeline |
 | [Boss Gate 4](boss-gate-4/) | 🔑 Capstone | Full stack: SLURM → GPU → local LLM → documented |
-| [The Research Guild](research-guild/) | 🏛️ Community | Getting help, Slack channel, and staying connected after the bootcamp |
+| [The Research Guild](research-guild/) | 🏛️ Community | Getting help, Slack channel, and staying connected after the course |

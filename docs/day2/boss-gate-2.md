@@ -29,23 +29,23 @@ Genre is a stand-in for all of them. *Angels & Demons* is defensibly **Thriller*
 
 ### The template
 
-This shape is reusable. Swap "movie overview" for filings, transcripts, or open-ended survey responses and the five stages don't change:
+Every pipeline like this makes the same five moves. Learn them here on movie genres, and you can swap in SEC filings, interview transcripts, or open-ended survey answers without changing the shape:
 
 {: .important }
-> **GENERATE → EVALUATE → DECIDE → REPORT**
->
-> | | Stage | The rule |
-> |---|---|---|
-> | **1** | Constrain the output space | A fixed label set (Pydantic `Enum`), plus an `Other` escape hatch. Never free text. |
-> | **2** | Generate with evidence | Model A returns a label **and** a one-sentence reason. |
-> | **3** | Evaluate independently | Model B sees the input and the label, **not** the reason. Returns agrees / certainty / reason / suggested label. |
-> | **4** | Decide in code | Thresholds live in Python, never in a prompt. The judge reports; your code acts. |
-> | **5** | Report what happened | Agreement rate, certainty spread, count flagged, and the raw replies on disk. |
+> **MENU → PICK → CHECK → DECIDE → RECORD**
 
-Two of those rules are easy to get wrong, so they're worth stating as deliberate choices rather than arbitrary requirements:
+| Step | What happens | Why it's done this way |
+|:---:|---|---|
+| **1. Menu** | Give the model a **fixed list** of 17 genres to choose from, plus `Other` for genuine misfits. A Pydantic `Enum` is what enforces it. | Ask an open question and you get open answers: "Sci-Fi Thriller," "Dramedy," a fresh label every tenth movie. A menu is what makes 10,000 answers comparable to each other. |
+| **2. Pick** | The **first model** reads the overview, picks one genre, and writes **one sentence on why**. | The reason is how you catch a right answer reached for the wrong reason. Without it, you have a label you can't defend to a reviewer. |
+| **3. Check** | A **second, different model** sees the movie and the genre that was picked — **but not the reason** — and says whether it agrees, and how sure it is from 0 to 100. | This is a genuine second opinion, which is exactly what a second human coder gives you. |
+| **4. Decide** | **Your code** — not a model — flags the rows a human should look at: *disagreed, or less than 70% sure.* | A rule written in Python is one line a colleague can read, argue with, and change. The models advise; you decide. |
+| **5. Record** | Write every verdict to a file: both reasons, the certainty, which model played which role, and whether it got flagged. | Six months from now, this file is the only thing that can answer "how was this label actually reached?" |
 
-- **The judge is blind to the classifier's reasoning.** Show a judge a confident-sounding explanation and it will agree with it. Withholding the reason is what makes the second opinion worth having.
-- **The judge is a different model.** A model asked to grade its own answer agrees with itself far more than it should. Changing one model id is the cheapest quality improvement available to you, and your `base_url` never changes: same gateway, two roles.
+Two of those moves are easy to get wrong, and both are deliberate choices rather than arbitrary rules:
+
+- **The checker never sees the first model's reasoning.** Show it a confident-sounding explanation and it will tend to agree with it. Withholding the reason is the whole thing that makes the second opinion worth having.
+- **The checker is a *different* model.** A model asked to grade its own answer agrees with itself far more than it should. Pointing the second call at another model id is the cheapest quality improvement available to you, and your `base_url` never changes: same gateway, two roles.
 
 <svg viewBox="0 0 1045 375" role="img" aria-labelledby="tribunal-title" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:1045px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="tribunal-title">The Genre Tribunal pipeline. One movie row (id, title, overview) goes to a Classifier running gemini-2.5-flash-lite, which picks one of seventeen genres and gives a one-sentence reason. The overview and that predicted genre, but deliberately not the reason, go to a Judge running a different model, gpt-5-mini, which reports whether it agrees, a certainty from 0 to 100, a reason, and a suggested alternative genre. Those two steps are the models proposing. Then your own code, not the model, applies the policy: needs_human_review is true when the judge disagrees or certainty is below 70. The finished verdict row is appended to results slash genre_verdicts.json, and a summary of agreement rate, certainty spread, and flag count is printed.</title>
@@ -232,7 +232,7 @@ flagged for review ....  4/10
 ```bash
 source ~/gsb-research-computing-ai-skills/.venv/bin/activate
 cd ~/gsb-research-computing-ai-skills/day2
-python genre_tribunal.py                    # reads ../data/, writes ../results/
+python3 genre_tribunal.py                    # reads ../data/, writes ../results/
 git add ../results/genre_verdicts.json
 git commit -m "Boss Gate 2: Genre Tribunal complete"
 git push
@@ -241,7 +241,7 @@ git push
 **Zoom out:** *a committed, validated, human-flagged result file is the whole deliverable. It is what a skeptical colleague would ask to see.*
 
 {: .tip }
-> **Everything lives in `day2/`**, same as `oracle.ipynb`, `form3_test.py`, and your `.env`. Write `genre_tribunal.py` there and run it from there, so the paths look exactly like the ones you used in The Oracle's Chamber: `../data/` to read, `../results/` to write.
+> **Write `genre_tribunal.py` in `day2/`**, alongside `oracle.ipynb`, and run it from there. That means the paths look like the ones in your notebook: `../data/` to read, `../results/` to write, and `../.env` for the key. (The staged scripts in The Oracle's Chamber live in `scripts/` and run from the repo root instead, which is why theirs have no `../`.)
 >
 > `results/` is already in the repo, but a script that creates what it needs is more portable than one that assumes:
 >
@@ -250,7 +250,7 @@ git push
 > os.makedirs("../results", exist_ok=True)
 > ```
 >
-> Your `.env` is right there in `day2/`, so `load_dotenv()` finds it with no argument.
+> Your `.env` is at the **repo root**, one level up from `day2/`, so load it with `load_dotenv("../.env")` — exactly as you did in `oracle.ipynb`.
 
 {: .note }
 > 🟢 **Green sticky** = I'm done and ready &nbsp;&nbsp; 🔴 **Red sticky** = I need help
@@ -263,23 +263,7 @@ git push
 
 ## Finished early? Climb the leaderboard
 
-Got time left? Go back through Day 2 and knock out any quests you skipped: the extra gateway endpoints in The Oracle's Chamber, the leaked-key hunt in The Key Vault, the Potion Brawl rebuild in The Venv Forge. Every quest you complete and sync bumps your total and your rank.
-
----
-
-## 📊 End of Day 2: Sync Your Progress
-
-Let your instructor see where you landed today. Takes 2 minutes.
-
-**Step 1: Export your quest log**
-
-Click **"📤 Sync to leaderboard"** in the bottom-left corner of this page. A file called `quest_log.json` downloads to your laptop.
-
-**Step 2: Upload it to your fork**
-
-Go to your fork on GitHub (`github.com/YOUR_USERNAME/gsb-research-computing-ai-skills`) → **Add file → Upload files** → drag `quest_log.json` in → **Commit changes** to `main`.
-
-The leaderboard updates within 2 minutes. Your instructor can see your level, which boss gates you've cleared, and how many side quests you completed.
+Got time left? Go back through Day 2 and knock out any quests you skipped: the extra gateway endpoints in The Oracle's Chamber, the leaked-key hunt in The Key Vault, the kernel hunt in The Venv Forge. Every quest you check off bumps your total and your rank.
 
 ---
 
