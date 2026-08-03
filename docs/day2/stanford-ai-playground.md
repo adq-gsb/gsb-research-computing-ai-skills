@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "The Stanford AI API Gateway"
+title: "The Stanford AI Playground"
 parent: "Day 2 — The Alchemist's Lab"
 nav_order: 3
 permalink: /day2/stanford-ai-playground/
 ---
 
-# The Stanford AI API Gateway
+# The Stanford AI Playground
 
 <div data-room-id="d2-stanford-ai-playground"></div>
 

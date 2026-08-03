@@ -1,0 +1,2 @@
+# This directory holds graded deliverables (Boss Gate 2 and 4, Day 3 batch output).
+# It is tracked on purpose so `open("results/...", "w")` works on a fresh clone.
