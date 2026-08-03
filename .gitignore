@@ -32,6 +32,7 @@ data/potion_brawl/output/
 
 # SLURM job output (regenerated in class; results/ stays tracked -- it holds graded deliverables)
 logs/
+*.log
 
 # Node + Cloudflare Worker
 node_modules/
