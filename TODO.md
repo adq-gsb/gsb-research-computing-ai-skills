@@ -103,6 +103,12 @@ returns 27 models including a malformed **`gpt-4.omini`** — almost certainly
 `gpt-4o-mini` registered with a typo on the gateway side, and plausibly the whole
 cause. The string appears nowhere in this repo; it comes back from the gateway.
 
+**The gap is specific to `gpt-4o-mini`, not to OpenAI models.** Ben checked on the
+Yens on 2026-08-02 that **`gpt-4.1` is reachable** on the course key. That matters
+twice over: it strengthens the typo theory (the key clearly has OpenAI access), and
+it gives the disagreement exercise on `validating-llm-outputs.md` a verified second
+model from a different lab, which is what that page now names.
+
 **Action:** ask the gateway admins whether `gpt-4.omini` is that typo and can be
 corrected. If they fix it, revert the four `model=` lines. Both the working model
 name and the fallback are recorded here so the revert is mechanical.

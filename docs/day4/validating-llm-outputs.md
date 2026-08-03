@@ -30,7 +30,7 @@ Let's crowdsource your experiences with LLM failure modes. What are some differe
   >
   > *Source: [Minnesota Reformer](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/).*
 
-- **Inconsistency** — ask the same question twice and you may get two different answers (model outputs are probabilistic). Downstream tasks often depend on the output having a consistent format or type, and that is not something you get for free.
+- **Inconsistency** — ask the same question twice and you may get two different answers (model outputs are probabilistic). Downstream tasks also often depend on the output having a consistent format or type, and that is not something you get for free.
 - **A lack of guardrails** — this matters most for **agentic** LLMs (like Claude Code), which don't just answer but act on your system. An agent inherits the permissions you give it, so be deliberate about which ones you hand over: some actions can't be taken back, and — as you saw with `rm` on [Day 1](../../day1/command-spire/) — deleting or overwriting a file on the command line leaves nothing to recover.
 
   {: .aside }
@@ -40,7 +40,7 @@ Let's crowdsource your experiences with LLM failure modes. What are some differe
   >
   > *Source: [Futurism](https://futurism.com/artificial-intelligence/claude-wife-photos).*
 
-- **An imperfect substitute for your own thinking** — it can be easy to confuse rapid progress enabled by LLMs with true understanding.
+- **An imperfect substitute for your own thinking** — it can be easy to sit back and let your LLM drive, but there's a risk of confusing rapid progress with true understanding.
 
   {: .aside }
   > AI researchers at Anthropic conducted a randomized experiment and found that developers who learned a new programming library with access to LLMs came out weaker at reading and debugging that code, and were no faster in executing tasks than the group without access to LLMs.
