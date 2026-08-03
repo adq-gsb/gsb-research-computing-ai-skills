@@ -43,7 +43,7 @@ Return a SINGLE JSON object, not a list. Do not wrap it in an array.
 """
 
 response = client.chat.completions.create(
-    # Day 2's model. Temporary: this key can't reach gpt-4o-mini — see TODO.md.
+    # Day 2's model. Temporary: this key can't reach gpt-4o-mini.
     model="gemini-2.5-flash-lite",
     response_format={"type": "json_object"},
     messages=[

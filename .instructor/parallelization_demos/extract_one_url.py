@@ -62,7 +62,7 @@ def main():
     filing_text = requests.get(filing_url).text
 
     response = client.chat.completions.create(
-        # Day 2's model. Temporary: this key can't reach gpt-4o-mini — see TODO.md.
+        # Day 2's model. Temporary: this key can't reach gpt-4o-mini.
         model="gemini-2.5-flash-lite",
         response_format={"type": "json_object"},
         messages=[

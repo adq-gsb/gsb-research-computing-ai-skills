@@ -20,7 +20,7 @@ Two uses:
      the model *after* the server comes up, so there is a window in which GET /
      says "Ollama is running" while every real query returns model-not-found.
   2. Time GPU against CPU. Point it at each server in turn with --url; the
-     elapsed line is the measurement the head-to-head demo in TODO.md needs.
+     elapsed line is the measurement the GPU-vs-CPU demo needs.
 
 Co-authored by Claude (Anthropic).
 """
