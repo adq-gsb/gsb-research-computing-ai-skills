@@ -37,26 +37,12 @@ optional work, keeps the merge from being the obstacle, and puts the weight on t
 diagnostic that matters once a task holds many filings. Related:
 [[the course never teaches catch-and-continue]] below.
 
-### Confirm `MaxArraySize` on the Yens before teaching the challenge
-The Day 4 Challenge is built on the claim that an array is capped at **512 tasks**,
-which is what makes one-filing-per-task impossible for 992 filings — the whole
-premise of the exercise. Ben reported 512 from memory; nobody has run:
-
-```bash
-scontrol show config | grep -i MaxArraySize
-```
-
-Worth thirty seconds, because the number is load-bearing twice over. Slurm's
-*default* is 1001, and if the Yens run the default then `--array=1-992` is legal, a
-student will discover that in about a minute, and the challenge collapses. The page
-also prints the exact command and invites them to check for themselves, so a wrong
-figure is one a student is being actively encouraged to catch.
-
-If it does turn out to be 1001 or higher, the framing that survives is per-task
-overhead rather than the cap: 992 tasks each pay for queueing, venv activation and
-Python startup against roughly a second of real work, and a concurrency limit means
-they don't finish any sooner than 50 fatter tasks would. That argument holds
-regardless of configuration, and transfers better to the students' own work.
+### ~~Confirm `MaxArraySize` on the Yens~~ — done 2026-08-03
+Verified on `yen1`: `scontrol show config | grep -i MaxArraySize` returns
+`MaxArraySize = 512`. The Day 4 Challenge's premise holds — 992 filings cannot each
+get their own task, so the mapping problem is real rather than an artefact of a
+misremembered figure. Worth rechecking if the cluster is reconfigured, since the
+page prints that command and invites students to run it themselves.
 
 ### The course never teaches catch-and-continue error handling
 `try`/`except` appears **once**, at `docs/day2/oracles-chamber.md:216`: a
@@ -82,76 +68,45 @@ skip-if-exists), or leave it for students to discover when a chunk dies — the 
 call already made about skip-if-exists in the challenge. Either way it should be a
 decision, since the challenge now depends on it.
 
-### `docs/day4/index.md` needs a pass once the Day 4 pages settle
-The day's landing page describes each room in a table, and those descriptions were
-written against earlier versions of the pages. The **Handling LLM Failure Modes**
-row was corrected on 2026-08-02 — it still advertised prompt injection,
-irreversibility and runaway loops, all since deleted — which is evidence the others
-are worth re-reading rather than assumed current.
+### Read-through of `docs/day4/validating-llm-outputs.md` — where it stopped
+The page was being edited top to bottom on 2026-08-02/03 and reached the end. The
+worries recorded here during that pass are now closed: the exercise runs two
+Gateway models rather than a local `llama3.2:1b`, so the `num_ctx` truncation
+question no longer bears on it; `gpt-4.1` is confirmed reachable on the course key;
+and the hint code names `insider_name`, which is what `slurm-arrays.md` actually has
+students write.
 
-Check at least: the **How to Run LLMs on the Yens** row (the page was restructured
-around three steps, gained a GPU/CPU comparison, and lost its "Which Hardware You
-Need" framing), the intro paragraph at `:15` (still describes the day as moving
-"onto GPU nodes — comparing the A30, A40, and H200", which is a smaller part of the
-day than it was), and whether the 🖊️ Concept / 💻 Hands-on labels still match what
-each page asks students to do.
-
-**Paused mid-edit on 2026-08-02: `docs/day4/validating-llm-outputs.md`
-("Handling LLM Failure Modes").** The page was being read top to bottom and
-tightened. Done so far: the intro signpost rejoined its paragraph; the
-"Even the Best Models Fail" opener de-orphaned and its "How brittle?" dropped;
-the "isn't an exam" and "calibration" paragraphs cut as duplicative; both
-**Real-world case** callouts switched from `note` to the new `aside` type.
-
-**Added since:** an exercise, "Where Do Two Models Disagree?", between Validating
-Outputs at Scale and Failure Modes in Automated Pipelines — students re-run their
-array-job filings through a second model, count agreements, and read the
-mismatches. Registered as `d4-failure-modes.exercise`.
-
-**It rests on something untested.** Nobody has checked that a second model can do
-this extraction usably. If it is `llama3.2:1b`, a 1-billion-parameter model on a
-full filing is unproven, and the open `num_ctx` question means it may silently
-truncate — in which case every "disagreement" is an artefact of the context
-window rather than the model, and the exercise teaches the wrong thing. Run one
-filing through both models before the session. If the local model can't do it,
-the fallback is two Gateway models, which needs the `gpt-4o-mini` entitlement
-question resolved (see *Blocked on external fix*).
-
-The prose also assumes the array exercise wrote one JSON per filing with a
-`reporting_person` field. Check that against what `slurm-arrays.md` actually has
-students produce — the hint code names that key directly.
-
-Next unread section is **Hallucination** (`:29`) — the sweep had reached its
-callouts but not its prose. Sections below it are untouched: Validating Outputs
-at Scale (`:42`), Failure Modes in Automated Pipelines (`:75`), What You Learned
-(`:110`), which is worth checking against the page the way `running-llms.md`'s
-was.
+`docs/day4/index.md` was refreshed on 2026-08-03 — the red instructor TODO removed,
+and the intro and section summaries rewritten against the pages as they stand.
 
 ---
 
 ## Naming & consistency
 
-### Standardise "SLURM" → "Slurm" on Days 1, 2, and 4
-Main standardised the casing in `778fd2f` and converted Day 3 completely, but the
-sweep never reached the other days. Current prose counts (excluding `SLURM_*`
-environment variables, which stay upper-case):
+### Standardise "SLURM" → "Slurm" on Days 1 and 2
+Main standardised the casing in `778fd2f` and converted Day 3; Day 4 was converted on
+2026-08-02. Days 1 and 2 were never swept. Current prose counts (excluding `SLURM_*`
+environment variables, which stay upper-case and are the only uppercase instances
+left on Days 3 and 4):
 
-| Day | `Slurm` | `SLURM` |
-|-----|---------|---------|
-| 1   | 0       | 7       |
-| 2   | 0       | 1       |
-| 3   | 65      | 0       |
-| 4   | 0       | 51      |
+| Day | `SLURM` in prose |
+|-----|------------------|
+| 1   | 7                |
+| 2   | 1                |
 
-Day 4 is the bulk of it, including the page title "SLURM Job Arrays" and the `<desc>`
-alt-text inside the animated SVGs. Leave `SLURM_ARRAY_TASK_ID` and other env vars
-alone.
+Leave `SLURM_ARRAY_TASK_ID` and other env vars alone.
 
-### Day 4 capstone breaks the Days 1–3 convention
-`docs/day4/putting-it-all-together.md` is `nav_order: 7` with `staying-in-touch.md` at
-8, so the graded page isn't the day's last nav item — Days 1–3 all put the capstone
-last. The nav title also doesn't say "Capstone" (Day 1: "Day 1 Challenge", Day 3:
-"Day 3 Capstone"). The room id (`d4-capstone`) and key (`commit`) *do* follow Day 3.
+### Day 4 capstone is not the day's last nav item
+**Half resolved 2026-08-03:** the page is now titled "Day 4 Challenge", matching
+Day 1's "Day 1 Challenge" and Day 3's "Day 3 Capstone". The room id (`d4-capstone`)
+and key (`commit`) already followed Day 3.
+
+What remains is ordering: it is `nav_order: 7` with `staying-in-touch.md` at 8,
+where Days 1 and 3 both put their challenge last (`nav_order: 10`). But neither of
+those days has anything like Staying In Touch — it isn't a section students work
+through, it's where the bootcamp ends, so the convention was set on days with
+nothing after the capstone. **Probably close this rather than act on it**, and more
+so if students submit the array and then read Staying In Touch while it queues.
 
 ---
 
@@ -457,48 +412,11 @@ after class, which is really the underlying question.
 
 ---
 
-### `running-llms.md` carries two exercises that may be one exercise
-The page now has **two** hands-on sections against the same shared server, split by
-the two hardware sections:
-
-| § | Heading | Key | What it asks |
-|---|---|---|---|
-| `:32` | Exercise: Querying a Local LLM | `query` | `curl <server-url>` to check reach, then the same call from Python via the OpenAI client |
-| `:155` | Exercise: Query a Local Model | `exercise` | the same two parts, plus a closing note on swapping `base_url`, and two callouts |
-
-**As of 2026-08-02 the duplication is near-total.** The demo callout used to hold a
-single `curl` to `/v1/chat/completions`; Ben replaced it with Parts 1 and 2 lifted
-from the exercise below, differing only in that the demo leaves the prompt as
-`<your query>` where the exercise hardcodes an SEC Form 3 question. The two headings
-are also near-homographs — a student scanning the page cannot tell them apart. So
-this is no longer a question of whether they overlap; it is a question of which one
-survives.
-
-But they are not redundant, and the case for keeping both is the **demo/exercise**
-distinction the day already draws elsewhere. The first is a `{: .demo }`: everyone
-runs one line at the same moment, the room watches the requests land in the server
-log, and the payoff is collective. The second is solo work with a different point —
-that the `base_url` swap is the *whole* difference from Day 2's Gateway code.
-Merging them costs the shared moment, and it costs the placement: the demo works
-precisely because it comes *before* "Why LLMs Need a GPU", so the class has queried
-a model before being told what it takes to run one.
-
-Three ways out:
-
-1. **Keep both, rename.** Cheapest. The demo becomes something like "Demo: Query
-   the Class Server" and the second keeps "Exercise". Fixes the collision without
-   touching structure or the two quest keys.
-2. **Merge into one exercise** after the hardware sections, `curl` then Python, one
-   key. Simplest page; loses the demo beat and leaves the day's opening
-   LLM section with nothing hands-on.
-3. **Keep both and sharpen the split** — demo does `curl` only, exercise does
-   Python only, with the reach check folded into the demo. Least duplication, but
-   the exercise then depends on the demo having happened, which breaks for anyone
-   working from the page after class.
-
-Option 1 unless there's a reason to restructure. Whatever is chosen, the quest keys
-(`query`, `exercise`) and `docs/assets/js/quest-log.js` have to stay in step —
-regenerate `docs/_data/quest_keys.json` with `node .instructor/gen_quest_keys.js`.
+### ~~`running-llms.md` carries two exercises~~ — resolved 2026-08-02
+Settled by deletion, in `6558d40`: the duplicate "Exercise: Query a Local Model"
+and the Optional Practice below it were removed, leaving the demo-derived section
+as the page's only hands-on work. The room is now `reach`, `query`, `main`, and
+`quest-log.js` and `quest_keys.json` are in step with it.
 
 ### Demo: the same query on GPU and on CPU, timed head to head
 The material asserts a GPU is what makes a local model usable, and asks students to
