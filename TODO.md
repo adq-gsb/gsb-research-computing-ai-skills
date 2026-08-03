@@ -10,6 +10,20 @@ Last updated 2026-08-02.
 
 ## ▶ Resume here
 
+### `docs/day4/index.md` needs a pass once the Day 4 pages settle
+The day's landing page describes each room in a table, and those descriptions were
+written against earlier versions of the pages. The **Handling LLM Failure Modes**
+row was corrected on 2026-08-02 — it still advertised prompt injection,
+irreversibility and runaway loops, all since deleted — which is evidence the others
+are worth re-reading rather than assumed current.
+
+Check at least: the **How to Run LLMs on the Yens** row (the page was restructured
+around three steps, gained a GPU/CPU comparison, and lost its "Which Hardware You
+Need" framing), the intro paragraph at `:15` (still describes the day as moving
+"onto GPU nodes — comparing the A30, A40, and H200", which is a smaller part of the
+day than it was), and whether the 🖊️ Concept / 💻 Hands-on labels still match what
+each page asks students to do.
+
 **Paused mid-edit on 2026-08-02: `docs/day4/validating-llm-outputs.md`
 ("Handling LLM Failure Modes").** The page was being read top to bottom and
 tightened. Done so far: the intro signpost rejoined its paragraph; the

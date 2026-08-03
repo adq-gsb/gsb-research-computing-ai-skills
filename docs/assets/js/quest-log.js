@@ -77,7 +77,7 @@
         { id: 'd4-slurm-arrays',         keys: ['main', 'exercise', 'side1', 'resubmit'] },
         { id: 'd4-why-local-llms',      keys: ['main'] },
         { id: 'd4-running-llms',        keys: ['reach', 'query', 'main'] },
-        { id: 'd4-failure-modes',       keys: ['main', 'exercise'] },
+        { id: 'd4-failure-modes',       keys: ['exercise'] },
         { id: 'd4-capstone',            keys: ['commit'] },
       ],
     },

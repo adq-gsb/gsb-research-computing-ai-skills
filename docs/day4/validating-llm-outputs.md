@@ -19,7 +19,7 @@ LLMs are remarkable tools — but, as we've all found out by now, they are also 
 Let's crowdsource your experiences with LLM failure modes. What are some different kinds you've experienced?
 
 <details markdown="1">
-<summary>Some we'll come back to (expand after discussion)</summary>
+<summary>Some important categories (expand after discussion)</summary>
 
 - **Hallucination** — the model produces false output, such as an invented citation, number, or quotation.
 
@@ -63,115 +63,74 @@ Because a model won't necessarily flag its own mistakes, you have to check for c
 
 ---
 
-## Exercise: Where Do Two Models Disagree?
+## Exercise: Putting This Into Practice
 
-You already have one set of extractions — the JSON files your array job wrote in [Slurm Job Arrays](../slurm-arrays/). Now produce a second set from a different model, and count how often the two agree.
+We saw above that comparing outputs between models is a basic robustness check. Now your job is to reprocess SEC filings, building on your existing scripts. This time, though, we want you to extract the outputs using multiple models and compare the outputs.
 
-**First, decide what "agreement" means.** Pick one field from your extractions to compare — `insider_name`, say — and decide what counts as the same answer. `Smith, John` and `John Smith` are the same person written two ways; whether your code should call that agreement is your call to make, and worth making before you see the numbers.
-
-**Second, run the same filings through a second model.** Point the client at the other service and leave everything else alone — the prompt, the schema, the loop. Write the results to `results/model_b/` so you keep both sets.
+**1. Call both models inside the loop.** Start from the batch script you ran on Day 3, `scripts/extract_form_3_batch.py`, which already loops over filings from `data/aws_links.csv`. For each filing, make the same call twice — once per model — and save the answers side by side, in a dataframe or similar. Everything else stays as it was: the prompt, the schema, the loop.
 
 {: .tip }
-> **Swapping in a second model is a one-line change.** The Stanford AI API Gateway, a local model served by Ollama, and third-party APIs all speak the same OpenAI-compatible API — so running the same prompt through another model just means a different `base_url` (and `model`/`api_key`). The rest of your code is identical:
+> **Swapping in a second model is a one-line change.** The Stanford AI API Gateway serves many models behind one endpoint, so the same client reaches both — only the `model` argument changes:
 >
 > ```python
 > import os
 > from openai import OpenAI
 >
-> # Model A — Stanford AI API Gateway
-> playground = OpenAI(base_url="https://aiapi-prod.stanford.edu/v1", api_key=os.getenv("STANFORD_API_KEY"))
+> client = OpenAI(
+>     base_url="https://aiapi-prod.stanford.edu/v1",
+>     api_key=os.getenv("STANFORD_API_KEY"),
+> )
 >
-> # Model B — a local model served by Ollama on the Yens
-> local = OpenAI(base_url="http://localhost:11434/v1", api_key="ollama")
+> MODEL_A = "gemini-2.5-flash-lite"     # the model your Day 3 script used
+> MODEL_B = ...                         # pick a second one — `client.models.list()`
+>                                       # shows what your key can reach, as on Day 2
 >
-> # Model C — a third-party provider (e.g. OpenAI); base_url defaults to the provider
-> thirdparty = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
->
-> # same call for each — only the client and model name change
-> answer_a = playground.chat.completions.create(model="gpt-4o-mini", messages=messages)
-> answer_b = local.chat.completions.create(model="llama3.2:1b", messages=messages)
-> answer_c = thirdparty.chat.completions.create(model="gpt-5.6", messages=messages)
+> # same call for each — only the model name changes
+> answer_a = client.chat.completions.create(model=MODEL_A, messages=messages)
+> answer_b = client.chat.completions.create(model=MODEL_B, messages=messages)
 > ```
+>
+> And if you had a local LLM server running, you could of course compare against a local model too — that's a second client pointed at the server's own `base_url`, as on [the previous page](../running-llms/).
 
-**Third, count.** Report two numbers: how many filings the two models agreed on, and how many they didn't.
+**2. Decide what "agreement" means.** Now that you have both sets of outputs in front of you, decide what counts as the same answer. For example, `Smith, John` and `John Smith` are the same person written two ways; whether your code should call that agreement is your call to make.
 
-**Fourth, read the disagreements.** Open the filings behind them and work out who was right — or whether both were wrong.
+**3. Count.** Report two numbers: how many filings the two models agreed on, and how many they didn't.
+
+**4. Inspect one disagreement.** Pick a filing the two models disagreed on, open it, and work out which model was right — or whether both were wrong.
 
 <details markdown="1">
-<summary>💡 Hint — one way to compare</summary>
+<summary>💡 Hint — reading the raw filing</summary>
 
-Load both sets, normalize before comparing, and keep the mismatches rather than just counting them:
+A filing is just a text file at a URL, and `data/aws_links.csv` holds those URLs — the same ones your loop reads. Fetch the one you want and look at it directly:
 
 ```python
-import json
-from pathlib import Path
+import requests
 
-FIELD = "insider_name"
+filing_url = "..."            # the URL of the filing the models disagreed on
+text = requests.get(filing_url).text
 
-def normalize(value):
-    """Fold away the differences you've decided not to care about."""
-    return " ".join(str(value).lower().split())
+print(len(text), "characters")
+print(text[:3000])            # the header, where the identifying fields sit
+```
 
-agreements, disagreements = 0, []
+Alternatively, rather than reading the whole thing, search it for what each model reported:
 
-for path_a in sorted(Path("results").glob("*.json")):      # your array job's output
-    path_b = Path("results/model_b") / path_a.name         # the second model's
-    if not path_b.is_file():
-        continue
-    a = json.loads(path_a.read_text())
-    b = json.loads(path_b.read_text())
-    if normalize(a[FIELD]) == normalize(b[FIELD]):
-        agreements += 1
-    else:
-        disagreements.append((path_a.name, a[FIELD], b[FIELD]))
-
-print(f"{agreements} agreed, {len(disagreements)} disagreed")
-for name, left, right in disagreements:
-    print(f"  {name}: {left!r} vs {right!r}")
+```python
+for line in text.splitlines():
+    if "<what the model reported>" in line.upper():
+        print(line)
 ```
 
 </details>
 
-The point isn't to decide which model is better. It's that **disagreement is a cheap flag for "look here"** — you get it without knowing the right answer for a single filing, and it costs one extra run rather than a human reading all twenty.
-
-{: .note }
-> The two models won't be evenly matched — a small local model and a frontier model are not peers, and most disagreements will be the smaller one slipping. That doesn't spoil the signal. You're not asking the second model to be right; you're asking it to be *different enough* that the hard cases stand out.
-
-<label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="exercise"> Exercise complete — I ran two models over the same filings, counted the disagreements, and read them</label>
-
----
-
-## Failure Modes in Automated Pipelines
-
-Validation catches wrong *outputs*. A different class of failure appears once you run LLMs *unattended* — in an automated pipeline or agent that reads, writes, and loops on your behalf, with no human watching each step. These need architectural guards, not validation.
-
-### Irreversibility {#irreversibility}
-
-The stakes rise sharply when an LLM's output drives an action — writing to a database, sending emails, deleting files. LLMs make mistakes, and mistakes that change state are the most expensive kind: you often can't undo them.
-
-Recall from [Day 1](../../day1/command-spire/) that `rm` deletes permanently — no trash, no undo; an agent runs the same commands, just without a human pausing to reconsider. Agents run with *your* full permissions, so "clean up this folder" can reach anything you can.
-
-**Guarding against it:** the reliable defense is "least privilege": giving the agent only the access it truly needs (read-only where possible; scoped, minimal credentials), and requiring confirmation for anything that changes state. Keep automated pipelines read-only where you can; for writes, log the intended action first, act second, and verify before committing — and build a **dry-run mode** that prints what *would* happen without doing it.
-
-### Prompt Injection
-
-Your input data isn't always trustworthy. A document you feed the model can contain adversarial text — for example, "Ignore all previous instructions and…" — that hijacks its behavior, making it do something other than the task you intended. Data scraped from the public web is especially risky.
-
-**Guarding against it:** keeping your instructions in the system message and untrusted data in a separate user message helps — models are trained to prioritize system instructions — but it's a *partial* mitigation, not a hard boundary: to the model it's all just text, and a determined injection can still get through. So lean on the real backstops: validate the output before you rely on it, and apply least privilege (see [Irreversibility](#irreversibility) above) — assume the model can be manipulated, and make sure it simply *can't* take a harmful action.
-
-### Runaway Loops
-
-An automated pipeline that retries on failure with no cap can retry forever — until it times out or burns through your API budget. A step that calls itself with no stopping condition can fan out exponentially.
-
-**Guarding against it:** cap everything — a `max_retries` on each retry loop, a spend/budget limit on the whole job, and a sanity timeout. Log each iteration, and if a job runs well past its expected time, kill it and investigate.
-
-<label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="main"> I can name the main LLM failure modes and how to guard against each</label>
+<label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="exercise"> Exercise complete — I ran two models over the same filings, counted the disagreements, and inspected the filing where the models disagreed</label>
 
 ---
 
 ## What You Learned
 
-- Even frontier models are brittle and unevenly capable — you can't assume an output is correct, so you measure your own error rate rather than trust a benchmark headline
-- Hallucination is the core correctness failure: the model isn't well calibrated, so a confident tone tells you nothing about whether an answer is right
-- You can validate outputs at scale — spot-checking against the source, format/type sanity checks, grounding high-stakes fields, and comparing across models (a one-line `base_url` swap)
-- You can name the failure modes that appear once LLMs run unattended — irreversibility, prompt injection, and runaway loops — and their architectural guards: least privilege, separating instructions from untrusted data, and caps/timeouts
+- You can name the main ways LLMs fail — hallucination, inconsistency, a lack of guardrails, and standing in for thinking you should be doing yourself
+- You know that an agentic LLM inherits whatever permissions you give it, and that some of what it can do — deleting or overwriting a file — cannot be undone
+- You have a set of robustness checks to reach for: paying for a better model, automatic format and sanity checks, comparing across models, spot-checking a sample against ground truth, and grounding the answers that matter most
+- You ran the same filings through two models, counted where they agreed, and used a disagreement to find a case worth reading by hand
+- You know that one endpoint serves many models, so trying a different one is a change of the `model` argument alone
