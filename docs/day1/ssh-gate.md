@@ -10,7 +10,7 @@ permalink: /day1/ssh-gate/
 
 <div data-room-id="d1-ssh-gate"></div>
 
-SSH lets you connect from your laptop to a remote computer and run commands there as if you were sitting at it. In this room you will learn what a remote server is, why researchers use one, and how to log in to the Yens cluster.
+SSH lets you connect from your laptop to a remote computer and run commands there as if you were sitting at it. In this section you will learn what a remote server is, why researchers use one, and how to log in to the Yens cluster.
 
 ---
 
@@ -90,7 +90,7 @@ The Yens are a 17-node shared research computing cluster: 5 interactive nodes yo
   <text x="60" y="414" font-size="12" font-weight="700" letter-spacing="0.6" fill="#8a94a6">SHARED STORAGE · EVERY NODE SEES THE SAME FILES</text>
   <text x="60" y="438" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/home/users/SUNetID/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   personal · backed up · limited</tspan></text>
   <text x="60" y="460" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/yen/projects/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   project files &amp; results · backed up · large</tspan></text>
-  <text x="60" y="482" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/scratch/shared/SUNetID/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   large &amp; fast · NOT backed up</tspan></text>
+  <text x="60" y="482" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5b6472">/scratch/users/SUNetID/<tspan font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" fill="#6a7280">   large &amp; fast · NOT backed up</tspan></text>
 </svg>
 
 *Your laptop and the Yens are two separate computers; **SSH** is the connection between them. When you log in you land on one of the shared **interactive Yens** (yen1–yen5) — fine for light work. The powerful **SLURM compute nodes** come later, on Day 3, reached through a scheduler rather than directly. Whichever node you're on, you see the same shared files.*
@@ -122,7 +122,7 @@ Replace `SUNetID` with your Stanford username. When prompted for your password, 
 **Identify your node:**
 ```bash
 hostname      # e.g. yen1, yen2, yen3, yen4, or yen5
-whoami        # confirm you're logged in as yourself
+whoami        # confirm you are logged in as yourself
 ```
 
 {: .note }
@@ -132,7 +132,7 @@ whoami        # confirm you're logged in as yourself
 ```bash
 ls ~                              # your home directory on the Yens
 pwd                               # /home/users/SUNetID
-ls /scratch/shared/               # shared scratch — you will create your own folder here later
+ls /scratch/users/                # personal scratch — you will create your own folder here later
 ls /yen/projects/                 # shared project storage
 ```
 

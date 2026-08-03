@@ -10,7 +10,7 @@ permalink: /day1/command-spire/
 
 <div data-room-id="d1-command-spire"></div>
 
-This room introduces the terminal: what it is, why researchers use it, and the core commands for navigating and organizing files. Master these basics and any Unix system — a cluster, a remote server, an HPC node — will feel familiar.
+This section introduces the terminal: what it is, why researchers use it, and the core commands for navigating and organizing files. Master these basics and any Unix system — a cluster, a remote server, an HPC node — will feel familiar.
 
 ---
 
@@ -116,6 +116,10 @@ Your terminal is open. In this exercise you will use the command line to find wh
 {: .important }
 > **Goal:** Use the command line to navigate your file system and reorganize a directory of files — without touching a mouse.
 
+<img src="{{ '/assets/images/wizard-file-operations.png' | relative_url }}" alt="A wizard at a workbench conjuring folders and files with a wand — a folder becomes a file, which becomes two files, each duplicated below" style="display:block;width:100%;max-width:520px;height:auto;margin:1.5rem auto">
+
+*Everything you'd normally do by clicking and dragging — making a folder, creating a file, copying it — you're about to do by typing. Same result, no mouse.*
+
 **Investigation**
 
 Find your current working directory and list the files in it.
@@ -125,10 +129,18 @@ pwd          # print working directory — where you are right now
 ls           # list files and directories here
 ```
 
+{: .note }
+> **About the `#` notes.** Everything from a `#` to the end of a line is an explanation written for
+> you — it is *not* part of the command. Type or paste only the part to the **left** of the `#`.
+>
+> On a Mac the Terminal's shell (**zsh**) does not accept these notes typed at the prompt, so
+> pasting a whole line gives you something like `pwd: too many arguments` or
+> `ls: #: No such file or directory`. Nothing is broken — just re-run without the `#` part.
+
 Now look for hidden files — files whose names start with a dot are invisible to a plain `ls`:
 
 ```bash
-ls -lah      # -l long format · -a all files (including hidden) · -h human-readable sizes
+ls -lah      # -l long format · -a all files, including hidden · -h human-readable sizes
 ```
 
 A **flag** modifies the behavior of a command. `-lah` is three flags combined into one: it tells `ls` to show everything, in detail, with file sizes you can actually read. You can look up any command's flags by searching online — for example, "ls command flags".
@@ -143,12 +155,23 @@ A **flag** modifies the behavior of a command. `-lah` is three flags combined in
 Use `cd` to change directories. `~` is your home directory; `..` means one level up.
 
 ```bash
-cd ~/Desktop    # navigate to your Desktop — once you type D, press Tab to autocomplete
-                # press Tab twice to see all options if nothing completes
-pwd             # confirm where you landed
-cd ..           # go up one level
-pwd             # confirm you moved up
+cd ~/Desktop
+pwd
+cd ..
+pwd
 ```
+
+- `cd ~/Desktop` — go to your Desktop. Once you type `D`, press `Tab` to autocomplete; press `Tab` twice to see all options if nothing completes
+- `pwd` — confirm where you landed
+- `cd ..` — go up one level
+- `pwd` — confirm you moved up
+
+{: .note }
+> **A Mac may ask permission the first time.** A box appears saying *"Terminal would like to access
+> files in your Desktop folder."* Click **OK** — that is macOS checking that you meant to let your
+> own shell see your own files. If you click *Don't Allow*, `cd ~/Desktop` and `ls` will come up
+> empty. (You can change your mind later under **System Settings → Privacy & Security → Files and
+> Folders**.)
 
 ---
 
@@ -157,12 +180,18 @@ pwd             # confirm you moved up
 Create a new folder on your Desktop, create a file inside it, and duplicate it.
 
 ```bash
-mkdir ~/Desktop/spell_chamber        # create a new folder on your Desktop
-cd ~/Desktop/spell_chamber           # enter it
-touch scroll.txt                     # create a new file
-cp scroll.txt scroll_copy.txt        # create a copy of that file
-ls                                   # confirm both files are here
+mkdir -p ~/Desktop/spell_chamber
+cd ~/Desktop/spell_chamber
+touch scroll.txt
+cp scroll.txt scroll_copy.txt
+ls
 ```
+
+- `mkdir -p` — create a new folder. The `-p` flag makes any missing parent folders too, and stays quiet if the folder already exists — so the command is safe to run twice
+- `cd` — enter it
+- `touch` — create a new, empty file
+- `cp` — make a copy of that file
+- `ls` — confirm both files are here
 
 ---
 
@@ -174,9 +203,13 @@ Clean up — remove everything you just created.
 > ⚠️ `rm` is permanent. There is no undo, no trash can. Double-check what you are removing before you run it.
 
 ```bash
-rm scroll.txt                        # remove the file
-rm scroll_copy.txt                   # remove the copy
-rm -r ~/Desktop/spell_chamber        # remove the folder and all its contents
+rm scroll.txt
+rm scroll_copy.txt
+rm -r ~/Desktop/spell_chamber
 ```
+
+- `rm scroll.txt` — remove the file
+- `rm scroll_copy.txt` — remove the copy
+- `rm -r` — remove the folder *and* all its contents (`-r` = recursive)
 
 <label class="quest-check"><input type="checkbox" data-room="d1-command-spire" data-key="main"> Exercise complete</label>

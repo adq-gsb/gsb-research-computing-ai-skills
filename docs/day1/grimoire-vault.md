@@ -10,7 +10,7 @@ permalink: /day1/grimoire-vault/
 
 <div data-room-id="d1-grimoire-vault"></div>
 
-This room teaches you how to organize hundreds of files at once using the shell — no loops or Python required. You start with 300 disorganized files, each named in a cryptic format like `fireball_fire_3_offensive_meteor.spell`, and impose a clean structure on them.
+This section teaches you how to organize hundreds of files at once using the shell — no loops or Python required. You start with 300 disorganized files, each named in a cryptic format like `fireball_fire_3_offensive_meteor.spell`, and impose a clean structure on them.
 
 ---
 
@@ -19,17 +19,25 @@ This room teaches you how to organize hundreds of files at once using the shell 
 Three hundred files. No order. No organization. A real research dataset often looks exactly like this — files from a vendor, a scrape, an instrument dump. Your job before any analysis is to understand what you have and impose structure on it.
 
 {: .important }
-> **Task:** Organize 300 files into a clean directory structure using the explore → plan → execute → document framework.
+> **Task:** Organize 300 files into a clean directory structure.
+
+<img src="{{ '/assets/images/grimoire-spell-index.png' | relative_url }}" alt="An open grimoire titled 300 Spell Grimoire, with index tabs down the side grouping the spells three different ways: by element (fire, ice, lightning, earth, wind), by tier (tier1 through tier5), and by type (offensive, defensive, utility, healing)" style="display:block;width:100%;max-width:520px;height:auto;margin:1.5rem auto">
+
+*Every filename records three things about a spell — its element, its tier, and its type. Each of those is a different way you could group the 300 files, and choosing between them is part of the exercise.*
 
 **Step 1 — Download and unzip**
 
 Download the dataset straight to your Desktop and unzip it (Git Bash on Windows, Terminal on macOS):
 
 ```bash
-cd ~/Desktop                              # go to Desktop
+cd ~/Desktop
 curl -L https://raw.githubusercontent.com/gsbdarc/gsb-research-computing-ai-skills/main/docs/assets/data/grimoire.zip -o grimoire.zip
-unzip grimoire.zip                        # unzip the archive
+unzip grimoire.zip
 ```
+
+- `cd ~/Desktop` — go to your Desktop
+- `curl -L … -o grimoire.zip` — download the archive and save it under that name
+- `unzip grimoire.zip` — unpack it into a `grimoire/` folder
 
 ---
 
@@ -51,7 +59,7 @@ What elements do you see? What patterns are there? What would make a logical org
 ls grimoire/*_fire_*        # every file with _fire_ in its name
 ls grimoire/*_5_*           # every tier-5 file
 ls grimoire/*_healing_*     # every healing file
-ls grimoire/*.spell         # every .spell file (all of them)
+ls grimoire/*.spell         # every .spell file — all of them
 ```
 
 `*` can go anywhere in the pattern, and you can use more than one — `*_fire_*_healing_*` matches fire healing files. Try a few combinations.
@@ -62,10 +70,10 @@ ls grimoire/*.spell         # every .spell file (all of them)
 - `head -N` shows only the first N lines
 
 ```bash
-ls grimoire/ | wc -l              # how many files in total?
+ls grimoire/ | wc -l              # how many files in total
 ls grimoire/ | head -20           # just the first 20 names
-ls grimoire/*_fire_* | wc -l      # how many fire files?
-ls grimoire/*_5_* | wc -l         # how many tier-5 files?
+ls grimoire/*_fire_* | wc -l      # how many fire files
+ls grimoire/*_5_* | wc -l         # how many tier-5 files
 ```
 
 Read a pipeline left to right: *list the fire files, then count how many lines that produces.* You'll reach for this pattern — `ls` a subset, pipe it to a counter or filter — constantly in real work.
@@ -115,7 +123,7 @@ Now put the wildcard to work. `*_fire_*` matches every filename with `_fire_` in
 
 ```bash
 cd ~/Desktop/grimoire
-mkdir fire ice lightning earth wind
+mkdir -p fire ice lightning earth wind
 
 mv *_fire_*.spell fire/
 mv *_ice_*.spell ice/
@@ -141,8 +149,9 @@ ls ice/ | wc -l       # count ice files
 ls lightning/ | wc -l
 ls earth/ | wc -l
 ls wind/ | wc -l
-# all 5 counts should sum to 300
 ```
+
+All five counts should sum to 300.
 
 You can also count everything at once:
 
@@ -159,9 +168,11 @@ Create a file listing the names of all tier-3 files in the dataset.
 The `grep` command searches for a pattern in input. Combined with `ls` and a pipe, you can filter filenames by any part of their name:
 
 ```bash
-ls */*.spell | grep "_3_"          # list all tier-3 files
-ls */*.spell | grep "_3_" > tier3_spells.txt   # save the list to a file
+ls */*.spell | grep "_3_"
+ls */*.spell | grep "_3_" > tier3_spells.txt
 ```
+
+The first line lists all tier-3 files; the second saves that list to a file.
 
 The `>` operator redirects output to a file instead of printing it to the screen. If the file already exists it is overwritten; use `>>` to append instead.
 
@@ -169,7 +180,7 @@ The `cat` command displays the contents of a file:
 
 ```bash
 cat tier3_spells.txt               # view the file you just created
-wc -l tier3_spells.txt             # how many tier-3 files are there?
+wc -l tier3_spells.txt             # how many tier-3 files there are
 ```
 
 {: .note }
@@ -226,7 +237,7 @@ Using `cp` (not `mv`) — so files stay in their element folders — organize th
 <summary>Solution (expand after trying)</summary>
 
 ```bash
-mkdir offensive defensive utility healing
+mkdir -p offensive defensive utility healing
 
 cp */*_offensive_*.spell offensive/
 cp */*_defensive_*.spell defensive/

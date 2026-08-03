@@ -26,11 +26,11 @@ You're running the same loop, just over 100 files instead of 10. Think about wha
 
 **Zoom out:** *the task hasn't changed — you're still sending each SEC Form 3 filing to the Stanford AI API to extract its structured fields. There are just **100** of them now, processed one after another in a loop. You're sizing the resources for that loop.*
 
-### 2. Write a SLURM script for the batch
+### 2. Write a Slurm script for the batch
 
-You already built `slurm/extract_form_3_batch.slurm` for **10 filings** on the SLURM-job page. Now scale it: bump `NUM_FILINGS` to `100` in `scripts/extract_form_3_batch.py`, and re-tune `--time`, `--mem`, and `--cpus-per-task` in the `.slurm` with **your estimates for 100** (make sure the email-notification lines are there so you get a completion email).
+You already built `slurm/extract_form_3_batch.slurm` for **10 filings** on the Slurm-job page. Now scale it: bump `NUM_FILINGS` to `100` in `scripts/extract_form_3_batch.py`, and re-tune `--time`, `--mem`, and `--cpus-per-task` in the `.slurm` with **your estimates for 100** (make sure the email-notification lines are there so you get a completion email).
 
-**Zoom out:** *it's still one Python script with a big `for` loop — for each of the 100 Form 3 filings: read it, send it to the API, save the structured data. The SLURM script just runs that single script, once, on the cluster.*
+**Zoom out:** *it's still one Python script with a big `for` loop — for each of the 100 Form 3 filings: read it, send it to the API, save the structured data. The Slurm script just runs that single script, once, on the cluster.*
 
 ### 3. Submit and confirm it ran
 
@@ -59,8 +59,6 @@ Ask Claude Code to handle it:
 
 {: .note }
 > 🟢 **Green sticky** = I'm done and ready &nbsp;&nbsp; 🔴 **Red sticky** = I need help
->
-> Put a sticky note on your laptop lid so instructors can see where you are.
 
 <label class="quest-check"><input type="checkbox" data-room="d3-capstone" data-key="commit"> I estimated resources for 100 filings, ran the batch, compared actual vs. requested from the email, documented over/under-estimation in my README, and pushed to my fork</label>
 
@@ -80,8 +78,8 @@ Got time left? Go back through Day 3 and knock out any quests you skipped — ev
 - **Compute environments** — CPU cores, RAM, and storage, and how laptop vs. Yens vs. cloud trade off.
 - **Profiling** — measuring a script's time, CPU, and RAM with `time`, `userload`, and `htop`; telling **serial from parallel** and **CPU-bound from I/O-bound** work.
 - **Reading real cluster data** — exploring a live monitoring snapshot, and per-user vs. whole-node limits.
-- **SLURM** — why a scheduler exists; reading the queue and partitions (`squeue`, `sinfo`, QoS caps).
-- **Running jobs** — writing a SLURM script from scratch, submitting/monitoring/cancelling, reading `.out`/`.err` logs, and **debugging failed jobs** (code bug vs. OOM vs. timeout).
+- **Slurm** — why a scheduler exists; reading the queue and partitions (`squeue`, `sinfo`, QoS caps).
+- **Running jobs** — writing a Slurm script from scratch, submitting/monitoring/cancelling, reading `.out`/`.err` logs, and **debugging failed jobs** (code bug vs. OOM vs. timeout).
 - **Resource estimation & scaling** — profiling a small run, estimating a bigger one, and checking your estimate against what the job actually used.
 - **Reproducibility** — a README a colleague (or future you) can actually rerun.
 

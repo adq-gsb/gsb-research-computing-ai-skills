@@ -155,14 +155,20 @@ Your work in this course is tracked in your version history. Set up your copy of
 
 **Step 1 — Fork the course repo, and build your site**
 
-A **fork** is your own copy of the course repo, living under your GitHub account. Go to the [course repo on GitHub](https://github.com/gsbdarc/gsb-research-computing-ai-skills) and click **Fork** in the top-right corner to create it.
+A **fork** is your own copy of the course repo, living under your GitHub account. GitHub deliberately switches a few things *off* on a new fork, so turning your fork into a working course site takes five clicks in a particular order. Do all of them now:
 
-Now turn your fork into your personal course site:
+1. **Fork the repo.** Go to the [course repo on GitHub](https://github.com/gsbdarc/gsb-research-computing-ai-skills) and click **Fork** in the top-right corner.
+2. **Turn on Issues.** On your fork: **Settings → General → Features → tick *Issues***. A fork starts with its issue tracker switched off, and you'll be logging issues later today — both the `github-for-research` skill and the Day 1 Challenge depend on it.
+3. **Turn on Actions.** Open the **Actions** tab on your fork. It says *"Workflows aren't being run on this forked repository"* — click the green **"I understand my workflows, go ahead and enable them."** This is the step everyone misses, and nothing builds until you do it.
+4. **Turn on Pages.** **Settings → Pages → Source → GitHub Actions → Save.** (This tells GitHub *how* to publish; it does not lift the block in step 3, which is why both are needed.)
+5. **Build the site once by hand.** **Actions → Deploy Jekyll site to Pages → Run workflow.** Enabling Actions isn't retroactive, so the very first build needs a nudge. From here on, every change that lands on your `main` rebuilds the site automatically.
 
-- **Enable GitHub Pages:** on your fork, go to **Settings → Pages → Source → GitHub Actions → Save**.
-- **Open your site:** `https://YOUR-USERNAME.github.io/gsb-research-computing-ai-skills/`
+Then open your site: `https://YOUR-USERNAME.github.io/gsb-research-computing-ai-skills/`
 
-This is now *your* course site, where your progress and leaderboard position are tracked from here on. (It may take a minute to appear the first time.)
+This is now *your* course site, where your progress and leaderboard position are tracked from here on. (The first build takes a minute or two — watch it finish on the **Actions** tab.)
+
+{: .note }
+> **Leave the other workflow switched off.** Your fork also contains **Update leaderboard roster**. That one is for the *class* repo only — it would keep overwriting your copy of the class roster every ten minutes and collide with your own work. You don't need it: the leaderboard reads your progress directly from your fork, so `./cast` (Step 7) is all it takes to appear on it.
 
 **Step 2 — Clone to the Yens**
 
@@ -176,29 +182,40 @@ cd gsb-research-computing-ai-skills
 
 **Step 3 — Authenticate with GitHub (one time)**
 
-Pushing to your fork has to prove it's really you. The **GitHub CLI** (`gh`) sets this up once, and then git just works. On the Yens, load it and sign in:
+Pushing to your fork has to prove it's really you. You'll create a **Personal Access Token (PAT)** — a single-purpose password for the command line — and hand it to the **GitHub CLI** (`gh`) once. After that git just works. There's no browser on the Yens, so a token is the simplest way in.
+
+*Create the token — do this in your browser, on your laptop:*
+
+1. Open this pre-filled link: **[Create your token](https://github.com/settings/tokens/new?scopes=repo,workflow,read:org&description=yen-repo-workflow)**. It's a **classic** token with the three scopes you need already checked — **`repo`** (push to your fork), **`workflow`** (lets you push changes to the GitHub Actions files), and **`read:org`** (lets the GitHub CLI sign you in) — and named `yen-repo-workflow`.
+2. Set the **expiration** to **1 year** — long enough to reuse this token for your research work well beyond this course, with an automatic backstop if it's ever forgotten or leaked.
+3. Click **Generate token**, then **copy it right away** — GitHub shows it only once.
+
+> Treat the token like a password: don't commit it, don't paste it into a file, don't share it. If it ever leaks, delete it on GitHub and make a new one.
+
+*Give the token to `gh` — on the Yens:*
 
 ```bash
-module load gh     # make gh available on the Yens
-gh auth login      # answer: GitHub.com → HTTPS → Authenticate Git? Yes → Login with a web browser
+ml gh-cli           # make gh available on the Yens
+gh auth login       # answer: GitHub.com → HTTPS → Authenticate Git → Yes → Paste an authentication token
+gh auth setup-git   # let gh remember the token so git never asks you again
 ```
 
-`gh` prints a **one-time code**. On your **laptop**, open [github.com/login/device](https://github.com/login/device), enter the code, and approve — the Yens have no browser, so you do this part from your laptop. That's it: `gh` configures git to use your GitHub login, so every `git push` from now on works without asking for a password.
+Paste the token when `gh auth login` asks. The `gh auth setup-git` step then wires `gh` in as git's credential helper, so it hands over your token automatically on every `git push` — no browser, no device code, and no password prompt, now or in future sessions.
 
 <details markdown="1">
 <summary>Setting up <code>gh</code> on your own laptop</summary>
 
-You'll want `gh` on your laptop too (for the Claude Code work later). Install it, then run the same `gh auth login`:
+You'll want `gh` on your laptop too (for the Claude Code work later). Install it, then run the same `gh auth login` and paste the **same token**:
 
 - **macOS** (Homebrew): `brew install gh`
 - **Windows** (in PowerShell — then it's usable from Git Bash too): `winget install --id GitHub.cli`
 - **Linux** / other: see the [official instructions](https://github.com/cli/cli#installation)
 
 ```bash
-gh auth login    # GitHub.com → HTTPS → Login with a web browser
+gh auth login    # GitHub.com → HTTPS → Paste an authentication token
 ```
 
-On a laptop `gh` can open the browser for you automatically.
+(On a laptop you *can* instead choose "Login with a web browser" — but the token works everywhere, so reusing it is one less thing to think about.)
 
 </details>
 
@@ -222,11 +239,14 @@ git commit -m "Add my first commit from Day 1"
 
 **Step 6 — Push to your fork**
 
-**Pushing** sends your saved snapshots up to your fork on GitHub — where your site updates and, later, your submitted work can be checked.
+**Pushing** sends your saved snapshots up to your fork on GitHub — where they're backed up and, later, where your submitted work can be checked.
 
 ```bash
 git push -u origin experiment
 ```
+
+{: .note }
+> This pushes your **branch**, which is not the same as updating your site. The site rebuilds only when your fork's `main` changes — which happens when you cast a spell (Step 7) or merge a pull request. An experiment on a branch leaves the published site alone, which is exactly the point of branching.
 
 {: .important }
 > Every day's challenge is submitted the same way — a `git push` to your fork. Come back to these steps whenever you need to submit work.
@@ -239,7 +259,7 @@ Your fork ships with a small program called `cast` — your spell-caster for rec
 chmod +x cast
 ```
 
-From now on, whenever you finish a quest, the site shows a **🔮 Cast to the leaderboard** button with a one-line spell — run it from your repo root to update your standing:
+From now on, whenever you check off a quest the site reveals a one-line spell beneath it — run it from your repo root to update your standing:
 
 ```bash
 ./cast <spell>
