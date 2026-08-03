@@ -113,13 +113,13 @@ source ~/gsb-research-computing-ai-skills/.venv/bin/activate
 
 ## Step 3: Install Packages
 
-With the venv **active**, install the packages you'll need for Day 2:
+With the venv **active**, install the packages you'll need for the rest of the bootcamp:
 
 ```bash
-pip install python-dotenv ipykernel openai pydantic
+pip install python-dotenv ipykernel openai pydantic pandas
 ```
 
-These packages are installed only inside this venv, not for anyone else on the cluster.
+These packages are installed only inside this venv, not for anyone else on the cluster. You'll use `openai` and `pydantic` today in The Oracle's Chamber, `pandas` at Boss Gate 2 and again on Day 3, and `ipykernel` in the next step to connect this venv to JupyterHub.
 
 Verify by testing in the venv terminal:
 
