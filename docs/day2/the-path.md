@@ -51,12 +51,32 @@ pwd                        # where am I?
 echo $PATH | tr ':' '\n'   # what is the Path? (one entry per line)
 ```
 
-`pwd` should show your home directory, `/home/users/<SUNet>`. If you're somewhere else, run `cd` on its own to return home before continuing.
+`pwd` should show your home directory, `/home/users/<SUNetID>`. If you're somewhere else, run `cd` on its own to return home before continuing.
+
+### Step Into the Repo First
+
+`pwd` isn't trivia. It decides two things you'll care about all day: **where the files you create land**, and **whether the commands you type can be found**. So before you run anything, move into the clone you made on Day 1 and stay there:
+
+```bash
+cd ~/gsb-research-computing-ai-skills
+pwd    # confirm: /home/users/<SUNetID>/gsb-research-computing-ai-skills
+```
+
+{: .important }
+> 🔮 **This is also where you cast from.** Your spell-caster, `cast`, is a single file sitting at the **root of your repo**. Running `./cast` means "run the thing called `cast` **in the folder I am in right now**" — so from anywhere else, the shell looks in the wrong folder and reports `No such file or directory`. Your progress isn't lost; you're just standing in the wrong room.
+>
+> ```bash
+> cd ~/gsb-research-computing-ai-skills   # go to the repo root
+> ls cast                                 # you should see it listed here
+> ./cast <spell>                           # now the spell lands
+> ```
+>
+> When a command "doesn't exist," `pwd` is the first thing to check.
 
 `$PATH` is the shell's **search checklist**. It is a list of directories, roughly:
 
 ```text
-/home/users/<SUNet>/.local/bin      # your SUNet goes here
+/home/users/<SUNetID>/.local/bin      # your SUNetID goes here
 /usr/local/sbin
 /usr/local/bin
 /usr/bin
@@ -111,7 +131,7 @@ which python3               # back to the system python3 again
 
 You do not need a file to run Python. The **interactive interpreter** lets you type code straight into the terminal and run it immediately, one line at a time.
 
-In the terminal you opened during the Review, start Python:
+Still in your repo folder from Step 1 (check with `pwd` if you're unsure), start Python:
 
 ```bash
 python3
@@ -152,9 +172,12 @@ Leave Python with <code>exit()</code>, run <code>pip install matplotlib numpy</c
 Back at the normal shell prompt:
 
 ```bash
+pwd               # where am I? this is where the file was written
 ls                # you should now see my_plot.png
 cat my_plot.png   # try to "read" the image
 ```
+
+There's the payoff for stepping into the repo first: `savefig` wrote `my_plot.png` into **whatever folder you were standing in**, and because that was your repo, the file is somewhere git can see it. Had you stayed in your home directory, it would have landed there instead — not wrong, just harder to find later.
 
 `cat` spills something like:
 
@@ -179,7 +202,12 @@ Choose any node to log in:
 | Yen4 | [yen4.stanford.edu/jupyter/hub/home](https://yen4.stanford.edu/jupyter/hub/home) |
 | Yen5 | [yen5.stanford.edu/jupyter/hub/home](https://yen5.stanford.edu/jupyter/hub/home) |
 
-Log in with your SUNet credentials. You should see the same files as your home directory on the Yens. Along with a `my_plot.png`
+Log in with your SUNetID credentials. The file browser on the left starts in your home directory on the Yens, showing the same files you'd see from `ls` in a terminal. Double-click into **`gsb-research-computing-ai-skills`** and you'll find the `my_plot.png` you just made — the same folder, seen two ways.
+
+{: .note }
+> 🟢 **Green sticky** = I'm logged in to JupyterHub and I can see `my_plot.png` in my repo folder &nbsp;&nbsp; 🔴 **Red sticky** = I need help
+>
+> Put a sticky note on your laptop lid so instructors can see where you are.
 
 ---
 
@@ -262,13 +290,15 @@ A plot is never finished. Back in your notebook, edit the plotting cell to make 
 - Give each line a `label=...` and add `ax.legend()` to name them
 - Change a line's colour with `color="crimson"` (or `"teal"`, `"goldenrod"`)
 
-**Now command the AI to do your bidding.** First save your notebook with a name you'll recognise (**File → Save Notebook As…**, e.g. `plotting.ipynb`). Then open a **Terminal** in JupyterHub and summon Claude Code, exactly as you did in [Working with Claude Code](../../day1/familiars-den/):
+**Now command the AI to do your bidding.** First save your notebook into your repo folder with a name you'll recognise (**File → Save Notebook As…**, e.g. `gsb-research-computing-ai-skills/plotting.ipynb`). Then open a **Terminal** in JupyterHub and summon Claude Code, exactly as you did in [Working with Claude Code](../../day1/familiars-den/):
 
 ```bash
-cd ~                 # or wherever you saved the notebook
+cd ~/gsb-research-computing-ai-skills   # the folder holding your notebook
 ml claude-code
 claude
 ```
+
+That `cd` matters for the same reason it did in Step 1: Claude Code works from the folder you start it in. Launch it from your home directory and it can't see a notebook that lives in your repo.
 
 Then describe the plot you want — no matplotlib to memorise, just say it:
 
@@ -277,6 +307,13 @@ Then describe the plot you want — no matplotlib to memorise, just say it:
 > lines, a dramatic title, annotations, gridlines, whatever looks great. Then leave
 > the notebook so I can re-run it.
 ```
+
+{: .tip }
+> 🎛️ **Two dials worth setting deliberately** — both from [Day 1](../../day1/familiars-den/), both relevant right here.
+>
+> **Permission mode** (`Shift+Tab` cycles it; the current one shows at the bottom of the screen). The question is always *how bad is a wrong move here?* This task edits one throwaway plot in your own repo, so **accept edits** is a reasonable place to sit: you skip approving every change and nothing important is at risk. Reach for **plan mode** instead when you want to read the intent before anything changes, and stay in **manual** when the target is real work you can't easily redo. The mode is a statement about the *stakes*, not about how much you trust Claude.
+>
+> **Model** (`/model`). Restyling a matplotlib cell is small, well-trodden work, so a lighter model like **Sonnet** or **Haiku** answers quickly and spends far less of your allowance. Save **Opus** for the genuinely hard problems later this week. Remember the constraint from Day 1: Stanford gives you Claude on a **managed plan with a usage limit**, so when it runs out you wait for the reset rather than paying for more. Spending Opus on a plot is how you end up rationing later.
 
 Claude edits the `.ipynb` **file on disk**. Switch back to the notebook tab — JupyterHub will notice the file changed and offer to **reload** it (click *Reload*) — then **Kernel → Restart Kernel and Run All Cells** to see your enchanted plot.
 

@@ -23,10 +23,10 @@ The Oracle answers, but only as well as you ask. In this room you make your firs
 
 ### Step 1: Open the Oracle's Notebook
 
-Every invocation in this room happens in one notebook. In JupyterHub (on the Yens), open your `day2/` folder and create a **new notebook named `oracle.ipynb`**. From the kernel menu in the top-right, choose **Bootcamp 2026**, the kernel you forged in [The Venv Forge](../venv-forge/).
+Every invocation in this room happens in one notebook. In JupyterHub (on the Yens), open your `day2/` folder and create a **new notebook named `oracle.ipynb`**. From the kernel menu in the top-right, choose **GSB AI 2026**, the kernel you forged in [The Venv Forge](../venv-forge/).
 
 {: .important }
-> Selecting the **Bootcamp 2026** kernel is what gives this notebook its reagents (`openai`, `python-dotenv`, and `pydantic`), the packages you installed into that venv. If the imports in the next step fail with `ModuleNotFoundError`, the wrong kernel is almost always the culprit: check the kernel name shown in the notebook's top-right corner.
+> Selecting the **GSB AI 2026** kernel is what gives this notebook its reagents (`openai`, `python-dotenv`, and `pydantic`), the packages you installed into that venv. If the imports in the next step fail with `ModuleNotFoundError`, the wrong kernel is almost always the culprit: check the kernel name shown in the notebook's top-right corner.
 
 Every code cell below runs in `oracle.ipynb` unless it says otherwise.
 
@@ -41,7 +41,7 @@ from dotenv import load_dotenv
 import os
 import openai
 
-load_dotenv()
+load_dotenv("../.env")   # this notebook is in day2/; .env is at the repo root
 
 client = openai.OpenAI(
     api_key=os.environ["STANFORD_API_KEY"],
@@ -65,13 +65,19 @@ If you see a response, the API is working.
 
 ### Step 3: Load and Inspect a SEC Filing
 
-A sample SEC Form 3 filing is included in your course repo:
+**First, what is a Form 3?** When someone becomes an insider at a public company — a director, an officer, or anyone holding more than 10% of it — the SEC requires them to declare what they own. That declaration is a **Form 3**, and it names the insider, their role at the company, and the shares they hold.
+
+Those filings are a genuinely useful research dataset: who joined which board, when, and holding what. The catch is the format. A Form 3 is dense, semi-structured text written for regulators rather than for analysis, and the fields you want are buried in it rather than sitting in tidy columns. Hand-coding a thousand of them is a week of tedium; a regular expression breaks on the first filing that's laid out differently.
+
+That is exactly where the Oracle earns its keep, and it's the pattern behind most AI-assisted research: **unstructured text in, structured fields out.**
+
+A sample of these filings ships in your course repo:
 
 ```bash
 ls ~/gsb-research-computing-ai-skills/data/sec_filings/
 ```
 
-You should see five `.txt` files, one per company. Load one in `oracle.ipynb` and take a look:
+You should see five `.txt` files, one per company. Load one in `oracle.ipynb` and see what you're up against:
 
 ```python
 with open("../data/sec_filings/Cheniere_Energy_Inc.txt", "r") as f:
@@ -80,7 +86,7 @@ with open("../data/sec_filings/Cheniere_Energy_Inc.txt", "r") as f:
 print(filing_text[:2000])   # preview the first 2000 characters
 ```
 
-SEC Form 3 filings report an insider's financial interest in a company: their name, role, and any shares held. The format is dense and not consistently structured. This is where the Oracle earns its keep.
+Read that preview before moving on. The insider's name and role *are* in there — and now you can see why pulling them out by hand, five thousand times, is nobody's idea of research.
 
 ---
 
@@ -122,253 +128,171 @@ Experiment: try changing the system prompt. What happens if you ask for more fie
 
 ### Step 5: From Notebook to Script
 
-A notebook is great for exploration. Once the logic works, move it to a standalone script, the form you'll actually schedule and run on the cluster.
+A notebook is great for exploration, and that's what you just did: you tried a prompt, looked at the answer, and adjusted. But a notebook is a poor place to *keep* working logic. It runs only while you're sitting there clicking, and a cluster job has nobody to click.
 
-Three things should change when code leaves the notebook.
+So the same logic moves into a **script**: a `.py` file that runs start to finish on its own. Your repo ships three of them, and they are the same program three times over, each one adding exactly one idea:
 
-**How it reports progress.** In a notebook you watch cell output live. A script often runs unattended (in the background, or as a cluster job whose output you read afterward), so instead of scattering `print()` calls for status, use Python's built-in **`logging`** library. It stamps each message with a timestamp and a severity level, and you can turn it up or down without rewriting the rest of your code.
+| Stage | Script | What it adds |
+|-------|--------|--------------|
+| **1** | `extract_form_3_step1_basic.py` | Nothing new — the notebook's logic in a file |
+| **2** | `extract_form_3_step2_logged.py` | `logging`, and saving the result to a file |
+| **3** | `extract_form_3_one_file.py` | A schema, so bad output fails loudly |
 
-Point it at **two destinations at once**: your screen, so you can watch, and a **log file**, so you don't have to. The file handler *appends*, so every run adds to the bottom of the same file instead of erasing the last one. After a morning of edits and reruns you have a timestamped history of every attempt, which is the record you go back to when a result looks wrong and you need to know what you actually ran.
-
-**Where it puts the answer.** A notebook keeps your result on screen in the cell output. A script's terminal output scrolls away the moment you close the window, and a cluster job has no screen at all. So the script has to **write its result to a file**. That file is the actual product of the run: the thing you can reopen tomorrow, hand to a collaborator, or feed into the next step of a pipeline.
-
-**What it's pointed at.** In the notebook the filename sits wherever you happened to type it. In a script, anything you expect to change between runs belongs in a **constant at the top**, where you can find it without reading the whole file. Here that's `FILING`, and naming the output file after it means two runs on two filings leave two results instead of one overwriting the other.
-
-In `oracle.ipynb`, consolidate the working code into one cell, now with logging:
-
-```python
-import logging
-import os
-import openai
-from dotenv import load_dotenv
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(levelname)s  %(message)s",
-    handlers=[
-        logging.FileHandler("form3_test.log"),   # appends, so runs accumulate
-        logging.StreamHandler(),                 # and still shows on screen
-    ],
-)
-logger = logging.getLogger(__name__)
-
-load_dotenv()
-
-FILING = "Cheniere_Energy_Inc"      # the one thing you'll change between runs
-
-client = openai.OpenAI(
-    api_key=os.environ["STANFORD_API_KEY"],
-    base_url="https://aiapi-prod.stanford.edu/v1",
-)
-
-logger.info("Reading filing")
-with open(f"../data/sec_filings/{FILING}.txt", "r") as f:
-    filing_text = f.read()
-
-logger.info("Sending %d characters to the model", len(filing_text[:4000]))
-response = client.chat.completions.create(
-    model="gemini-2.5-flash-lite",
-    messages=[
-        {"role": "system", "content": "You are a financial data extraction assistant. Extract information precisely and concisely."},
-        {"role": "user", "content": f"Extract the insider's name and role. Reply with: NAME | ROLE\n\n{filing_text[:4000]}"}
-    ]
-)
-logger.info("Model responded")
-
-answer = response.choices[0].message.content
-
-output_path = f"form3_output_{FILING}.txt"     # output named after the input
-with open(output_path, "w") as f:
-    f.write(answer)
-logger.info("Wrote %s", output_path)
-
-print(answer)
-```
+Nothing to type and nothing to paste. You'll **run** each one, read the few lines that changed, and finish holding the script Day 3 picks up.
 
 {: .note }
-> 💡 Notice the three-way split. **`logging` is for diagnostics**: what the program is doing and when, stamped with a timestamp and a level (`INFO`, `WARNING`, `ERROR`), now going to both your screen and `form3_test.log`. **`form3_output_*.txt` is for the result**, the durable output that outlives the run. **`print` is a convenience**, so you can see the answer while you're standing there watching. Drop the `print` and the script still works; drop the file write and the run leaves nothing behind. On Day 3, when these scripts run as cluster jobs, the logs are what you read to see what happened, and the result files are what you collect.
->
-> Two different kinds of output, two different lifetimes. Results are data you keep and commit. Logs are a diary of the process, useful for weeks and then disposable, which is why `*.log` normally belongs in `.gitignore` rather than in your repo.
+> 📁 **These live in `scripts/`, and you run them from the repo root** — not from `day2/`. That's why the paths inside them read `data/sec_filings/...` with no `../` in front. Remember from [The Path](../the-path/): a relative path is relative to **wherever you're standing**, so where you run a script decides which files it can find.
 
-Copy this into a new file called `form3_test.py` in your `day2/` folder (in the Jupyter terminal: `cd ~/gsb-research-computing-ai-skills/day2 && touch form3_test.py`).
-
-Now run it from the terminal. The notebook got `openai` and `pydantic` from the **Bootcamp 2026** kernel, but a fresh terminal knows nothing about that, so **activate the venv first**:
+Activate your venv and go to the repo root:
 
 ```bash
 source ~/gsb-research-computing-ai-skills/.venv/bin/activate
-cd ~/gsb-research-computing-ai-skills/day2
-python form3_test.py
+cd ~/gsb-research-computing-ai-skills
 ```
 
-Your prompt should now start with `(.venv)`, the same signal you saw in [The Venv Forge](../venv-forge/). That prefix is your confirmation that `python` means *your* Python, the one with the packages installed.
+---
 
-{: .note }
-> 💡 Skip the `source` line and you'll get `ModuleNotFoundError: No module named 'openai'`, which looks like a broken script but is really the wrong interpreter. Selecting a kernel and activating a venv are the same act in two different places: the notebook does it through the kernel menu, the terminal does it with `source`. Run `which python3` before and after activating to watch the path change.
+#### Stage 1: the notebook's logic, in a file
 
-You'll see the timestamped log lines and then the answer. Now confirm the result actually persisted:
+Open it and read it — it's about a dozen lines of actual code, and you've seen all of them in your notebook:
 
 ```bash
-cat form3_output_Cheniere_Energy_Inc.txt
+cat scripts/extract_form_3_step1_basic.py
+python3 scripts/extract_form_3_step1_basic.py
 ```
 
-The name and role are sitting in a file on disk, and they'll still be there after you close the terminal. Verify it matches what the notebook gave you. You now have a reproducible script you can schedule, share, or scale.
+You get the same `NAME | ROLE` answer the notebook gave you. Same call, same prompt, new container.
 
-#### Quick exercise: point it at a different company
+Notice what it does **not** do: it prints the answer and forgets it. Close the terminal and the result is gone. That's the gap stage 2 fills.
+
+---
+
+#### Stage 2: say what you're doing, and keep the answer
+
+Two things change when code stops being watched by a human.
+
+**How it reports progress.** In a notebook you watch cell output live. A script often runs unattended — in the background, or as a cluster job whose output you read hours later — so instead of scattering `print()` calls, use Python's built-in **`logging`**. It stamps every message with a timestamp and a severity level, and you can turn it up or down without touching the rest of your code.
+
+Point it at **two places at once**: your screen, so you can watch, and a **log file**, so you don't have to. The file handler *appends*, so runs accumulate rather than overwrite. After a morning of edits you have a timestamped history of every attempt — which is the record you go back to when a result looks wrong and you need to know what you actually ran.
+
+**Where it puts the answer.** A script's terminal output scrolls away the moment you close the window, and a cluster job has no screen at all. So the script **writes its result to a file**. That file is the real product of the run: the thing you reopen tomorrow, hand to a collaborator, or feed into the next step.
+
+Run it, then look at what it left behind:
+
+```bash
+python3 scripts/extract_form_3_step2_logged.py
+cat results/form3_Cheniere_Energy_Inc.txt   # the answer, saved
+cat form3_extract.log                       # what happened, timestamped
+```
+
+Now see precisely what changed since stage 1 — let the computer tell you instead of hunting for it by eye:
+
+```bash
+diff scripts/extract_form_3_step1_basic.py scripts/extract_form_3_step2_logged.py
+```
+
+Lines marked `>` are new. You should find only three ideas in there: the `logging` setup, a `FILING` constant hoisted to the top, and the block that writes the output file.
+
+{: .note }
+> 💡 **Two kinds of output, two different lifetimes.** `results/form3_*.txt` is **your data** — you keep it, you commit it, it outlives the run. `form3_extract.log` is a **diary of the process** — useful for a week, then disposable, which is why `*.log` is already in the repo's `.gitignore`. On Day 3, when these run as cluster jobs, the logs are what you read to see what happened and the result files are what you collect.
+
+{: .note }
+> 💡 **Why `FILING` sits at the top.** Anything you expect to change between runs belongs in a constant where you can find it without reading the whole file. Naming the output after it means two runs on two filings leave two results instead of one silently overwriting the other.
+
+---
+
+#### Exercise: point it at a different company
 
 Cheniere Energy is one of five filings in that folder. See the rest:
 
 ```bash
-ls ../data/sec_filings/
+ls data/sec_filings/
 ```
 
-Pick another one and change the single line at the top of `form3_test.py`:
+Open `scripts/extract_form_3_step2_logged.py`, change the single line near the top, and save:
 
 ```python
 FILING = "FLOWSERVE_CORP"
 ```
 
-Then run it again and look at what's in your folder:
+Run it again and look at what's in `results/` now:
 
 ```bash
-python form3_test.py
-ls form3_output_*.txt
-cat form3_output_FLOWSERVE_CORP.txt
+python3 scripts/extract_form_3_step2_logged.py
+ls results/form3_*
+cat results/form3_FLOWSERVE_CORP.txt
 ```
 
-A different insider, a different role, and **both** output files are still there. Now read the log:
+A different insider, a different role, and **both** result files are still there. Now read the log:
 
 ```bash
-cat form3_test.log
+cat form3_extract.log
 ```
 
-Both runs are in it, in order, timestamped. Notice the `Sending N characters` line differs between them, because the two filings aren't the same length. That is the log doing its job: not just "it worked," but a record of *what* each run actually did.
+Both runs are in it, in order, timestamped. Notice the `Sending N characters` line differs between them, because the two filings aren't the same length. That's the log doing its job: not just "it worked," but a record of *what each run actually did*.
 
 {: .note }
-> 💡 Two habits just paid off at once. Naming the output after the input meant the second run didn't overwrite the first, which is the difference between a pipeline that accumulates results and one that quietly destroys them. And hoisting `FILING` to the top turned "edit the script" into "change one value." Hold that thought: if swapping one filing is a single variable, then processing all five is a `for` loop around the same code. That is exactly the move you'll make on Day 3, at a scale where you would never edit by hand.
+> 💡 Hold that thought. If swapping one filing is a single variable, then processing all five is a `for` loop around the same code. That's exactly the move you'll make on Day 3, at a scale where you'd never edit by hand.
 
 ---
 
 ### Step 6: Validate with Pydantic
 
-Your `form3_output_*.txt` files are real artifacts, but each one is still just a blob of text: `NAME | ROLE`, and nothing checks that the model actually gave you that shape. Split it on the wrong character, or get a chatty reply that opens with "Sure! Here's the extraction:", and your parsing quietly breaks. This step fixes that at both ends. Ask for **JSON** instead of freeform text, and validate it with **Pydantic**, which turns the reply into a typed Python object and rejects anything that doesn't match your schema.
+Your result files are real artifacts, but each one is still just a blob of text — `NAME | ROLE`, with nothing checking that the model gave you that shape. Split on the wrong character, or get a chatty reply that opens with "Sure! Here's the extraction:", and your parsing quietly breaks.
 
-Below is your Step 5 script with four additions folded in. Every new or modified line is marked **`# ✦ NEW`**. Everything unmarked is code you already wrote and already understand, so read the marked lines and skip the rest.
+Stage 3 closes that at both ends. Ask for **JSON** instead of freeform text, and validate it with **Pydantic**, which turns the reply into a typed Python object and rejects anything that doesn't match your schema.
 
-The four additions are:
+The four new pieces:
 
-1. **A schema** (`Form3Extraction`), your Python declaration of the fields you expect and their types.
-2. **The schema in the prompt**, so the model knows what to call each field.
+1. **A schema** (`Form3Filing`) — your declaration of the fields you expect and their types.
+2. **The schema described in the prompt**, so the model calls each field what your code calls it.
 3. **`response_format`**, which constrains the reply to valid JSON as the model writes it.
 4. **Validation**, which checks the finished reply and fails loudly if it doesn't match.
 
+Here is the schema, the heart of it:
+
 ```python
-import json                                              # ✦ NEW
-import logging
-import os
-import openai
-from dotenv import load_dotenv
-from pydantic import BaseModel, ValidationError          # ✦ NEW
-from typing import Optional                              # ✦ NEW
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s  %(levelname)s  %(message)s",
-    handlers=[
-        logging.FileHandler("form3_test.log"),   # appends, so runs accumulate
-        logging.StreamHandler(),                 # and still shows on screen
-    ],
-)
-logger = logging.getLogger(__name__)
-
-load_dotenv()
-
-FILING = "Cheniere_Energy_Inc"
-
-client = openai.OpenAI(
-    api_key=os.environ["STANFORD_API_KEY"],
-    base_url="https://aiapi-prod.stanford.edu/v1",
-)
-
-
-# ✦ NEW ─── 1. The schema: what a good answer looks like ──────────────
-# Optional[...] = None marks a field the model may legitimately omit.
-# Every other field is required, and its absence is an error.
-class Form3Extraction(BaseModel):                        # ✦ NEW
-    insider_name: str                                    # ✦ NEW
-    role: str                                            # ✦ NEW
-    issuer_name: str                                     # ✦ NEW
-    transaction_date: Optional[str] = None               # ✦ NEW
-    shares_acquired: Optional[int] = None                # ✦ NEW
-
-
-logger.info("Reading filing")
-with open(f"../data/sec_filings/{FILING}.txt", "r") as f:
-    filing_text = f.read()
-
-# ✦ NEW ─── 2. Pydantic describes itself, and you send that to the model ───
-# Without this, the model never learns your field names and guesses
-# "name" or "company" instead. This is what keeps both ends in sync.
-schema = json.dumps(Form3Extraction.model_json_schema(), indent=2)   # ✦ NEW
-
-logger.info("Sending %d characters to the model", len(filing_text[:4000]))
-response = client.chat.completions.create(
-    model="gemini-2.5-flash-lite",
-    messages=[
-        # ✦ NEW: the system prompt now carries the schema
-        {"role": "system", "content": f"Extract the requested fields from this SEC Form 3 filing.\nReturn only valid JSON matching this schema:\n\n{schema}"},
-        {"role": "user", "content": f"Extract from this filing:\n\n{filing_text[:4000]}"}
-    ],
-    # ✦ NEW ─── 3. Constrain generation itself to valid JSON ───────────
-    response_format={"type": "json_object"},             # ✦ NEW
-)
-logger.info("Model responded")
-
-raw = response.choices[0].message.content
-
-# Save the raw reply FIRST, before anything can fail. If validation
-# blows up two lines from now, this file is your evidence.
-raw_path = f"form3_output_{FILING}.txt"    # same file as Step 5
-with open(raw_path, "w") as f:
-    f.write(raw)
-logger.info("Wrote %s", raw_path)
-
-# ✦ NEW ─── 4. Validate before you trust it ───────────────────────────
-# This is the line that turns a hopeful string into a checked object.
-try:                                                     # ✦ NEW
-    data = Form3Extraction.model_validate_json(raw)      # ✦ NEW
-except ValidationError as e:                             # ✦ NEW
-    logger.error("Model output failed validation: %s", e)  # ✦ NEW
-    raise                                                # ✦ NEW
-
-logger.info("Validated extraction for issuer: %s", data.issuer_name)   # ✦ NEW
-
-json_path = f"form3_extraction_{FILING}.json"            # ✦ NEW
-with open(json_path, "w") as f:                          # ✦ NEW
-    f.write(data.model_dump_json(indent=2))              # ✦ NEW
-logger.info("Wrote %s", json_path)                       # ✦ NEW
-
-print(data.model_dump_json(indent=2))                    # ✦ NEW
+class Form3Filing(BaseModel):
+    insider_name: str
+    insider_role: List[str]
+    company_name: str
+    company_cik: str
+    filing_date: str
 ```
 
-Notice what did **not** change: the logging setup and its log file, the client, the `FILING` constant, reading the file, the text write, the output-naming habit. The scaffolding you built in Step 5 carried straight over, and `form3_test.log` keeps appending, so Step 6's runs land in the same history as Step 5's. What you added is a known shape to ask for and a check that the answer matches it.
+And the line that turns a hopeful string into a checked object:
 
-**Why the script now writes two files.** Every run leaves both `form3_output_{FILING}.txt`, the raw reply exactly as the model sent it, and `form3_extraction_{FILING}.json`, the validated object. They usually look nearly identical, and keeping both anyway is the point:
+```python
+result = Form3Filing.model_validate_json(raw)
+```
 
-- **The raw file is your evidence.** It's written *before* validation, so it exists even on the runs that crash. When a `ValidationError` fires, you don't have to re-run (and re-pay for) the call to find out what the model actually said. You open the file and look. Most "the model returned garbage" mysteries turn out to be one stray character, visible in two seconds if you kept the raw reply.
-- **The JSON file is your data.** It's what survived the check, normalized to your types: `shares_acquired` is a real integer, absent fields are explicit `null`s. This is the file downstream code reads.
-- **Together they're an audit trail.** Six months from now, "what did the model return, and what did we keep?" is answerable from disk rather than from memory. That's the difference between a pipeline a colleague can check and one they have to take on faith.
-
-This is the finished script, so put it in `form3_test.py`, replacing what's there, and run it from the terminal:
+Read the whole thing, run it, then diff it against stage 2:
 
 ```bash
-source ~/gsb-research-computing-ai-skills/.venv/bin/activate   # if not already active
-cd ~/gsb-research-computing-ai-skills/day2
-python form3_test.py
-ls form3_*                                       # both artifacts, raw and validated
-cat form3_extraction_Cheniere_Energy_Inc.json
+cat scripts/extract_form_3_one_file.py
+python3 scripts/extract_form_3_one_file.py
+diff scripts/extract_form_3_step2_logged.py scripts/extract_form_3_one_file.py
 ```
 
-Same naming habit as Step 5: the output carries the input's name, so you can work through all five filings without one clobbering the next.
+**Why it writes two files.** Every run leaves both the raw reply and the validated JSON, and keeping both is deliberate:
+
+- **The raw file is your evidence.** It's written *before* validation, so it exists even on runs that crash. When a `ValidationError` fires you don't have to re-run — and re-pay for — the call to find out what the model said. You open the file and look. Most "the model returned garbage" mysteries turn out to be one stray character.
+- **The JSON file is your data.** It's what survived the check, normalized to your types. This is what downstream code reads.
+- **Together they're an audit trail.** Six months from now, "what did the model return, and what did we keep?" is answerable from disk rather than from memory.
+
+```bash
+cat results/form3_result.json
+```
+
+{: .note }
+> 💡 **It also switched models.** Stages 1 and 2 used `gemini-2.5-flash-lite` — cheap and fast, which is what you want while you're still changing the prompt every two minutes. Stage 3 uses `gpt-5.2`, now that the prompt has settled and you want the best extraction. That swap is **one line**, because both live behind the same `base_url`. Iterate cheap, then spend where it counts.
+
+{: .note }
+> 🟢 **Green sticky** = all three stages ran and `results/form3_result.json` has all five fields &nbsp;&nbsp; 🔴 **Red sticky** = I need help
+>
+> Put a sticky note on your laptop lid so instructors can see where you are.
+
+You now hold `scripts/extract_form_3_one_file.py` — one filing in, validated structured data out, with a log of what happened. **Day 3 starts by profiling this exact script**, then wraps it in a loop and hands it to the cluster.
 
 <details markdown="1">
 <summary>🔬 In the weeds: how the model is actually constrained (click to reveal)</summary>
@@ -377,9 +301,18 @@ Same naming habit as Step 5: the output carries the input's name, so you can wor
 
 **`response_format={"type": "json_object"}` runs on the server, while the model is still writing.** A model generates one token at a time, choosing from a probability distribution over its whole vocabulary. JSON mode *masks* that distribution: any token that would break JSON syntax has its probability forced to zero, so the model literally cannot produce a stray "Sure, here you go!" or a trailing comma. That's why you no longer need to defend against chatty preambles. But notice what it does **not** do: it enforces valid JSON, not *your* JSON. `{"name": "...", "title": "..."}` is perfectly valid JSON and would sail straight through.
 
-**Pydantic runs in your own Python process, after the response has fully arrived.** It never touches generation, and the model has no idea your `Form3Extraction` class exists. `model_validate_json` takes the finished string and checks it against your field names and types, raising `ValidationError` if `insider_name` is missing or `shares_acquired` came back as `"none"` instead of a number.
+**Pydantic runs in your own Python process, after the response has fully arrived.** It never touches generation, and the model has no idea your `Form3Filing` class exists. `model_validate_json` takes the finished string and checks it against your field names and types, raising `ValidationError` if `insider_name` is missing or `insider_role` comes back as a bare string instead of a list.
 
-That leaves a gap between the two, and the `schema` variable is what closes it. The model only knows to call the field `insider_name` because you *told* it, in the prompt. Sending `Form3Extraction.model_json_schema()` means your Pydantic class defines the contract in one place: it instructs the model up front, then audits the reply afterward. Rename a field once and both ends stay in sync.
+That leaves a gap between the two, and **the prompt is what closes it.** The model only knows to call the field `insider_name` because you *told* it so, in that `system_prompt` listing the five fields by name. Nothing enforces that the prompt and the class agree — which is the quiet weakness of the stage 3 script. Rename a field in `Form3Filing` and forget to update the prompt, and validation starts failing on replies the model thought were correct.
+
+The tighter version has Pydantic describe itself, so the class is the single source of truth at both ends:
+
+```python
+schema = json.dumps(Form3Filing.model_json_schema(), indent=2)
+# ...then send `schema` as part of the system prompt instead of a hand-written field list
+```
+
+Now renaming a field updates the instruction and the check at once. Worth doing the moment a schema stops being something you can hold in your head.
 
 **What's actually on the other end of that `base_url`.** The Stanford gateway is a **LiteLLM** proxy. LiteLLM is an open-source router that presents a single OpenAI-compatible API and translates each incoming request into the native format of whichever provider really serves that model, then translates the reply back. That is the machinery behind the Key Vault's one-client-many-services diagram, and behind the models list you pulled in the side quest: Gemini, Claude, and the rest are all reachable through one `base_url` because something in the middle is doing the format translation for you.
 
@@ -391,8 +324,8 @@ A stronger option exists, `{"type": "json_schema"}`, which constrains decoding a
 response_format={
     "type": "json_schema",
     "json_schema": {
-        "name": "form3_extraction",
-        "schema": Form3Extraction.model_json_schema(),
+        "name": "form3_filing",
+        "schema": Form3Filing.model_json_schema(),
     },
 }
 ```
@@ -406,7 +339,7 @@ Invalid JSON: expected value at line 1 column 1
 
 Read that message closely: the JSON *inside* the fence is perfectly good and the field names are right. The three backticks in front of it are the entire problem. Whenever a validation error quotes an `input_value` that starts with backticks, the constraint layer isn't doing what you assumed it was.
 
-**Which is exactly why you still validate.** The constraint layer is the part that changes when you swap `model="gemini-2.5-flash-lite"` for something else, or when you point `base_url` at a local model on Day 4. Pydantic is the layer that behaves identically no matter who is on the other end. Prompt for the shape you want, ask for whatever constraint the model offers, and then check the result yourself regardless.
+**Which is exactly why you still validate.** The constraint layer is the part that changes when you swap `model="gemini-2.5-flash-lite"` for `gpt-5.2`, or when you point `base_url` at a model running locally on the Yens. Pydantic is the layer that behaves identically no matter who is on the other end. Prompt for the shape you want, ask for whatever constraint the model offers, and then check the result yourself regardless.
 
 </details>
 
@@ -430,7 +363,7 @@ for m in client.models.list().data:
     print(m.id)
 ```
 
-Look for `text-embedding-ada-002` and `imagen-4.0-generate-001` in the list; those are the ids the next two quests use.
+Look for `text-embedding-ada-002` in the list; that's the id the next quest uses.
 
 <label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side1"> I listed the available models</label>
 
@@ -449,31 +382,6 @@ print(vector[:8])
 ```
 
 <label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side2"> I generated an embedding vector</label>
-
-**Side quest: Generate an Image**
-
-The same gateway can create images. Call the image endpoint (`POST /v1/images/generations`):
-
-```python
-import base64
-from IPython.display import Image, display
-
-resp = client.images.generate(
-    model="imagen-4.0-generate-001",
-    prompt="A medieval alchemist's lab full of glowing potions, digital art",
-)
-
-img = resp.data[0]
-if img.url:                       # some models return a link
-    print(img.url)
-else:                             # others (e.g. imagen) return base64
-    display(Image(data=base64.b64decode(img.b64_json)))
-```
-
-{: .note }
-> 💡 An images response carries the picture in one of two fields: `url` (a link to download) or `b64_json` (the image encoded inline as base64). A model fills in only one, so `resp.data[0].url` is `None` when the model returned base64. The code above checks for both.
-
-<label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side3"> I generated an image</label>
 
 **Side quest: Count Tokens and Calculate the Cost**
 
@@ -499,7 +407,7 @@ print(f"This call cost ${cost:.6f}")
 
 Then multiply by 10,000 filings. That per-call number is small, but it is exactly what you budget against when you scale.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side4"> I found the token usage and estimated the cost</label>
+<label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side3"> I found the token usage and estimated the cost</label>
 
 **Side quest: Pay for Thinking You Never See**
 
@@ -546,7 +454,7 @@ That's why the instruction is to print the whole `usage` object instead of reach
 
 Now price it. Put each model's rate from the rates page into the cost formula from the previous quest and work out the real cost of each of those three answers. The cheapest model is not always the cheapest *call*, and on a reasoning model the length of the reply tells you nothing about the bill.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side5"> I compared token usage across a plain and a reasoning model</label>
+<label class="quest-check"><input type="checkbox" data-room="d2-oracles-chamber" data-key="side4"> I compared token usage across a plain and a reasoning model</label>
 
 ---
 
@@ -557,6 +465,8 @@ Now price it. Put each model's rate from the rates page into the cost formula fr
 - Context limits mean you need to trim large documents before sending; `[:4000]` is a quick safeguard
 - `response_format={"type": "json_object"}` constrains the model *as it generates*, masking any token that would break JSON syntax; where it's honored, you no longer have to strip chatty preambles by hand
 - Pydantic validates *after* the reply arrives; it turns unstructured LLM output into typed, validated Python objects, so if the model returns garbage you catch it before it silently corrupts your dataset
-- Those two are separate defenses, and neither one tells the model your field names. Sending `model_json_schema()` in the prompt is what makes your Pydantic class the single source of truth at both ends
+- Those two are separate defenses, and neither one tells the model your field names — only the prompt does that, which is why the prompt and the schema have to stay in step
 - A `logging.FileHandler` appends, so one log file accumulates a timestamped history across every run, which is what you read when a result looks wrong and you need to know what you actually ran
 - A notebook is for exploration; a `.py` script is for reproducibility
+- A relative path is relative to where you *run* from, which is why these scripts live in `scripts/` and run from the repo root
+- Build a script in stages, one idea at a time, and `diff` consecutive versions to see exactly what each idea cost you in code

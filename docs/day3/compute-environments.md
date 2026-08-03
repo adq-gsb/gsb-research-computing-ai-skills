@@ -20,7 +20,7 @@ Every research computing project has three questions:
   <div style="flex:1; border:2px solid #4a90d9; border-radius:8px; padding:1rem;">
     <div style="font-size:2rem; text-align:center;">🎯</div>
     <div style="font-weight:700; font-size:1.1rem; text-align:center; margin:0.5rem 0;">What?</div>
-    <div style="font-size:0.9rem;">Your research <strong>task</strong> — defined by your PI. For this bootcamp: extract names and CIKs from SEC Form 3 filings.</div>
+    <div style="font-size:0.9rem;">Your research <strong>task</strong> — defined by your PI. For this course: extract names and CIKs from SEC Form 3 filings.</div>
   </div>
   <div style="flex:1; border:2px solid #27ae60; border-radius:8px; padding:1rem;">
     <div style="font-size:2rem; text-align:center;">🐍</div>

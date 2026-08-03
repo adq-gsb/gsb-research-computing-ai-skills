@@ -129,10 +129,13 @@ Two very different jobs hide behind "using AI," and they carry different risks.
 |------------|----------|---------------------|--------------------|----------------------|
 | 🟢 **Low** | Published papers, SEC filings, open datasets | ✅ | ✅ | ✅ |
 | 🟡 **Moderate** | Unpublished research, FERPA records, DUA-covered data | ✅ | ✅ | ❌ unless approved |
-| 🔴 **High (incl. PHI)** | SSNs, account numbers, health records, credentials | ✅† | ✅* | ❌ |
+| 🔴 **High (incl. PHI)** | SSNs, account numbers, health records, credentials | ✅† | ❌* | ❌ |
 
-<small>*No new exposure, but the data must already be permitted to live on the Yens.</small><br>
-<small>†API Gateway only. The **Playground chat window** shares the same perimeter but stops short of PHI, so when PHI is involved reach for the API, not the chat box.</small>
+<small>*<strong>The Yens are approved for Low and Moderate risk data, not High.</strong> Running the model locally keeps your data on the machine, but that only helps if the data is allowed on that machine in the first place — and High Risk data isn't allowed on the Yens at all. High Risk work belongs on a system cleared for it, which at Stanford means <a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">Nero</a> rather than the Yens; sort that out before you copy anything anywhere.</small><br>
+<small>†API Gateway only. The **Playground chat window** runs under the same Stanford contract but stops short of PHI, so when PHI is involved reach for the API, not the chat box.</small>
+
+{: .warning }
+> **Two separate questions, and people routinely collapse them into one.** *Is this data allowed on this machine?* and *is this data allowed to go to this model?* A local model on the Yens answers the second question well and says nothing at all about the first. The Yens are a Moderate-risk environment, so "I'll just run it locally" is not a way to work with High Risk data — it's a way to put High Risk data somewhere it shouldn't be.
 
 The gateway clears every row because it runs under Stanford's contract rather than a vendor's consumer terms. The risk usually isn't your data, it's reaching for a convenient tool outside Stanford's walls.
 
@@ -153,7 +156,7 @@ The gateway clears every row because it runs under Stanford's contract rather th
 - Keep credentials in `.env`, and `.env` in `.gitignore`
 - Close files containing restricted data before using a coding assistant
 - Exclude `data/` and `results/` from the tool's workspace or project settings, which control what gets indexed
-- A coding agent calling a third-party endpoint (Claude Code to Anthropic, Copilot to GitHub) sits outside Stanford's perimeter, so the same rules apply. "I'm just asking for coding help" doesn't change where your data goes.
+- A coding agent calling a third-party endpoint (Claude Code to Anthropic, Copilot to GitHub) is not covered by Stanford's agreements, so the same rules apply. "I'm just asking for coding help" doesn't change where your data goes.
 
 {: .note }
 > **Class discussion:** You're using Claude Code to write a SLURM script. It references a path to a data file. Does the model see the data? What if the script has a hardcoded API key? What about a comment mentioning a patient's condition?
