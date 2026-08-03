@@ -31,7 +31,7 @@ Let's crowdsource your experiences with LLM failure modes. What are some differe
   > *Source: [Minnesota Reformer](https://minnesotareformer.com/2024/12/02/misinformation-expert-used-ai-to-draft-testimony-containing-misinformation-about-ai/).*
 
 - **Inconsistency** — ask the same question twice and you may get two different answers (model outputs are probabilistic). Downstream tasks often depend on the output having a consistent format or type, and that is not something you get for free.
-- **A lack of guardrails** — this matters most for **agentic** LLMs (like Claude Code), which don't just answer but act on your system. An agent inherits the permissions you give it, so be deliberate about which ones you hand over: some actions can't be taken back, and deleting or overwriting a file on the command line leaves nothing to recover.
+- **A lack of guardrails** — this matters most for **agentic** LLMs (like Claude Code), which don't just answer but act on your system. An agent inherits the permissions you give it, so be deliberate about which ones you hand over: some actions can't be taken back, and — as you saw with `rm` on [Day 1](../../day1/command-spire/) — deleting or overwriting a file on the command line leaves nothing to recover.
 
   {: .aside }
   > **Real-world case:** in early 2026 a user asked Claude to organize a desktop, and it deleted a folder holding roughly 15 years of family photos — thousands of files — with irreversible terminal commands.
@@ -51,32 +51,25 @@ Let's crowdsource your experiences with LLM failure modes. What are some differe
 
 ---
 
-## Even the Best Models Fail
+## Making LLM Pipelines More Robust
 
-Look at how the frontier models do on a genuinely hard benchmark. [**Humanity's Last Exam**](https://artificialanalysis.ai/evaluations/humanitys-last-exam) is a 3,000-question benchmark built from expert questions that frontier models *can't* answer. Even the best model tops out around 53% — the strongest AI available still gets about half of them wrong.
+Because a model won't necessarily flag its own mistakes, you have to check for correctness yourself. A few complementary "techniques":
 
-![Bar chart of Humanity's Last Exam scores by model: the top model scores about 53%, most frontier models sit in the 40s, and many score far lower.]({{ site.baseurl }}/assets/images/humanitys-last-exam.png)
-
-*Source: [Artificial Analysis — Humanity's Last Exam](https://artificialanalysis.ai/evaluations/humanitys-last-exam).*
-
-Capability is also uneven — the same models score about 94% on GPQA Diamond (graduate-level science). But even 94% is a 6% failure rate: fine for some uses, catastrophic for others. The question isn't "is the model accurate?" but "accurate enough *for this*?" — which you can only answer by measuring your own error rate.
-
----
-
-## Hallucination
-
-The most notorious failure mode is **hallucination**: the model produces fluent, confident, plausible-looking output that is simply false — and nothing in the output itself flags it. In high-stakes settings, that can be professionally consequential.
+- **Trade cost off against accuracy.** Larger, more expensive models are generally more accurate, so if your budget allows, paying more per call is a simple step if accuracy is your primary concern. However, this is no substitute for the other approaches below.
+- **Add format and sanity checks.** Cheap, automatic guards catch a surprising share of errors: validate structure and types with [Pydantic](../../day2/oracles-chamber/#step-6--validate-with-pydantic), as you did on Day 2, and check ranges and formats against real-world logic — a date that isn't a date, a negative probability, etc. Check the distribution of your outputs too: if you expect the data to be distributed a certain way and it isn't, that may be an indication something has gone wrong.
+- **Compare across models.** Run the same inputs through two different models and look at where they *disagree*. Models may fail in different ways, and disagreement is a cheap flag for "this item is uncertain," pointing you to the cases worth reviewing.
+- **Spot-check a sample against ground truth.** Have a notion of what the right answer is, then pull a random sample of outputs and check them against it by hand. Since your sample is random, if the outputs look reliable on the sample, it's more likely they're reasonable throughout.
+- **Ground high-stakes fields.** For queries that really matter, have models quote the exact source text supporting each answer, so you — or a reviewer — can check it against the document.
 
 ---
 
-## Validating Outputs at Scale
+## Exercise: Where Do Two Models Disagree?
 
-Because the model won't flag its own mistakes, you have to check correctness *externally* — cheaply enough to do it across a whole batch. A few complementary techniques:
+You already have one set of extractions — the JSON files your array job wrote in [Slurm Job Arrays](../slurm-arrays/). Now produce a second set from a different model, and count how often the two agree.
 
-- **Spot-check a sample against the source.** Pull a random handful of outputs, compare them to the original filings by hand, and estimate your error rate. That number — not a benchmark headline — tells you whether the pipeline is accurate enough for your use.
-- **Add format and sanity checks.** Cheap, automatic guards catch a surprising share of errors: validate structure and types (e.g. with Pydantic), and check ranges and formats — a date that isn't a date, a CIK with the wrong number of digits, a negative share count.
-- **Ground high-stakes fields.** For values that really matter, have the model quote the exact source text supporting each answer, so you — or a reviewer — can check it against the document.
-- **Compare across models.** Run the same inputs through two different models and look at where they *disagree* — disagreement is a cheap flag for "this item is uncertain," pointing you to the cases worth reviewing.
+**First, decide what "agreement" means.** Pick one field from your extractions to compare — `insider_name`, say — and decide what counts as the same answer. `Smith, John` and `John Smith` are the same person written two ways; whether your code should call that agreement is your call to make, and worth making before you see the numbers.
+
+**Second, run the same filings through a second model.** Point the client at the other service and leave everything else alone — the prompt, the schema, the loop. Write the results to `results/model_b/` so you keep both sets.
 
 {: .tip }
 > **Swapping in a second model is a one-line change.** The Stanford AI API Gateway, a local model served by Ollama, and third-party APIs all speak the same OpenAI-compatible API — so running the same prompt through another model just means a different `base_url` (and `model`/`api_key`). The rest of your code is identical:
@@ -99,16 +92,6 @@ Because the model won't flag its own mistakes, you have to check correctness *ex
 > answer_b = local.chat.completions.create(model="llama3.2:1b", messages=messages)
 > answer_c = thirdparty.chat.completions.create(model="gpt-5.6", messages=messages)
 > ```
-
----
-
-## Exercise: Where Do Two Models Disagree?
-
-You already have one set of extractions — the JSON files your array job wrote in [Slurm Job Arrays](../slurm-arrays/). Now produce a second set from a different model, and count how often the two agree.
-
-**First, decide what "agreement" means.** Pick one field from your extractions to compare — `insider_name`, say — and decide what counts as the same answer. `Smith, John` and `John Smith` are the same person written two ways; whether your code should call that agreement is your call to make, and worth making before you see the numbers.
-
-**Second, run the same filings through a second model.** Point the client at the other service and leave everything else alone — the prompt, the schema, the loop. Write the results to `results/model_b/` so you keep both sets.
 
 **Third, count.** Report two numbers: how many filings the two models agreed on, and how many they didn't.
 
