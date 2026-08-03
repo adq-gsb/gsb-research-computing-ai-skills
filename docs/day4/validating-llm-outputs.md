@@ -82,8 +82,9 @@ We saw above that comparing outputs between models is a basic robustness check. 
 > )
 >
 > MODEL_A = "gemini-2.5-flash-lite"     # the model your Day 3 script used
-> MODEL_B = ...                         # pick a second one — `client.models.list()`
->                                       # shows what your key can reach, as on Day 2
+> MODEL_B = "gpt-4.1"                   # a second model, from a different lab —
+>                                       # `client.models.list()` shows everything
+>                                       # your key can reach, as on Day 2
 >
 > # same call for each — only the model name changes
 > answer_a = client.chat.completions.create(model=MODEL_A, messages=messages)
