@@ -10,6 +10,58 @@ Last updated 2026-08-02.
 
 ## ▶ Resume here
 
+### Should the merge solution on `slurm-arrays.md` be dropped?
+`docs/day4/slurm-arrays.md:278` closes Optional Practice with a
+`<summary>Solution (expand after trying)</summary>` containing a complete
+`scripts/merge_results.py`. **Part 2 of the revised Day 4 Challenge asks for
+exactly that** — combine the per-filing JSON into one CSV — and since chunking
+doesn't change the output layout (still one JSON per filing), the solution
+transfers verbatim. Part 2 is currently copy-paste for anyone who opened it.
+
+**Against dropping.** Merging isn't the interesting part of the challenge; the
+mapping problem is, and handing them the merge buys time for it. It's *optional*
+practice, so getting a head start is a reward for having done optional work, which
+is how the side quests are meant to function. And Day 4's other exercises all offer
+hints or solutions — removing this one alone breaks the pattern.
+
+**For dropping, or downgrading.** A capstone whose second deliverable is already
+written one page earlier isn't really asking for anything. The strongest middle
+option is to keep the observation and drop the code: the block's real lesson is
+that *a failed task leaves no file, so the glob silently under-counts* — which is
+why `len(df)` matters. That lesson gets sharper in the challenge, not weaker, since
+one failed task now takes several filings with it.
+
+**Recommendation:** keep the code, and instead make the challenge ask for something
+the solution doesn't give — have students report how many of the 992 filings are
+actually present, and account for any that aren't. That preserves the reward for
+optional work, keeps the merge from being the obstacle, and puts the weight on the
+diagnostic that matters once a task holds many filings. Related:
+[[the course never teaches catch-and-continue]] below.
+
+### The course never teaches catch-and-continue error handling
+`try`/`except` appears **once**, at `docs/day2/oracles-chamber.md:216`: a
+`ValidationError` is caught, logged, and then **re-raised**. That teaches catching
+an error in order to *log* it, not to survive it.
+
+Everything else about failure is architectural. `docs/day4/slurm-arrays.md:315`
+says outright that `extract_form_3_batch.py` "has no error handling, so an
+exception at filing 40 ends the script and filings 41 to 100 never run" — and uses
+that as the argument *for* job arrays, since one task per filing isolates the
+damage. The skip-if-exists exercise then makes reruns cheap. Both are good, and
+neither is `try`/`except`.
+
+**Why it matters now.** The revised Day 4 challenge has students map ~992 filings
+onto at most 512 array tasks, so a task necessarily handles several filings — which
+reintroduces exactly the blast radius arrays removed. An unhandled exception on the
+third filing of a twenty-filing chunk loses the other seventeen, and `sacct` reports
+a failed task without saying which filings are missing. A student who wraps the
+per-filing work in `try`/`except` and continues loses one filing instead.
+
+**Decide:** teach it (a few lines, and the natural home is the arrays page next to
+skip-if-exists), or leave it for students to discover when a chunk dies — the same
+call already made about skip-if-exists in the challenge. Either way it should be a
+decision, since the challenge now depends on it.
+
 ### `docs/day4/index.md` needs a pass once the Day 4 pages settle
 The day's landing page describes each room in a table, and those descriptions were
 written against earlier versions of the pages. The **Handling LLM Failure Modes**

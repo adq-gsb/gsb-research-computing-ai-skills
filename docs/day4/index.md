@@ -30,7 +30,7 @@ Any questions about Day 1–3 before we move on?
 
 ## Sections
 
-Work through the sections in order — later ones build on earlier ones, and Putting It All Together draws on everything you've learned.
+Work through the sections in order — later ones build on earlier ones, and the Day 4 Challenge draws on everything you've learned.
 
 | Section | Format | What you'll learn |
 |------|--------|-----------------|
@@ -39,5 +39,5 @@ Work through the sections in order — later ones build on earlier ones, and Put
 | [Why Run LLMs on the Yens?](why-local-llms/) | 🖊️ Concept | When to run a model yourself on the Yens vs. calling a cloud API — privacy, cost, reproducibility, and open vs. proprietary models |
 | [How to Run LLMs on the Yens](running-llms/) | 🖊️💻 Concept + Hands-on | Why LLMs need a GPU, how to request one on the Yens, and running an open model with Ollama (same code as the Playground, different `base_url`) |
 | [Handling LLM Failure Modes](validating-llm-outputs/) | 💻 Hands-on | The main ways LLMs fail — hallucination, inconsistency, a lack of guardrails — and how to make a pipeline more robust against them |
-| [Putting It All Together](putting-it-all-together/) | 🔑 Capstone | The capstone: run an array across two LLMs, compare the outputs, write a README that reruns — plus a full-stack recap of the week |
+| [Day 4 Challenge](putting-it-all-together/) | 🔑 Capstone | The capstone: run an array across two LLMs, compare the outputs, write a README that reruns — plus a full-stack recap of the week |
 | [Staying In Touch](staying-in-touch/) | 🏛️ Community | Where to get help after the bootcamp — the `#gsb-yen-users` Slack, the DARC team, and patterns to build on |

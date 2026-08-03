@@ -82,7 +82,7 @@ We saw above that comparing outputs between models is a basic robustness check. 
 > )
 >
 > MODEL_A = "gemini-2.5-flash-lite"     # the model your Day 3 script used
-> MODEL_B = "gpt-4.1"                   # a second model, from a different lab —
+> MODEL_B = "gpt-4.1"                   # a second model, e.g., from a different lab —
 >                                       # `client.models.list()` shows everything
 >                                       # your key can reach, as on Day 2
 >
@@ -125,6 +125,52 @@ for line in text.splitlines():
 </details>
 
 <label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="exercise"> Exercise complete — I ran two models over the same filings, counted the disagreements, and inspected the filing where the models disagreed</label>
+
+---
+
+## Optional Practice: Put a Guardrail on Your Agent
+
+We said above that an agentic LLM inherits whatever permissions you give it, and that some of what it can do can't be undone. **Permission rules** and **hooks** are how you draw that line.
+
+A permission rule is a pattern the agent checks before acting — say, never run `rm -f` (forced — and irreversible, as before — deletion). A hook is a script it runs at a fixed point in its own lifecycle, which can inspect the request and refuse it.
+
+Rules cover most cases; hooks are for the ones a pattern can't express — where the decision depends on something a pattern can't see, like what's inside the file or what state the repo is in.
+
+**Your task:** set up a guardrail against a command you never want run without seeing it first. A rule is enough for this; hooks are there if you want to go further.
+
+**First, make something worth protecting.** Run this at the repo root (`~/gsb-research-computing-ai-skills`):
+
+```bash
+touch important_file.txt
+```
+
+**Second, add a deny rule.** In `.claude/settings.json`, add:
+
+```json
+{
+  "permissions": {
+    "deny": ["Bash(rm -f *)"]
+  }
+}
+```
+
+Deny rules take precedence over anything that would allow the command, so this holds regardless of what else is configured.
+
+**Third, try to trip it.** Ask Claude Code to delete the file with `rm -f important_file.txt`. Does it refuse?
+
+<details markdown="1">
+<summary>Why this matters (expand after trying)</summary>
+
+You should see that Claude refused to delete the file. This is important because telling a model in prose to be careful — in a system prompt, in a `CLAUDE.md`, in the request itself — doesn't actually constrain it; it's a request the model may or may not honour, and an injected instruction can talk it out of. Hooks and permissions are the only part of the arrangement that formally binds: the command doesn't run, whatever the model thinks about it.
+
+</details>
+
+{: .note }
+> `.claude/settings.json` is committed with the project, so a hook you write there applies to everyone who works in the repo — not just you. `~/.claude/settings.json` is the same idea for every project on your account. If you want to explore further, the documentation covers [permission rules](https://code.claude.com/docs/en/settings) and [hooks](https://code.claude.com/docs/en/hooks).
+>
+> Neither mechanism is a Claude Code invention — Codex, Cursor and Gemini CLI all have hooks, with much the same lifecycle events, and each has its own way of restricting what the agent may run. The details differ; the idea transfers.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="side1"> Optional Practice complete — I set a guardrail on my agent and watched it block a command</label>
 
 ---
 

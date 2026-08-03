@@ -1,12 +1,12 @@
 ---
 layout: default
-title: "Putting It All Together"
+title: "Day 4 Challenge"
 parent: "Day 4 — Parallelization & Local LLMs"
 nav_order: 7
 permalink: /day4/putting-it-all-together/
 ---
 
-# Putting It All Together
+# Day 4 Challenge
 
 <div data-room-id="d4-capstone"></div>
 
@@ -16,33 +16,34 @@ This capstone combines everything from the week into one pipeline — all at onc
 
 ## The Challenge
 
-{: .important }
-> **Part 1 — Scale with an array job:**
-> Reuse the array script you built in [Slurm Job Arrays](../slurm-arrays/) (`--array=1-100`). Each task processes one filing and writes its result to `/scratch/users/$USER/results/filing_N.json`. After the array completes, merge all outputs into `results/extracted_filings.csv`.
->
-> **Part 2 — Swap the endpoint:**
-> Modify your array script to call **Ollama on the H200** instead of the Stanford AI API Gateway. The Ollama server must be running on `yen-gpu4` in a `screen` session before you submit the array.
->
-> **Part 3 — Compare outputs:**
-> Run the same 5 filings through both the Playground (`gpt-4o-mini`) and Ollama (your chosen model). Save the results side-by-side in `results/comparison.csv` with columns: `filename`, `playground_name`, `ollama_name`, `playground_role`, `ollama_role`.
->
-> **Part 4 — Commit your README:**
-> Ensure `README.md` describes the full pipeline: array job, both endpoints, how to rerun.
->
-> **Submit:**
-> ```bash
-> git add results/extracted_filings.csv results/comparison.csv README.md
-> git commit -m "Capstone complete"
-> git push
-> ```
+**1. Process *every* filing with a job array.**
+In [Slurm Job Arrays](../slurm-arrays/) you ran 100 filings through an array, one filing per task. Now do all of them: `data/aws_links.csv` lists **992**.
+
+Keep using `gemini-2.5-flash-lite` through the Stanford AI API Gateway, and build on the `scripts/extract_array.py` and `slurm/extract_array.slurm` you already wrote.
+
+The catch is that the Yens cap a job array at **512 tasks** — see for yourself:
+
+```bash
+scontrol show config | grep -i MaxArraySize
+```
+
+So one filing per task is no longer available to you. Deciding how many tasks to ask for, and how to divide 992 filings among them, is the challenge.
 
 {: .tip }
-> **New to `screen`?** It keeps a process running on a node after you disconnect — so the Ollama server stays up while your array job runs. Start a session with `screen -S ollama`, launch the server inside it, then press `Ctrl-A` then `D` to detach and leave it running (`screen -r ollama` reattaches). Full guide: [rcpedia — `screen`](https://rcpedia.stanford.edu/_user_guide/screen/).
+> Claude Code may be helpful here — ask it to lay out different strategies for dividing the filings and assigning them to tasks, and what each one trades off.
 
-{: .tip }
-> The Ollama base URL from JupyterHub is `http://localhost:11434/v1` — but only if Ollama is serving on the same node. If you're on a different node than `yen-gpu4`, the URL needs to point to `yen-gpu4` explicitly. Ask the instructor for the correct URL for your setup.
+**This is a good example of what scaling up to a real-world workload looks like: the approach that worked on a small run stops fitting, and you have to adapt it to the constraints of the machine.**
 
-<label class="quest-check"><input type="checkbox" data-room="d4-capstone" data-key="commit"> Committed and pushed all capstone deliverables</label>
+**2. Document it.**
+Keep adding to the same `README.md` you've been building since Day 1 — the one you wrote up for your pipeline in [Documenting Your Pipeline](../../day3/documenting-pipeline/). It should describe the latest state of the pipeline.
+
+**3. Commit and push from the Yens.**
+
+Ask Claude Code to handle it:
+
+> Add and commit my array script and my README changes — not the extracted data — with a message like "Day 4 Challenge: all 992 filings", then push to my fork.
+
+<label class="quest-check"><input type="checkbox" data-room="d4-capstone" data-key="commit"> Completed the deliverables and pushed to GitHub</label>
 
 ---
 
@@ -64,21 +65,21 @@ Every row in this table is a tool you used this week and where you learned it �
 | Fault tolerance | Skip work already done on rerun | Day 4 — Slurm Job Arrays |
 | GPU computing | GPU via `--gres=gpu:1` | Day 4 — How to Run LLMs on the Yens |
 | Local LLMs | Ollama on cluster hardware | Day 4 — How to Run LLMs on the Yens |
-| Handling failures | Validation + guardrails | Day 4 — Handling LLM Failure Modes |
+| Handling failures | Validation + comparing across models | Day 4 — Handling LLM Failure Modes |
 
 ---
 
-## 📊 Final Sync
+## Final Sync
 
-This is the last sync — make it count. Go back through Day 4 and check any quests you finished but didn't tick, then run the `./cast` spell from the **🔮 Cast to the leaderboard** button on the last one you checked — each spell carries your running total, so the most recent cast is the one that counts.
+This is the last sync — make it count. Go back through Day 4 and check any quests you finished but didn't tick, then run the `./cast` spell from the **Cast to the leaderboard** button on the last one you checked — each spell carries your running total, so the most recent cast is the one that counts.
 
 The leaderboard updates within a couple of minutes — this is your final rank.
 
 ---
 
 {: .important }
-> **All four days complete.**
+> **That's all four days.**
 >
-> Check the leaderboard to see how many optional exercises you completed and where you rank.
+> Check the leaderboard to see where you finished.
 >
-> But note that there's still more to learn: Sherlock (Stanford's HPC), Redivis (data platform), fine-tuning, multi-node jobs, and whatever your research demands. This week was just the foundation.
+> Plenty is left over: [Sherlock](https://www.sherlock.stanford.edu/) and [Marlowe](https://docs.marlowe.stanford.edu/), two of [Stanford's other compute clusters](https://srcc.stanford.edu/systems/clusters); [Redivis](https://rcpedia.stanford.edu/_user_guide/redivis/), the platform behind Stanford's [Data Farm](https://stanford.redivis.com/); LLM fine-tuning; multi-node jobs. Which of those matter will depend on what your research needs.
