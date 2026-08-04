@@ -135,7 +135,7 @@ Claude Code always works with your permission — you choose how much it checks 
 
 Claude doesn't read letter by letter or word by word — it reads in **tokens**. A token is a chunk of text: very roughly **¾ of a word**, or about **4 characters**. "Repository" is a couple of tokens; a full page of prose is around 500.
 
-Everything is counted this way — the text you send *and* the text Claude sends back. Tokens matter for two reasons: they are **how much Claude can hold at once** (see *Context*, next), and they are **how paid AI services charge** — a fixed price per token. You won't pay by hand inside Claude Code, but the API calls you'll write on Day 2 are billed in exactly these tokens, so "send fewer tokens" comes to mean "spend less."
+Everything is counted this way — the text you send *and* the text Claude sends back. Tokens matter for two reasons: they are **how much Claude can hold at once** (see *Context*, next), and they are **how paid AI services charge** — a fixed price per token.
 
 *Type `/cost` any time to see how many tokens the current session has used.*
 
@@ -208,9 +208,6 @@ ssh SUNetID@yen.stanford.edu
 ```bash
 ml claude-code
 ```
-
-{: .note }
-> If `ml claude-code` can't find the module, ask an instructor for the exact name — the module list changes over time.
 
 {: .note }
 > **Already have Claude Code on the Yens?** Some people arrive with their own install, or signed in with a personal (non-Stanford) account. Run `which claude` — if it points somewhere other than the module, **grab an instructor** rather than untangling it yourself. We'll get you switched over to the module and your Stanford login, so your usage runs under Stanford's terms.
