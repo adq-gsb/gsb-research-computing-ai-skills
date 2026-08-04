@@ -131,7 +131,7 @@ Two very different jobs hide behind "using AI," and they carry different risks.
 | 🟡 **Moderate** | Unpublished research, FERPA records, DUA-covered data | ✅ | ✅ | ❌ unless approved |
 | 🔴 **High (incl. PHI)** | SSNs, account numbers, health records, credentials | ✅† | ❌* | ❌ |
 
-<small>*<strong>The Yens are approved for Low and Moderate risk data, not High.</strong> Running the model locally keeps your data on the machine, but that only helps if the data is allowed on that machine in the first place — and High Risk data isn't allowed on the Yens at all. High Risk work belongs on a system cleared for it, which at Stanford means <a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">Nero</a> rather than the Yens; sort that out before you copy anything anywhere.</small><br>
+<small>*<strong>The Yens are approved for Low and Moderate risk data, not High.</strong> Running the model locally keeps your data on the machine, but that only helps if the data is allowed on that machine in the first place — and High Risk data isn't allowed on the Yens at all. High Risk work belongs on a system cleared for it, which at Stanford means <a href="https://docs.carina.stanford.edu/" target="_blank" rel="noopener noreferrer">Carina</a> (on-premises, Slurm-based) or <a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">Nero GCP</a> (secure Google Cloud) rather than the Yens; sort that out before you copy anything anywhere.</small><br>
 <small>†API Gateway only. The **Playground chat window** runs under the same Stanford contract but stops short of PHI, so when PHI is involved reach for the API, not the chat box.</small>
 
 {: .warning }

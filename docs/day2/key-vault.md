@@ -46,10 +46,13 @@ client = OpenAI(
 )
 ```
 
-Ask yourself:
-- Where does this script go next? (A `git push`. A Slack message. A Claude Code chat window you paste code into for help.)
-- If you delete that `api_key` line in your next commit, is the key actually gone?
-- If a labmate wants to run your script with their own key, what do they have to edit in your code?
+Ask yourself three questions:
+
+**1. Where does this file go from here?** Almost nothing stays on one machine. This script gets pushed to GitHub, pasted into Slack when you ask a colleague why it's failing, dropped into a Claude Code window for help debugging, copied into a notebook, attached to an email. **The key is inside the file, so it travels everywhere the file travels** — and you stop being able to name everyone who has a copy.
+
+**2. If you delete that line tomorrow, is the key gone?** Not if you already committed it. Git keeps your history on purpose, so the key sits in that old commit for anyone who looks. Deleting it going forward hides it from the current version of the file and from nobody else.
+
+**3. What does a labmate have to change to run this with their own key?** Your source code. They have to edit your program to use their credential, which means the key isn't configuration — it's tangled into the logic, and now there are two slightly different copies of your script in the world.
 
 Every one of those questions should worry you a little. That's the whole reason `.env` files exist: the secret lives in one file, off to the side, that never gets committed, shared, or pasted anywhere. Your code asks for the key by name at runtime. It never contains the key itself.
 
