@@ -331,8 +331,6 @@ Your code plus a recorded environment produces the same result for anyone, on an
 > ```
 > Then open **`the_alchemists_lab.ipynb`** in JupyterHub, choose the **"Potion Brawl (venv)"** kernel, and *Kernel → Restart & Run All*.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="side1"> Rebuilt and ran Potion Brawl</label>
-
 <label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="main"> Main Quest complete</label>
 
 ---

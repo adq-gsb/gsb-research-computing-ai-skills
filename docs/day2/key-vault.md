@@ -72,27 +72,23 @@ You'll see something like:
 STANFORD_API_KEY=sk-stanford-...
 ```
 
-Do not copy this file anywhere public. Do not commit it to git. You are about to load it safely.
+That file is **shared** — every one of you is looking at the same copy, so leave it exactly as it is. You're about to take your own copy and load it safely.
 
 ---
 
-### Step 3: Create Your Own `.env`
+### Step 3: Copy the Key into Your Repo
 
-Put it at the **root of your repo** — one `.env` for the whole project, found by everything you run this week:
+Your copy goes at the **root of your repo** — one `.env` for the whole project, found by everything you run this week:
 
 ```bash
 cd ~/gsb-research-computing-ai-skills
-touch .env
+cp /scratch/shared/gsb-research-computing-ai-skills/.env .env
 ```
+
+Copy it rather than retyping it. An API key is 40-odd characters of deliberate gibberish, and a single transposed one gives you a `401 Unauthorized` two rooms from now that looks like a broken pipeline rather than a typo. `cp` cannot misread a character.
 
 {: .note }
 > 💡 **Why the root, and not `day2/`?** One key, one place. Notebooks in `day2/`, the scripts you'll run from the repo root in [The Oracle's Chamber](../oracles-chamber/), and the cluster jobs on Day 3 all need this same key. Keeping a copy per folder means keeping a secret in several places at once, and forgetting where they all are. Your `.gitignore` covers `.env` anywhere in the repo, so the root is both the most convenient spot and a safe one.
-
-Open `.env` and add the key you saw above:
-
-```
-STANFORD_API_KEY=sk-stanford-...
-```
 
 <details markdown="1">
 <summary>Reminder: Confirm It Worked (click to reveal)</summary>
@@ -103,15 +99,23 @@ Files that start with a dot are hidden by default from a plain `ls`. This is the
 ls -a
 ```
 
-You should see `.env` in the list. Now check the contents actually saved:
+You should see `.env` in the list. Now check the copy actually landed:
 
 ```bash
 cat .env
 ```
 
-You should see your key line: `STANFORD_API_KEY=...`. If the file is missing or empty, check `pwd` to confirm you're in `~/gsb-research-computing-ai-skills` (the repo root, not `day2/`), then redo Step 3.
+You should see the key line: `STANFORD_API_KEY=...`. If the file is missing or empty, check `pwd` to confirm you're in `~/gsb-research-computing-ai-skills` (the repo root, not `day2/`), then redo the `cp`.
 
 </details>
+
+{: .note }
+> 💡 **You now hold a copy of a shared secret**, which is the ordinary situation in a lab: one credential, several people, and each of you responsible for your own copy of it. Your copy is yours to protect. If it leaks, it isn't only your budget that gets revoked — it's everyone's, because it's the same key.
+
+{: .note }
+> 🟢 **Green sticky** = `.env` sits at my repo root and `cat .env` shows the `STANFORD_API_KEY=` line &nbsp;&nbsp; 🔴 **Red sticky** = the `cp` failed, or `.env` is missing or empty
+>
+> Put a sticky note on your laptop lid so instructors can see where you are.
 
 ---
 

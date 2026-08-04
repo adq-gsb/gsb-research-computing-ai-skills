@@ -61,6 +61,25 @@ print(completion.choices[0].message.content)
 
 If you see a response, the API is working.
 
+{: .note }
+> 🟢 **Green sticky** = the model replied, so my key, my `base_url`, and my kernel are all working &nbsp;&nbsp; 🔴 **Red sticky** = I got an error instead of a reply
+>
+> Put a sticky note on your laptop lid so instructors can see where you are.
+
+<details markdown="1">
+<summary>💡 Got an error? Read which one — click to reveal</summary>
+
+This is the first cell all week that talks to the outside world, so it's the first one that can fail for a reason other than your code. The error name tells you which piece to look at:
+
+| What you see | What it means |
+|---|---|
+| `KeyError: 'STANFORD_API_KEY'` | `load_dotenv` didn't find the file. You're in `day2/`, so the path is `"../.env"` — check `pwd` in a terminal and that [The Key Vault](../key-vault/)'s `cp` actually landed. |
+| `ModuleNotFoundError` | Wrong kernel. Check the top-right of the notebook says **GSB AI 2026**, not **Python 3**. |
+| `401` / `AuthenticationError` | The key loaded but the gateway rejected it. Re-copy it from `/scratch/shared/gsb-research-computing-ai-skills/.env` rather than retyping. |
+| `404` / `NotFoundError` | The `base_url` or the model id is off. The URL ends in `/v1`, and the model list is a side quest at the bottom of this room. |
+
+</details>
+
 ---
 
 ### Step 3: Load and Inspect a SEC Filing
