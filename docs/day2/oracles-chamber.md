@@ -455,18 +455,20 @@ All three get it right, in about the same number of words. Here's what they char
 
 | Model | Prompt tokens | **Completion tokens** | `reasoning_tokens` reported |
 |---|---|---|---|
-| `gemini-2.5-flash-lite` | 21 | **37** | not reported |
-| `o3-mini` | 26 | **112** | **64** |
-| `deepseek-r1` | 25 | **688** | not reported |
+| `gemini-2.5-flash-lite` | 21 | **27** | not reported |
+| `o3-mini` | 26 | **236** | **192** |
+| `deepseek-r1` | 24 | **595** | not reported |
 
-Read that middle column, because it's the one you pay. Same question, same answer, and `deepseek-r1` billed **18× more output** than `gemini-2.5-flash-lite` for two sentences.
+Read that middle column, because it's the one you pay. Same question, same answer, and `deepseek-r1` billed **22× more output** than `gemini-2.5-flash-lite` for two sentences.
 
 The two reasoning models expose that differently, and both cases are worth seeing:
 
-- **`o3-mini` tells you.** Its `completion_tokens_details` reports `reasoning_tokens=64`, so of the 112 output tokens you were billed for, **57% was thinking you never saw**.
-- **`deepseek-r1` doesn't.** It returns `completion_tokens_details=None`, so there's no breakdown at all. The only evidence is the size of the gap: 688 output tokens for a reply you can read in five seconds.
+- **`o3-mini` tells you.** Its `completion_tokens_details` reports `reasoning_tokens=192`, so of the 236 output tokens you were billed for, **81% was thinking you never saw**. Only about 44 tokens were the answer.
+- **`deepseek-r1` doesn't.** It returns `completion_tokens_details=None`, so the gateway gives you no breakdown at all.
 
-That's why the instruction is to print the whole `usage` object instead of reaching for one field. Whether the split is reported is a property of the model and the gateway, not something to assume. `completion_tokens` is always there, and it's always what you're charged.
+**But "not reported" doesn't mean "didn't happen" — and you can do the subtraction yourself.** `deepseek-r1`'s visible reply is about forty words, call it **47 tokens**, against **595** billed. So roughly **548 tokens of reasoning** happened and simply weren't itemized. That arithmetic — *what I was charged, minus what I can actually read* — is your fallback whenever `completion_tokens_details` comes back `None`, and it works on any model.
+
+That's why the instruction is to print the whole `usage` object instead of reaching for one field. Whether the split is *reported* is a property of the model and the gateway; whether the reasoning *was billed* is not up for debate. `completion_tokens` is always there, and it's always what you're charged.
 
 {: .note }
 > 💡 Not every id is guaranteed to be enabled, which is why the loop catches errors instead of crashing. Run the *List the Available Models* quest above to see what your key can actually reach, and swap in any reasoning model you find (`o1`, or a `gpt-5` variant).
