@@ -8,6 +8,8 @@ permalink: /day2/boss-gate-2/
 
 # Boss Gate 2
 
+<img src="{{ '/assets/images/day2-boss-gate.png' | relative_url }}" alt="An illustration titled Boss Gate 2, The Genre Tribunal: scale a research judgment call with LLM-as-a-judge, then route the contested cases to a human. A cloaked figure stands in a vaulted hall before three lit panels. On the left, First Call: Classify — an LLM reads the overview and predicts a genre, shown as a ranked list of candidate genres with scores. In the centre, above a hooded judge on a throne, LLM-as-a-Judge — a second call in which the judge evaluates and rules, agree, disagree, or unsure — with a Judge Reasoning panel below giving a sample rationale. On the right, Judgment — the judge's verdict compared against the rules, with Agree ticked, Disagree crossed, and Unsure marked with a question mark. A banner above reads: route contested cases to a human when the stakes are high, and a scribe at a desk to the right is labelled Human Review, for contested cases a human makes the final call. Two open pages at the bottom show the input and the codebook: a Movie Overview blurb on the left, and Genre Guidelines on the right defining Action, Adventure, Drama, Sci-Fi, and Fantasy. Flasks in the foreground are labelled prompt, rules, features and eval, rules, thresholds." style="display:block;width:100%;max-width:900px;height:auto;margin:1.5rem auto">
+
 ---
 
 ## The Challenge: The Genre Tribunal
