@@ -308,13 +308,16 @@ claude
 
 That `cd` matters for the same reason it did in Step 1: Claude Code works from the folder you start it in. Launch it from your home directory and it can't see a notebook that lives in your repo.
 
-Then describe the plot you want — no matplotlib to memorise, just say it:
+Then describe the plot you want — no matplotlib to memorise, just say it.
 
-```text
-> Make the plot in plotting.ipynb as exciting as you can — bold colours, several
-> lines, a dramatic title, annotations, gridlines, whatever looks great. Then leave
-> the notebook so I can re-run it.
-```
+<details markdown="1">
+<summary>💡 Hint — what to ask Claude</summary>
+
+You don't need a fancy prompt. Say what you want and let it work:
+
+> Make the plot in plotting.ipynb as exciting as you can — bold colours, several lines, a dramatic title, annotations, gridlines, whatever looks great. Then leave the notebook so I can re-run it.
+
+</details>
 
 {: .tip }
 > 🎛️ **Two dials worth setting deliberately** — both from [Day 1](../../day1/familiars-den/), both relevant right here.

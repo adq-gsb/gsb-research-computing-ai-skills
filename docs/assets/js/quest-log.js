@@ -47,7 +47,7 @@
       prefix: 'd2',
       rooms: [
         { id: 'd2-arcane-notebook',          keys: ['path', 'main', 'side1', 'side2'] },
-        { id: 'd2-venv-forge',               keys: ['main', 'side1', 'side2', 'side3'] },
+        { id: 'd2-venv-forge',               keys: ['main', 'side2', 'side3'] },
         { id: 'd2-stanford-ai-playground',   keys: ['main', 'side1', 'side2', 'side3'] },
         { id: 'd2-key-vault',                keys: ['main', 'side1'] },
         { id: 'd2-oracles-chamber',          keys: ['main', 'side1', 'side2', 'side3', 'side4'] },
