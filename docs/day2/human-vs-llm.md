@@ -279,9 +279,7 @@ Models such as `o1`, `o3-mini`, `deepseek-r1`, and the `gpt-5` family reason int
   <text x="500" y="296" text-anchor="middle" font-size="12.5" fill="#8a94a6">deepseek-r1 reported no breakdown — but its visible reply is ~47 tokens, so the other ~548 went somewhere.</text>
 </svg>
 
-**Note what the dashed bar is doing.** `deepseek-r1` returned `completion_tokens_details=None`, so the gateway told you nothing about the split — but you can still work it out. The reply is about forty words, call it 47 tokens, and you were billed for 595. The missing ~548 didn't evaporate; the model reasoned and simply didn't report it. **"Not reported" never means "didn't happen"** — subtract the reply you can see from `completion_tokens` and the hidden cost is right there.
-
-Nothing is broken here; that's how the models work. The trap is reading cost off the length of the reply, so read `usage` instead — the *Pay for Thinking You Never See* side quest in [The Oracle's Chamber](../oracles-chamber/) has you do it.
+Nothing is broken here; that's how these models work. The trap is reading cost off the length of the reply, so read `usage` instead. If you want to watch it happen on a live call, the *Pay for Thinking You Never See* side quest in [The Oracle's Chamber](../oracles-chamber/) runs exactly this comparison.
 
 {: .note }
 > **Class discussion:** You budget a 10,000-filing run by timing 10 filings and multiplying. What could make the real bill come in far higher? (Think: a longer filing, a model swap, a retry loop, a reasoning model.) Which of those would you catch before spending the money, and how? Now ask the same question about a semester of Claude Code use, where the failure isn't an invoice but running out of allowance the week before a deadline.
