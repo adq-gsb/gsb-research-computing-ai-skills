@@ -150,7 +150,7 @@ Here's what each one is for, and where you'll meet it:
 | `openai` | Calling the Stanford AI API Gateway | The Oracle's Chamber, today |
 | `python-dotenv` | Loading your API key from `.env` | The Key Vault, today |
 | `pydantic` | Validating the model's output against a schema | The Oracle's Chamber, today |
-| `pandas` | Tabular data (`numpy` rides along with it) | Boss Gate 2, then Day 3 |
+| `pandas` | Tabular data (`numpy` rides along with it) | the Day 2 Challenge, then Day 3 |
 | `requests` | Downloading filings over HTTP | Day 3's batch extraction |
 | `ipykernel` | Registering this venv as a JupyterHub kernel | Step 4, next |
 | `jupyter` | The notebook machinery itself | Throughout |
