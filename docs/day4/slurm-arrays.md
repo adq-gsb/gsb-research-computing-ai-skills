@@ -171,7 +171,9 @@ That `- 1` is the off-by-one from the warning above: the tasks count from 1, the
 <details markdown="1">
 <summary>💡 Hint — the extraction code, ready to copy</summary>
 
-This is the script you wrote on Day 2, `scripts/extract_form_3_one_file.py`, with one change: it fetches the filing over the network rather than reading a fixed path off disk, since step 1 gives you a URL.
+This is the script you wrote on Day 2, `scripts/extract_form_3_one_file.py`, with two changes.
+
+It fetches the filing over the network rather than reading a fixed path off disk, since step 1 gives you a URL. And it calls `gemini-2.5-flash-lite` rather than the `gpt-5.2`. Day 2's rule was *iterate cheap, then spend where it counts*. Here the arithmetic flips: the same call runs a hundred times, and cost and speed are now the thing you're managing. You get the rougher model in exchange, and handling that is part of the rest of today's work.
 
 ```python
 import json
