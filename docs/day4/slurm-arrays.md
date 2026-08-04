@@ -120,6 +120,9 @@ Now over to you. Your job is the following: process and extract information from
 
 You'll end up with two files: a new Python script that handles a single filing, and a Slurm script to launch it as an array — either a new one, or the `slurm/extract_form_3_batch.slurm` you wrote on Day 3, adapted.
 
+{: .note }
+> **Use `gemini-2.5-flash-lite` here, not Day 2's `gpt-5.2`.** Day 2's rule was *iterate cheap, then spend where it counts*. Here the arithmetic flips: the same call runs a hundred times, and cost and speed are now the thing you're managing. You get the rougher model in exchange, and handling that is part of the rest of today's work.
+
 Work through it in four steps.
 
 **1. Figure out how to associate each task with a filing.**
@@ -173,7 +176,7 @@ That `- 1` is the off-by-one from the warning above: the tasks count from 1, the
 
 This is the script you wrote on Day 2, `scripts/extract_form_3_one_file.py`, with two changes.
 
-It fetches the filing over the network rather than reading a fixed path off disk, since step 1 gives you a URL. And it calls `gemini-2.5-flash-lite` rather than the `gpt-5.2`. Day 2's rule was *iterate cheap, then spend where it counts*. Here the arithmetic flips: the same call runs a hundred times, and cost and speed are now the thing you're managing. You get the rougher model in exchange, and handling that is part of the rest of today's work.
+It fetches the filing over the network rather than reading a fixed path off disk, since step 1 gives you a URL. And it calls `gemini-2.5-flash-lite` rather than the `gpt-5.2`.
 
 ```python
 import json
