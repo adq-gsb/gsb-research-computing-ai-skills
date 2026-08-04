@@ -54,7 +54,8 @@ Every system you touch is itself approved up to some maximum risk level, and tha
 |----------------------|----------------|
 | **<a href="https://rcpedia.stanford.edu/_policies/security/?h=high+risk#data-risk" target="_blank" rel="noopener noreferrer">The Yens</a>** (GSB research computing) | 🟡 Moderate |
 | **<a href="https://www.sherlock.stanford.edu/docs/concepts/" target="_blank" rel="noopener noreferrer">Sherlock</a>** (Stanford's shared HPC cluster) | 🟡 Moderate |
-| **<a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">Nero</a>** (secure computing for regulated data) | 🔴 High, **including** PHI |
+| **<a href="https://docs.carina.stanford.edu/" target="_blank" rel="noopener noreferrer">Carina</a>** (secure on-prem cluster for regulated data) | 🔴 High, **including** PHI |
+| **<a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">Nero GCP</a>** (secure cloud platform for regulated data) | 🔴 High, **including** PHI |
 | **AI Playground** (chat window) | 🔴 High, but **not** PHI |
 | **AI API Gateway** (from your code) | 🔴 High, **including** PHI |
 | A personal laptop or consumer AI account | 🟢 Low |
@@ -62,7 +63,9 @@ Every system you touch is itself approved up to some maximum risk level, and tha
 So "can I analyze this data with AI?" is really three questions: *what risk level is the data*, *what does my DUA allow*, and *what is this machine cleared to hold*. High-risk data on the Yens fails the third test even when the first two are satisfied.
 
 {: .note }
-> 💡 **Know which machine to reach for.** The Yens are your home for this course and for most GSB research; their data-risk policy is spelled out in <a href="https://rcpedia.stanford.edu/_policies/security/?h=high+risk#data-risk" target="_blank" rel="noopener noreferrer">RCpedia</a>. <a href="https://www.sherlock.stanford.edu/docs/concepts/" target="_blank" rel="noopener noreferrer">**Sherlock**</a> is Stanford's shared HPC cluster, where you go when a job outgrows the Yens. <a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">**Nero**</a> is the secure platform for regulated data, and it is where High-Risk work belongs, including anything involving PHI. Sort that out *before* you copy a single file, because the moment restricted data lands on a system that isn't cleared for it, the problem already exists.
+> 💡 **Know which machine to reach for.** The Yens are your home for this course and for most GSB research; their data-risk policy is spelled out in <a href="https://rcpedia.stanford.edu/_policies/security/?h=high+risk#data-risk" target="_blank" rel="noopener noreferrer">RCpedia</a>. <a href="https://www.sherlock.stanford.edu/docs/concepts/" target="_blank" rel="noopener noreferrer">**Sherlock**</a> is Stanford's shared HPC cluster, where you go when a job outgrows the Yens — still Moderate, so it is not the answer to a High-Risk problem.
+>
+> High-Risk work, including anything involving PHI, belongs on a platform built for it, and Stanford runs **two**: <a href="https://docs.carina.stanford.edu/" target="_blank" rel="noopener noreferrer">**Carina**</a> is the on-premises option, run by Stanford Research Computing with the School of Medicine, and it is **Slurm-based** — so the job scripts you write on Day 3 transfer almost unchanged. <a href="https://nero-docs.stanford.edu/" target="_blank" rel="noopener noreferrer">**Nero GCP**</a> is the cloud option, the same idea built on Google Cloud. Both need a PI-led team and go through Stanford's Data Risk Assessment, so neither is something you spin up on a Tuesday afternoon. Sort that out *before* you copy a single file, because the moment restricted data lands on a system that isn't cleared for it, the problem already exists.
 
 You satisfy all three (Stanford's classification, your DUA, and the ceiling of the system you're on) so both you and Stanford stay protected.
 
