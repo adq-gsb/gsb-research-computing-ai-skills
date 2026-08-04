@@ -149,6 +149,24 @@ Live pace is **main-quest-focused** (side quests are the buffer for students who
 - Human vs. LLM: when to trust results at scale, how to validate *(discussion)*
 - Reproducibility: README as the deliverable that makes a pipeline rerunnable
 
+### Timing (9 am–12 pm — 3 hours incl. two 10-min breaks; ~160 min teaching)
+
+Two hands-on blocks carry the day — the array exercise and the Challenge — at 35 min each. The two LLM concept pages are brisk; Failure Modes gets 30 because it opens with a discussion the room supplies. Breaks fall after the array exercise (9:55) and after Failure Modes (11:10), splitting the morning into ~55 / 65 / 40-min blocks.
+
+| Section | Quests | Time |
+|---|---|---|
+| Parallelization Basics (concepts, plus three worked examples for discussion) | 2 | 20 min |
+| Slurm Job Arrays (write and submit an array; watch it in `squeue`; make a task safe to rerun) | 4 | 35 min |
+| ☕ **Break** | — | 10 min |
+| Why Run LLMs on the Yens? (local vs. Gateway vs. third-party; open vs. proprietary weights) | 1 | 10 min |
+| How to Run LLMs on the Yens (query the shared server; GPU vs. CPU timing demo; GPU tiers and `srun --pty`) | 3 | 25 min |
+| Handling LLM Failure Modes (crowdsource failure modes, then run two models over the same filings and compare) | 2 | 30 min |
+| ☕ **Break** | — | 10 min |
+| Day 4 Challenge (all 992 filings through an array, against a 512-task cap) | 1 | 35 min |
+| Staying In Touch (Slack, DARC email, where to go next) | — | 5 min |
+
+*If students finish the Challenge early: sync to climb the leaderboard, and go back for the optional practice on job arrays and on agent guardrails.*
+
 ### Main quests
 
 | # | Main quest |

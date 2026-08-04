@@ -419,3 +419,18 @@ code.quest-cmd.cast-flash::before {
 }
 .main-content details[open] > summary::before { transform: rotate(90deg); }
 .main-content details[open] { padding: 0 0.9rem 0.9rem; }  /* ...so only the content is inset */
+
+/* ── Aside callout ────────────────────────────────────────────────────────
+   Declared as grey-dk in _config.yml because the theme's callout SCSS needs a
+   $<color>-300 variable to exist, and grey-lt's is #e6e1e8 — invisible as a
+   title on white. That leaves it identical to the Demo box, so recolour it
+   here: an aside is tangential, and should read quieter than the page around
+   it rather than competing with the callouts that carry instructions. */
+.main-content blockquote.aside,
+.main-content p.aside {
+  border-color: #dcdfe5;
+  border-left-color: #6a7280;    /* the same muted grey as the SVG labels */
+  background: #fafbfc;
+}
+.main-content blockquote.aside::before,
+.main-content p.aside::before { color: #6a7280; }

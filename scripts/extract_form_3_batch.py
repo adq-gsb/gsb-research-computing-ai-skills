@@ -48,6 +48,7 @@ Extract the following fields:
 - filing_date: The filing date (prefer signatureDate or FILED AS OF DATE).
 
 Return valid JSON matching the schema exactly.
+Return a SINGLE JSON object, not a list. Do not wrap it in an array.
 """
 
 df = pd.read_csv(CSV_PATH)
@@ -69,7 +70,8 @@ for idx, filing_url in enumerate(urls, 1):
     filing_text = response.text
 
     api_response = client.chat.completions.create(
-        model="gpt-5.2",
+        # Day 2's model. Temporary: this key can't reach gpt-4o-mini.
+        model="gemini-2.5-flash-lite",
         response_format={"type": "json_object"},
         messages=[
             {"role": "system", "content": system_prompt},

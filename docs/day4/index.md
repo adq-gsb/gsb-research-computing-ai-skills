@@ -1,31 +1,41 @@
 ---
 layout: floor
-title: "Day 4 — The GPU Fortress"
+title: "Day 4 — Parallelization & Local LLMs"
 nav_order: 4
 has_children: true
+has_toc: false
 permalink: /day4/
 floor: 4
 ---
 
-# Day 4 — The GPU Fortress
+# Day 4 — Parallelization & Local LLMs
 
-*You've reached the top floor — and the dungeon shakes. The walls are lined with tensor cores stacked floor to ceiling; the air crackles with heat and possibility. Somewhere behind that door, a 140-billion-parameter model is waiting to be summoned on hardware you are about to command. Today you claim the fortress: running your first GPU job, conjuring a local LLM from bare metal, and learning to wield these weapons without burning down the kingdom — your data, your collaborators, your research.*
+Day 4 scales yesterday's single Slurm job into a full research pipeline. You'll fan one script across many filings at once with **job arrays**, then meet **local LLMs** — models you run on the cluster yourself rather than calling over the internet — and see what it takes to serve one. From there, the ways LLMs fail, and what to do about them. The **Day 4 Challenge** closes the day, and the course, by pushing the array from a hundred filings to all of them.
 
-**Levels:** 9–10
+**Duration:** ~3 hours
 
 ---
 
-## 🗡️ Rooms
+## Day 3 Recap
 
-Six chambers stand between you and the capstone. Each one unlocks a different weapon in your GPU arsenal.
+- Profiled the extraction script to measure its real time and memory needs
+- Wrote and submitted `slurm/extract_form_3_one_file.slurm` as a batch job, with `#SBATCH` directives grounded in those measurements
+- Monitored the job with `squeue` and `sacct`, and documented the pipeline in `README.md`
 
-| Room | Format | What you master |
+Any questions about Day 1–3 before we move on?
+
+---
+
+## Sections
+
+Work through the sections in order — later ones build on earlier ones, and the Day 4 Challenge draws on everything you've learned.
+
+| Section | Format | What you'll learn |
 |------|--------|-----------------|
-| [The Array Cavern](array-cavern/) | 💻 Hands-on | Fan out your script across 100 filings in parallel; collect all results into one CSV |
-| [The Armory](armory/) | 🖊️ Concept | Pick the right GPU for the fight — A30, A40, and H200 compared |
-| [The H200 Chamber](h200-chamber/) | 💻 Hands-on | Submit a live GPU job and understand how memory dictates model size |
-| [The Summoning Circle](summoning-circle/) | 💻 Hands-on | Conjure a local LLM on cluster hardware using Ollama |
-| [The Engine Room](engine-room/) | 💬 Concept | Local vs cloud — Ollama on Yens, Stanford AI Playground, and third-party APIs compared |
-| [The Trap Garden](trap-garden/) | 💬 Discussion | Spot LLM agent failure modes before they blow up your pipeline |
-| [Boss Gate 4](boss-gate-4/) | 🔑 Capstone | Full stack: SLURM → GPU → local LLM → documented |
-| [The Research Guild](research-guild/) | 🏛️ Community | Getting help, Slack channel, and staying connected after the course |
+| [Parallelization Basics](parallelization/) | 🖊️ Concept | What it means to run work in parallel, when it helps, and the three ways to split a job — across cores, across jobs, or both |
+| [Slurm Job Arrays](slurm-arrays/) | 🖊️💻 Concept + Hands-on | One script, many tasks: `--array`, `SLURM_ARRAY_TASK_ID`, and making a task safe to rerun so a partial failure costs you only what failed |
+| [Why Run LLMs on the Yens?](why-local-llms/) | 🖊️ Concept | When to run a model yourself on the Yens vs. calling a cloud API — privacy, cost, reproducibility, and open vs. proprietary models |
+| [How to Run LLMs on the Yens](running-llms/) | 🖊️💻 Concept + Hands-on | The three steps — loading a model, serving it, querying it — then querying a shared server yourself, and seeing the same model answer on a GPU and on a CPU |
+| [Handling LLM Failure Modes](validating-llm-outputs/) | 💻 Hands-on | The main ways LLMs fail — hallucination, inconsistency, a lack of guardrails — and how to make a pipeline more robust against them |
+| [Day 4 Challenge](putting-it-all-together/) | 🔑 Capstone | Process every filing in the dataset with an array job — more filings than the scheduler allows tasks, so the mapping is yours to work out |
+| [Staying In Touch](staying-in-touch/) | 🏛️ Community | Where to get help after the course — the `#gsb-yen-users` Slack, the DARC team, and patterns to build on |
