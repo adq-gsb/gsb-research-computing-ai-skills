@@ -10,7 +10,7 @@ permalink: /day2/venv-forge/
 
 <div data-room-id="d2-venv-forge"></div>
 
-A virtual environment is a sealed Python of your own: its own interpreter and its own installed packages, isolated so one project's dependencies never collide with another's. You'll forge one with `python3 -m venv`, then **activate** it — which simply prepends its `bin/` to your `$PATH`, the same trick `module load` played in The Path — install the packages this bootcamp needs, and register it as a named **kernel** so JupyterHub notebooks can use it. Finally you'll capture the whole environment as a `requirements.txt` recipe: the one file that lets a collaborator, or future you, rebuild your exact setup and reproduce your results on any machine. One project, one environment.
+A virtual environment is a sealed Python of your own: its own interpreter and its own installed packages, isolated so one project's dependencies never collide with another's. You'll forge one with `python3 -m venv`, then **activate** it — which simply prepends its `bin/` to your `$PATH`, the same trick `module load` played in The Path — install the packages this course needs, and register it as a named **kernel** so JupyterHub notebooks can use it. Finally you'll capture the whole environment as a `requirements.txt` recipe: the one file that lets a collaborator, or future you, rebuild your exact setup and reproduce your results on any machine. One project, one environment.
 
 ---
 
@@ -36,7 +36,7 @@ pip install seaborn
 Then start Python in that same terminal and import it:
 
 ```bash
-python
+python3
 ```
 
 ```python
@@ -69,7 +69,7 @@ Now forge the virtual environment at the repo root, using the system Python:
 ```
 
 {: .note }
-> 💡 This single `.venv` at `~/gsb-research-computing-ai-skills/.venv` is the crucible you'll use for the rest of the bootcamp, and it's the exact path Days 3 and 4 **activate**. (Potion Brawl in Step 6 is a *separate* project, so it gets its own venv, which is the "one project, one crucible" rule in action.)
+> 💡 This single `.venv` at `~/gsb-research-computing-ai-skills/.venv` is the environment you'll use for the rest of the course, and it's the exact path Days 3 and 4 **activate**. (Potion Brawl in Step 6 is a *separate* project, so it gets its own venv, which is the "one project, one environment" rule in action.)
 
 
 ---
@@ -113,7 +113,7 @@ source ~/gsb-research-computing-ai-skills/.venv/bin/activate
 
 ## Step 3: Install Packages
 
-With the venv **active**, install the packages you'll need for the rest of the bootcamp:
+With the venv **active**, install the packages you'll need for the rest of the course:
 
 ```bash
 pip install python-dotenv ipykernel openai pydantic pandas
@@ -140,16 +140,25 @@ python3 -c "import dotenv"    # should fail: not installed in system python
 
 ## Step 4: Register as a Jupyter Kernel
 
+{: .note }
+> 💡 **What's a kernel?** A notebook in your browser doesn't run any code itself. It ships each cell off to a **kernel**: a separate process running on the Yens that executes the code and sends the output back. The kernel picker in the top-right of a notebook is really a list of *which interpreter* you want on the other end of that connection.
+>
+> - **Kernels aren't only Python.** The name *Jupyter* comes from **Ju**lia, **Py**thon, and **R**, and the protocol is language-agnostic: R, Stata, Julia, and others all have kernels. A notebook is a front-end; the kernel decides what language the cells are written in. Run `jupyter kernelspec list` in a terminal to see everything registered for you on the Yens.
+> - The default **Python 3** kernel is a shared, system-wide Python you don't control. That's the `import seaborn` mystery from the top of this room: a kernel you didn't choose, with packages you didn't install.
+> - Registering your venv adds **your** Python to that list, so a notebook can use exactly the packages you installed in Step 3.
+> - One kernel per project is the same discipline as one venv per project. Switching kernels swaps the entire package set the notebook can see.
+> - A kernel is stateful and long-lived: it holds your variables in memory. If you `pip install` something in a terminal while a notebook is running, that kernel won't see it until you restart it (*Kernel → Restart*).
+
 With the venv **active**, register it as a kernel JupyterHub can use:
 
 ```bash
-python -m ipykernel install --user --name=bootcamp-2026 --display-name "Bootcamp 2026"
+python3 -m ipykernel install --user --name=gsb-ai-2026 --display-name "GSB AI 2026"
 ```
 
 Now go to JupyterHub:
 - Open your `day2/` folder in the file browser
 - Create a new notebook and name it `venv_check.ipynb`
-- Select **"Bootcamp 2026"** as the kernel from the kernel menu
+- Select **"GSB AI 2026"** as the kernel from the kernel menu
 
 In the notebook, confirm the environment is **active** — that the packages you installed in Step 3 are importable from this kernel:
 
@@ -162,13 +171,16 @@ print("dotenv and openai are available!")
 If this runs without error, your venv is correctly connected.
 
 {: .note }
-> 💡 Never commit a venv to git: it holds hundreds of megabytes of packages and machine-specific paths. The repo's `.gitignore` already lists `.venv/`, so yours is covered.
+> 🟢 **Green sticky** = my notebook is running on the **GSB AI 2026** kernel and both imports worked &nbsp;&nbsp; 🔴 **Red sticky** = I need help
+>
+> Put a sticky note on your laptop lid so instructors can see where you are.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="main"> Main Quest complete</label>
+{: .note }
+> 💡 Never commit a venv to git: it holds hundreds of megabytes of packages and machine-specific paths. The repo's `.gitignore` already lists `.venv/`, so yours is covered.
 
 ---
 
-## Step 5: Share the Recipe, Not the Crucible
+## Step 5: Share the Recipe, Not the Environment
 
 You may need to share an environment with a collaborator or recreate it on another machine. Do not copy the venv folder itself: virtual environments contain machine-specific paths and can break when moved.
 
@@ -177,7 +189,7 @@ Instead, save a `requirements.txt` file. This is the recipe for your environment
 With your virtual environment **activated**, create the recipe:
 
 ```bash
-python -m pip freeze > requirements.txt
+python3 -m pip freeze > requirements.txt
 ```
 
 Commit `requirements.txt` to your repository, but keep `.venv/` out of git (it's already in `.gitignore`).
@@ -187,7 +199,7 @@ To recreate the environment elsewhere:
 ```bash
 /usr/bin/python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 {: .note }
@@ -195,24 +207,24 @@ python -m pip install -r requirements.txt
 
 ---
 
-## Step 6: Rebuild a Complex Brew from the Scroll
+## Step 6: Rebuild a Real Project from Its requirements.txt
 
-Everything so far was an *empty* crucible: you installed a handful of packages you chose yourself. The real power of a venv shows up when you inherit **someone else's complex project** and have to make it run: no guessing which packages, no "but it works on my machine." Just the code and the recipe scroll.
+Everything so far has been an environment you built yourself, one package at a time. The more common situation in research is inheriting **someone else's project** and having to make it run: you don't know which packages it needs, and "it works on my machine" is not a specification. All you should need is the code and its `requirements.txt`.
 
-Your cloned repo already ships one: **Potion Brawl**, a little physics spectacle where three enchanted potions brawl rock-paper-scissors style until one floods the lab. It leans on a whole shelf of reagents: `numpy`, `scipy`, `matplotlib`, `plotly`, `networkx`, and more.
+Your cloned repo includes one: **Potion Brawl**, a small simulation in which three potions interact rock-paper-scissors style until one of them takes over. It depends on `numpy`, `scipy`, `matplotlib`, `plotly`, `networkx`, and several others.
 
-Move into it and read the scroll:
+Move into the project and read its requirements:
 
 ```bash
 cd ~/gsb-research-computing-ai-skills/data/potion_brawl
 cat requirements.txt
 ```
 
-That's **13 pinned reagents**. Nobody memorises that list, and nobody should have to. The scroll *is* the memory.
+That's **13 pinned dependencies**, each at an exact version. Nobody is expected to memorise a list like that; recording it in a file is precisely the point.
 
-### Forge a crucible just for this brew
+### Create a separate environment for this project
 
-Potion Brawl gets its **own** environment, separate from the one you built above. That is the whole discipline: one project, one crucible.
+Potion Brawl gets its **own** environment, independent of the one you built earlier: one project, one environment.
 
 ```bash
 /usr/bin/python3 -m venv .venv
@@ -220,18 +232,18 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-One command rebuilds the entire shelf (exact packages, exact versions) from the scroll alone.
+A single command installs the full dependency set at the exact versions the author used.
 
 {: .note }
-> `.venv/` and the brew's `output/` folder are already in the repo's `.gitignore`, so you'll never accidentally commit hundreds of megabytes of packages or generated artifacts.
+> `.venv/` and the project's `output/` folder are already in the repo's `.gitignore`, so you won't accidentally commit hundreds of megabytes of packages or generated artifacts.
 
-### Brew it
+### Run it
 
 ```bash
-python potion_brawl.py
+python3 potion_brawl.py
 ```
 
-You'll get a `POTION BRAWL` banner, a progress bar, a populations table, and a fresh `output/` folder:
+The script prints a `POTION BRAWL` banner, a progress bar, and a populations table, then writes a fresh `output/` folder:
 
 | file | what it is |
 |------|------------|
@@ -241,31 +253,33 @@ You'll get a `POTION BRAWL` banner, a progress bar, a populations table, and a f
 | `victor.txt` | the tick count and final tally |
 | `lab_journal.pkl` | the **save state**: positions, velocities, and the random-number generator |
 
-### The punchline: reproducibility you can *see*
+### Confirm that the result is reproducible
 
 Run it again:
 
 ```bash
-python potion_brawl.py
+python3 potion_brawl.py
 ```
 
-It finds the lab journal and **resumes the exact same brawl**. Because the journal restored the random-number generator's state, the continuation is *bit-for-bit identical* to a brawl that never paused. Copy the folder (code + `requirements.txt` + `output/lab_journal.pkl`) to a brand-new directory, or a different machine entirely, rebuild the venv from the scroll, and the brew picks up precisely where it left off.
+The script finds `lab_journal.pkl` and **resumes the same run**. Because the journal restored the random-number generator's state, the continuation is **bit-for-bit identical** to a run that was never interrupted. Copy the folder (code, `requirements.txt`, and `output/lab_journal.pkl`) to a new directory or a different machine, rebuild the environment from `requirements.txt`, and the run continues from exactly where it stopped.
 
-That is the point of this entire room. In research it's the difference between:
+This is the practical point of the room. In research it is the difference between:
 
-- **"It ran last spring on my laptop"**, and nobody, including future-you, can reproduce the number in the paper; and
-- **"Here's the code and `requirements.txt`"**, and a collaborator, a reviewer, or the cluster rebuilds your exact environment and gets your exact result.
+- **"It ran last spring on my laptop"**, where neither a collaborator nor future-you can reproduce the number in the paper; and
+- **"Here is the code and `requirements.txt`"**, where a collaborator, a reviewer, or the cluster rebuilds your environment and gets your result.
 
-The recipe scroll + your code = the same brew, any alchemist, any lab.
+Your code plus a recorded environment produces the same result for anyone, on any machine.
 
 {: .note }
-> Prefer the story with pictures? With `.venv` **active**, register it as a kernel and open the notebook:
+> 💡 There's also a notebook version with the figures inline. With `.venv` **active**, register it as a kernel:
 > ```bash
-> python -m ipykernel install --user --name potion-brawl --display-name "Potion Brawl (venv)"
+> python3 -m ipykernel install --user --name potion-brawl --display-name "Potion Brawl (venv)"
 > ```
 > Then open **`the_alchemists_lab.ipynb`** in JupyterHub, choose the **"Potion Brawl (venv)"** kernel, and *Kernel → Restart & Run All*.
 
-<label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="side1"> Rebuilt and brewed Potion Brawl</label>
+<label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="side1"> Rebuilt and ran Potion Brawl</label>
+
+<label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="main"> Main Quest complete</label>
 
 ---
 
@@ -282,20 +296,20 @@ A kernel is just a folder on disk. Track yours down:
 jupyter kernelspec list
 ```
 
-This prints every registered kernel and its path (a `--user` install like yours lands in `~/.local/share/jupyter/kernels/`). `ls` the **Bootcamp 2026** kernel's folder and open its `kernel.json`. Notice it points straight at your venv's Python. That link is the whole trick behind connecting a venv to JupyterHub, and it's why deleting a venv leaves a broken kernel behind until you remove its folder too.
+This prints every registered kernel and its path (a `--user` install like yours lands in `~/.local/share/jupyter/kernels/`). `ls` the **GSB AI 2026** kernel's folder and open its `kernel.json`. Notice it points straight at your venv's Python. That link is the whole trick behind connecting a venv to JupyterHub, and it's why deleting a venv leaves a broken kernel behind until you remove its folder too.
 
 <label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="side2"> I found where my kernels live and read a kernel.json</label>
 
-**Side quest — Why You Can't Copy a Crucible**
+**Side quest — Why You Can't Copy a Environment**
 
-Step 5 said never to copy a venv folder. See for yourself why. Peek inside your crucible:
+Step 5 said never to copy a venv folder. See for yourself why. Peek inside your environment:
 
 ```bash
 ls -l ~/gsb-research-computing-ai-skills/.venv/bin/python
 cat ~/gsb-research-computing-ai-skills/.venv/pyvenv.cfg
 ```
 
-The `python` inside a venv is just a **symlink** back to one specific system Python, and `pyvenv.cfg` hardcodes that interpreter's path. Move or copy the folder to another machine (or another user's account) and those paths point at nothing. That is exactly why you rebuild from `requirements.txt` instead of copying the crucible.
+The `python` inside a venv is just a **symlink** back to one specific system Python, and `pyvenv.cfg` hardcodes that interpreter's path. Move or copy the folder to another machine (or another user's account) and those paths point at nothing. That is exactly why you rebuild from `requirements.txt` instead of copying the environment.
 
 <label class="quest-check"><input type="checkbox" data-room="d2-venv-forge" data-key="side3"> I inspected the venv's python symlink and pyvenv.cfg</label>
 

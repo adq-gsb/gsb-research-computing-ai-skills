@@ -40,7 +40,7 @@ Here's what we'll do today, start to finish:
 ## Day 2 Recap
 
 - Built a virtual environment on the Yens and installed dependencies from `requirements.txt`
-- Wrote `scripts/extract_form_3_one_file.py` — calls the Stanford AI API to extract structured fields from one SEC Form 3 filing
+- Built `scripts/extract_form_3_one_file.py` in three stages — calls the Stanford AI API to extract structured fields from one SEC Form 3 filing, with logging and a validated result file
 - Used Pydantic to validate and structure the LLM output
 
 Any questions about Day 1–2 we can discuss before we move on.
