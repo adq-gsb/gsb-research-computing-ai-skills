@@ -81,7 +81,7 @@ We saw above that comparing outputs between models is a basic robustness check. 
 >     api_key=os.getenv("STANFORD_API_KEY"),
 > )
 >
-> MODEL_A = "gemini-2.5-flash-lite"     # the model extract_form_3_batch.py uses
+> MODEL_A = "gemini-2.5-flash"     # the model extract_form_3_batch.py uses
 > MODEL_B = "gpt-4.1"                   # a second model, e.g., from a different lab —
 >                                       # `client.models.list()` shows everything
 >                                       # your key can reach, as on Day 2

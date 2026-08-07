@@ -19,7 +19,7 @@ This capstone combines everything from the week into one pipeline — all at onc
 **1. Process *every* filing with a job array.**
 In [Slurm Job Arrays](../slurm-arrays/) you ran 100 filings through an array, one filing per task. Now do all of them: `data/aws_links.csv` lists **992**.
 
-Keep using `gemini-2.5-flash-lite` through the Stanford AI API Gateway, and build on the `scripts/extract_array.py` and `slurm/extract_array.slurm` you already wrote.
+Keep using `gemini-2.5-flash` through the Stanford AI API Gateway, and build on the `scripts/extract_array.py` and `slurm/extract_array.slurm` you already wrote.
 
 The catch is that the Yens cap a job array at **512 tasks** — see for yourself:
 

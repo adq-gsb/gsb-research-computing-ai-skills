@@ -121,7 +121,7 @@ Now over to you. Your job is the following: process and extract information from
 You'll end up with two files: a new Python script that handles a single filing, and a Slurm script to launch it as an array — either a new one, or the `slurm/extract_form_3_batch.slurm` you wrote on Day 3, adapted.
 
 {: .note }
-> **Why this runs on `gemini-2.5-flash-lite`.** Day 2 finished on the stronger `gpt-5.2`, following the rule *iterate cheap, then spend where it counts*. Day 3's batch script went back to the cheap model, and stays there today — because at a hundred filings the arithmetic flips: the same call runs a hundred times, so cost and speed become the thing you're managing. You get the rougher model in exchange, and handling that is part of the rest of today's work.
+> **Why this runs on `gemini-2.5-flash`.** Day 2 finished on the stronger `gpt-5.2`, following the rule *iterate cheap, then spend where it counts*. Day 3's batch script went back to the cheap model, and stays there today — because at a hundred filings the arithmetic flips: the same call runs a hundred times, so cost and speed become the thing you're managing. You get the rougher model in exchange, and handling that is part of the rest of today's work.
 
 Work through it in four steps.
 
@@ -231,7 +231,7 @@ Return a SINGLE JSON object, not a list. Do not wrap it in an array.
 filing_text = requests.get(filing).text
 
 api_response = client.chat.completions.create(
-    model="gemini-2.5-flash-lite",
+    model="gemini-2.5-flash",
     response_format={"type": "json_object"},
     messages=[
         {"role": "system", "content": system_prompt},
