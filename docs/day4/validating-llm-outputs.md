@@ -124,6 +124,9 @@ for line in text.splitlines():
 
 </details>
 
+{: .note }
+> Remember to apply a 🟢 green sticky note when you're done, and a 🔴 red sticky note if you need help.
+
 <label class="quest-check"><input type="checkbox" data-room="d4-failure-modes" data-key="exercise"> Exercise complete — I ran two models over the same filings, counted the disagreements, and inspected the filing where the models disagreed</label>
 
 ---

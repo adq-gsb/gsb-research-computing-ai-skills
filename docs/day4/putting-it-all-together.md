@@ -46,6 +46,9 @@ Ask Claude Code to handle it:
 
 > Add and commit my array script and my README changes — not the extracted data — with a message like "Day 4 Challenge: all 992 filings", then push to my fork.
 
+{: .note }
+> Remember to apply a 🟢 green sticky note when you're done, and a 🔴 red sticky note if you need help.
+
 <label class="quest-check"><input type="checkbox" data-room="d4-capstone" data-key="commit"> Completed the deliverables and pushed to GitHub</label>
 
 ---

@@ -68,6 +68,9 @@ print(response.choices[0].message.content)
 {: .note }
 > The interface to the local LLM is **OpenAI-compatible**, so this is effectively the *same* code you used for the Stanford AI API Gateway on Day 2 — only the `base_url` changes.
 
+{: .note }
+> Remember to apply a 🟢 green sticky note when you're done, and a 🔴 red sticky note if you need help.
+
 {: .warning }
 > This only works while the server is running. To use a local LLM in the future, you'll have to set one up yourself.
 

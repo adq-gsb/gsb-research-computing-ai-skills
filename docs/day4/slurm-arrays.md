@@ -279,6 +279,9 @@ watch squeue --me
 
 The new thing to notice is the job IDs: an array shows up as many rows sharing one ID, with a task number after it. So if `sbatch` printed job `12345678`, its tasks appear as `12345678_1`, `12345678_2`, and so on — that number is just an example, yours will be different. Each task moves through the same `PD` → `R` → gone lifecycle you watched on [Day 3](../../day3/slurm-scheduler/). Once it's done, check the per-task logs in `logs/` and the results in `results/`.
 
+{: .note }
+> Remember to apply a 🟢 green sticky note when you're done, and a 🔴 red sticky note if you need help.
+
 <label class="quest-check"><input type="checkbox" data-room="d4-slurm-arrays" data-key="exercise"> I submitted a job array, watched the tasks run in `squeue`, and confirmed it finished with one result file per filing</label>
 
 ---
