@@ -15,7 +15,24 @@ Day 3 batch job — varying only *how* the work is spread.
 The scripts illustrate the *shape* of each approach; the filing count is a
 knob, not a fixed part of the demo.
 
-Two helpers sit alongside them, both following the conventions of
+Two smaller scripts sit alongside them, for the
+["Slurm Job Arrays"](../../docs/day4/slurm-arrays.md) page rather than this one.
+They do no real work — the only thing on show is the shape of a submission, and
+the single directive that turns one job into four:
+
+| Script | On the page |
+|---|---|
+| `hello.slurm` | the first `.demo` callout — one script, one task |
+| `hello_array.slurm` | the second — the same script plus `#SBATCH --array=1-4` |
+
+```bash
+mkdir -p logs
+sbatch .instructor/parallelization_demos/hello.slurm
+sbatch .instructor/parallelization_demos/hello_array.slurm
+cat logs/hello_<arrayid>_*.out       # one file per task, via %A_%a
+```
+
+Two helpers sit alongside them too, both following the conventions of
 `scripts/extract_form_3_batch.py`:
 
 | Helper | Role |
