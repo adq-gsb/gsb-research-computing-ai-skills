@@ -46,20 +46,23 @@ short jobs that should turn around fast rather than wait behind production work
 in `normal`. Day 3 introduces it as a side quest (`docs/day3/slurm-job.md:520`),
 so the room has seen the name.
 
-**Check this before class.** `dev` has tighter limits than `normal`, and the two
-that matter here are the per-user cap on running jobs and the number of nodes,
-because demos 3 and 4 need their **two jobs to run at the same time** to show
-anything. If `dev` will only run one of a user's jobs at a time, those two demos
-serialise and the wall-clock comparison — the entire point — quietly shows no
-speedup rather than failing outright. Confirm with:
+**Check this before class.** `dev` has tighter limits than `normal` — RCpedia
+documents the [current partitions and their
+limits](https://rcpedia.stanford.edu/_user_guide/slurm/#current-partitions-and-their-limits),
+and Day 3 mentions the time limit specifically. What has *not* been checked here
+is whether anything would stop demos 3 and 4 running their **two jobs at the same
+time**, which they must do for the comparison to show anything. A walltime
+ceiling would reject a job loudly; anything that serialised the two would instead
+show no speedup and look like a result. Worth ruling out:
 
 ```bash
-scontrol show partition dev      # MaxTime, MaxNodes, MaxJobsPerUser, TotalNodes
+scontrol show partition dev      # MaxTime, MaxNodes, and any job limits
+sacctmgr show qos                # QoS caps, if the partition carries one
 sinfo -p dev                     # how busy it is right now
 ```
 
-Set `--partition=normal` in all four if the cap turns out to be 1, or if the
-walltime ceiling is under the `--time=00:10:00` they request.
+Set `--partition=normal` in all four if `MaxTime` is under the `--time=00:10:00`
+they request, or if anything there caps a user to one running job.
 
 Expect well under a minute for the serial baseline (Day 3 measured ~2.25s per
 filing), and less for the rest.
