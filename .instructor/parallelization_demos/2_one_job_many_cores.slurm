@@ -9,6 +9,7 @@
 # fails the job outright if the directory is missing.
 #   mkdir -p logs && sbatch .instructor/parallelization_demos/2_one_job_many_cores.slurm
 #SBATCH --job-name=demo-one-job-many-cores
+#SBATCH --partition=dev
 #SBATCH --output=logs/demo2_%j.out
 #SBATCH --error=logs/demo2_%j.err
 #SBATCH --time=00:10:00

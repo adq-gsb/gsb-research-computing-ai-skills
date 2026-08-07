@@ -41,6 +41,26 @@ All four demos process the same **20 filings**, so their timings are directly
 comparable — set once as `NUM_FILINGS` in `make_url_list.py`. That is 20 paid API
 calls per demo, so budget 80 for a full four-way comparison.
 
+All four submit to the **`dev` partition**, which is meant for exactly this —
+short jobs that should turn around fast rather than wait behind production work
+in `normal`. Day 3 introduces it as a side quest (`docs/day3/slurm-job.md:520`),
+so the room has seen the name.
+
+**Check this before class.** `dev` has tighter limits than `normal`, and the two
+that matter here are the per-user cap on running jobs and the number of nodes,
+because demos 3 and 4 need their **two jobs to run at the same time** to show
+anything. If `dev` will only run one of a user's jobs at a time, those two demos
+serialise and the wall-clock comparison — the entire point — quietly shows no
+speedup rather than failing outright. Confirm with:
+
+```bash
+scontrol show partition dev      # MaxTime, MaxNodes, MaxJobsPerUser, TotalNodes
+sinfo -p dev                     # how busy it is right now
+```
+
+Set `--partition=normal` in all four if the cap turns out to be 1, or if the
+walltime ceiling is under the `--time=00:10:00` they request.
+
 Expect well under a minute for the serial baseline (Day 3 measured ~2.25s per
 filing), and less for the rest.
 
