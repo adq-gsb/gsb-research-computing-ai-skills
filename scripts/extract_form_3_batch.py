@@ -7,6 +7,7 @@ os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
 os.environ.setdefault("OMP_NUM_THREADS", "1")
 
 import json
+import time
 import requests
 import pandas as pd
 from openai import OpenAI
@@ -24,9 +25,8 @@ CSV_PATH = "data/aws_links.csv"
 RESULTS_DIR = "results"
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
-# How many filings to process. Kept small on purpose: every filing is a paid API
-# call, so a stray run shouldn't fire hundreds.
-NUM_FILINGS = 10
+# How many filings to process. Every filing is a paid API call.
+NUM_FILINGS = 100
 
 
 class Form3Filing(BaseModel):
@@ -66,8 +66,16 @@ for idx, filing_url in enumerate(urls, 1):
 
     print(f"[{idx}/{total}] Processing: {filename}")
 
+    # Resume safely after a transient API failure without repeating paid calls.
+    if os.path.exists(output_path):
+        print(f"  → already exists, skipping {output_path}")
+        continue
+
     response = requests.get(filing_url)
     filing_text = response.text
+
+    # Spread requests out to reduce gateway rate-limit bursts.
+    time.sleep(2)
 
     api_response = client.chat.completions.create(
         model="gemini-2.5-flash",
