@@ -18,7 +18,7 @@ Before you scale a job across the cluster, it helps to picture what "in parallel
 
 Think back to [the kitchen from Day 3](../../day3/compute-environments/): your machine is a kitchen, and every CPU core is a burner.
 
-Say you want four grilled cheeses. The steps *within* one sandwich don't split at all: you can't grill a side before the cheese is on the bread — each step needs the previous one finished. Put four cooks on a single sandwich and three of them stand around watching. And no matter how many cooks you hire, a sandwich that takes four minutes takes four minutes.
+Say you want four grilled cheeses. The steps *within* one sandwich mostly don't split: you can't grill a side before the cheese is on the bread — nearly every step needs the previous one finished. Put four cooks on a single sandwich and three of them stand around watching. And no matter how many cooks you hire, a sandwich that takes four minutes takes four minutes.
 
 <svg viewBox="0 0 600 338" role="img" aria-labelledby="gc1-title gc1-desc" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;max-width:598px;height:auto;margin:1.5rem auto" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif">
   <title id="gc1-title">Grilled cheese on one burner</title>
