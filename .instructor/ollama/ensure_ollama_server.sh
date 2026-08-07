@@ -5,6 +5,10 @@
 #
 #     bash .instructor/ollama/ensure_ollama_server.sh
 #
+# In practice run one of the two wrappers instead — ensure_ollama_gpu.sh or
+# ensure_ollama_cpu.sh — which are this script with the right settings already
+# filled in. See the partition note below.
+#
 # Idempotent and safe to re-run: if a healthy server is already answering it
 # prints the URL and exits without submitting anything. Otherwise it submits
 # start_ollama_server.sh to the GPU partition and waits for it to answer.
@@ -15,7 +19,7 @@
 #
 # Environment overrides:
 #   WALLTIME=4:00:00      how long the server should live; see the note below
-#   RESERVATION=class_day4  the teaching reservation; RESERVATION= to go without
+#   RESERVATION=class_day4  the teaching reservation; currently off by default
 #   CONSTRAINT=...        which cards are eligible; see the default below
 #   CPUS=8                cores for the server; matters a lot on CPU, see below
 #   MODEL=llama3.2:1b     passed through to the server script
@@ -56,17 +60,21 @@ JOB_NAME="${JOB_NAME:-ollama-server}"
 
 # Partition and GPU count are overridable so the same script can stand up the
 # CPU contrast server alongside the GPU one — same image, same model, same
-# queries, answers arriving a word at a time. To run both at once:
+# queries, answers arriving a word at a time.
 #
-#     bash ensure_ollama_server.sh                      # the GPU server
-#     SCRATCH_BASE=/scratch/users/$USER/cpu \
-#     JOB_NAME=ollama-cpu PARTITION=normal GPUS=0 \
-#       bash ensure_ollama_server.sh                    # the CPU one
+# You do not have to assemble those overrides by hand. Two wrappers next to this
+# file do it, and they are what you should normally run:
 #
-# The separate SCRATCH_BASE is not optional. ollama.sh keeps port.txt, host.txt
-# and models under a single ${SCRATCH_BASE}/ollama, so two servers sharing one
-# would overwrite each other's coordinates and you would lose track of the first.
-# The cost is that the second tree re-downloads the ~2 GB of weights.
+#     bash .instructor/ollama/ensure_ollama_gpu.sh      # the GPU server
+#     bash .instructor/ollama/ensure_ollama_cpu.sh      # the CPU one
+#
+# Run both, in either order, for the speed contrast. They are independent jobs.
+#
+# The CPU wrapper points SCRATCH_BASE at a separate tree, and that is not
+# optional. ollama.sh keeps port.txt, host.txt and models under a single
+# ${SCRATCH_BASE}/ollama, so two servers sharing one would overwrite each other's
+# coordinates and you would lose track of the first. The cost is that the second
+# tree re-downloads the ~2 GB of weights.
 #
 # --nv stays hardcoded in ollama.sh even with GPUS=0; on a CPU node Apptainer
 # prints "Could not find any nv files on this host!" and continues (verified on
@@ -116,7 +124,11 @@ CONSTRAINT="${CONSTRAINT-}"
 # resolve and sbatch refuses the job ("Access denied to reservation"), so run
 # with RESERVATION= to submit to the open queue instead — a dry run the week
 # before, say. Bare `-` rather than `:-` so an explicit empty value wins.
-RESERVATION="${RESERVATION-class_day4}"
+#
+# TEMPORARILY DEFAULTED OFF: jobs go to the open GPU queue. Restore for the
+# class by changing the default back to:  RESERVATION="${RESERVATION-class_day4}"
+# (or pass RESERVATION=class_day4 on the command line in the meantime).
+RESERVATION="${RESERVATION-}"
 MODEL="${MODEL:-llama3.2:1b}"
 WAIT_SECONDS="${WAIT_SECONDS:-1800}"   # covers a cold image+model pull, and queueing
 
