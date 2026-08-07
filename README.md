@@ -94,3 +94,17 @@ MiB Mem: 1546616 total, 284448 free, 22269 used, 1239898 buff/cache
 ```
 
 Between the two snapshots the numbers visibly moved: `falcon-+` (a system daemon) jumped from 10.5% to 175% CPU (multi-threaded, so it can exceed one core), a `claude` process owned by another user went from not-in-top-5 to 115% CPU, and the load average and idle % shifted too — confirming this is a live, refreshing view rather than a photograph. Most of the 816 tasks sat `S` (sleeping); only 1–2 were `R` (actually running) at either instant, same pattern as the yen1 CSV. One of the processes in the table was this very Claude Code session (`claude`, owned by `adq`) — a reminder that the monitoring tool sees its own agent as just another row.
+
+## Day 4 Challenge — all 992 filings
+
+The input contains 992 SEC Form 3 `.txt` URLs (994 CSV rows including the header and the placeholder URL). Yens reports `MaxArraySize = 512`, so one filing per task cannot cover this workload. I considered three layouts:
+
+- 512 tasks: 480 tasks process two filings and 32 process one. This offers the most task-level parallelism, but needs uneven assignment logic.
+- 496 tasks: every task processes two filings. This is the chosen layout because it is simple, balanced, and 16 tasks below the cluster cap.
+- 248 tasks: every task processes four filings. This reduces scheduler overhead, but makes each task slower and makes a single task failure affect more filings.
+
+`slurm/extract_array.slurm` requests `--array=1-496`; `scripts/extract_array.py` maps each task to two URLs. It keeps the Gemini model as `gemini-2.5-flash` through the Stanford AI API Gateway, uses one CPU and 1G RAM per task, retries transient/API validation failures with backoff, and writes one JSON file per filing.
+
+Job **424958** completed with **991 of 992** result files. The only failure was filing `0001104659-20-113183`: Gemini returned multiple insider names as a list even though the flat schema required a string. I added a validator that joins multiple names and reran only task 158 as job **425455**. The final count is **992 of 992**, with every input URL matched to a JSON result.
+
+The output is resumable: before making a paid API call, a task checks whether that filing's JSON already exists. A rerun therefore skips completed filings and only spends work on missing outputs. The same approach also made the one-filing repair selective instead of restarting the full array.
