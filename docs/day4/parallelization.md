@@ -216,7 +216,7 @@ If one filing takes 5 seconds, 100 filings take ~500 seconds — and the whole t
 {: .demo }
 > Watch as we run this baseline and each of the three approaches below on the Yens — **20 filings every time**, so the only thing that changes is how the work is spread. (The diagrams use 8 filings to stay legible; the live runs do 20.) This first one is the baseline: **1 job, 1 core, 20 filings, 20 API calls.**
 >
-> After each run, `sacct -X -j JOBID --format=JobID,State,Elapsed,TotalCPU,ReqCPUS,MaxRSS` shows what it cost: `Elapsed` is the wall-clock time, `TotalCPU` against `ReqCPUS` shows how busy the reserved cores actually stayed, and `MaxRSS` is the peak memory — the same field you compared against your estimate on [Day 3](../../day3/capstone/).
+> After each run, `watch sacct -X -j JOBID --format=JobID,State,Elapsed,TotalCPU,ReqCPUS,MaxRSS` shows what it cost: `Elapsed` is the wall-clock time, `TotalCPU` against `ReqCPUS` shows how busy the reserved cores actually stayed, and `MaxRSS` is the peak memory — the same field you compared against your estimate on [Day 3](../../day3/capstone/).
 
 **Approach 1: One job, many cores — parallelize _within_ a job.** Ask the same job for several cores (on the Yens, set `#SBATCH --cpus-per-task` in your `.slurm` script) and split the filings across them in your code. But you're capped at the cores on a single machine:
 
