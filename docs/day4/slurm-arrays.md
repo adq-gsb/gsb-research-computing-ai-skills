@@ -116,7 +116,7 @@ The task number is what makes this general. Every task runs the identical script
 
 ## Exercise
 
-Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array. The filings are hosted online, and `data/aws_links.csv` — already in your cloned repo, alongside `scripts/` and `slurm/` — provides the URLs of all of them for you to query.
+Now over to you. Your job is the following: process and extract information from 100 SEC filings using a job array. The filings are hosted online, and their URLs are in `data/aws_links.csv` — the same file your Day 3 batch script read, already in your cloned repo.
 
 You'll end up with two files: a new Python script that handles a single filing, and a Slurm script to launch it as an array — either a new one, or the `slurm/extract_form_3_batch.slurm` you wrote on Day 3, adapted.
 
