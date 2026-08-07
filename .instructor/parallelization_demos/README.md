@@ -41,28 +41,26 @@ All four demos process the same **20 filings**, so their timings are directly
 comparable — set once as `NUM_FILINGS` in `make_url_list.py`. That is 20 paid API
 calls per demo, so budget 80 for a full four-way comparison.
 
-All four submit to the **`dev` partition**, which is meant for exactly this —
-short jobs that should turn around fast rather than wait behind production work
-in `normal`. Day 3 introduces it as a side quest (`docs/day3/slurm-job.md:520`),
-so the room has seen the name.
+All four submit to **`normal`**, and it has to be `normal` rather than `dev`.
+`dev` is the natural first thought — short jobs, fast turnaround, and Day 3
+introduces it as a side quest (`docs/day3/slurm-job.md:520`) — but it caps a user
+at **2 CPUs**, per RCpedia's [partition
+limits](https://rcpedia.stanford.edu/_user_guide/slurm/#current-partitions-and-their-limits):
 
-**Check this before class.** `dev` has tighter limits than `normal` — RCpedia
-documents the [current partitions and their
-limits](https://rcpedia.stanford.edu/_user_guide/slurm/#current-partitions-and-their-limits),
-and Day 3 mentions the time limit specifically. What has *not* been checked here
-is whether anything would stop demos 3 and 4 running their **two jobs at the same
-time**, which they must do for the comparison to show anything. A walltime
-ceiling would reject a job loudly; anything that serialised the two would instead
-show no speedup and look like a result. Worth ruling out:
+| Partition | CPU limit per user | Memory | Time limit (default) |
+|---|---|---|---|
+| `normal` | 512 | 3000 GB | 2 days (2 h) |
+| `dev` | **2** | 46 GB | 2 h (1 h) |
 
-```bash
-scontrol show partition dev      # MaxTime, MaxNodes, and any job limits
-sacctmgr show qos                # QoS caps, if the partition carries one
-sinfo -p dev                     # how busy it is right now
-```
+Against that cap, demo 4 needs 4 CPUs at once (2 jobs × 2 cores) and simply
+cannot run in parallel: Slurm would run its two jobs one after the other, so the
+demo built to show the *most* parallelism would post the *worst* wall-clock. It
+would not error — it would just quietly invert the lesson. Demo 3 needs exactly
+2 and would fit with no headroom, so anything else of yours on `dev` tips it
+over too.
 
-Set `--partition=normal` in all four if `MaxTime` is under the `--time=00:10:00`
-they request, or if anything there caps a user to one running job.
+Time and memory were never the constraint: 10 minutes against a 2-hour ceiling,
+4 GB against 46.
 
 Expect well under a minute for the serial baseline (Day 3 measured ~2.25s per
 filing), and less for the rest.
