@@ -15,7 +15,7 @@
 # Environment overrides still pass through, e.g.:
 #
 #     WALLTIME=15:00:00 bash .instructor/ollama/ensure_ollama_gpu.sh
-#     RESERVATION=class_day4 bash .instructor/ollama/ensure_ollama_gpu.sh
+#     RESERVATION= bash .instructor/ollama/ensure_ollama_gpu.sh   # open queue
 #
 # Co-authored by Claude (Anthropic).
 

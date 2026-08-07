@@ -29,13 +29,15 @@ the time to do so differs — which is the whole point.
 
 ## Before class
 
-- **Restore the reservation.** Both `ensure_ollama_*.sh` scripts are thin
+- **Mind the reservation window.** Both `ensure_ollama_*.sh` scripts are thin
   wrappers that hand off to `ensure_ollama_server.sh`, and that is where the
-  settings live. It currently defaults `RESERVATION` to empty (line 131), so
-  jobs go to the open GPU queue. Either change the default back to `class_day4`
-  or pass `RESERVATION=class_day4` on the command line. It only affects the GPU
-  server — the reservation holds GPU nodes, so the script deliberately drops it
-  for the `GPUS=0` CPU job, which would otherwise never schedule.
+  settings live. `RESERVATION` defaults to `class_day4`, so the GPU job lands on
+  the capacity held for the class. Outside the Day 4 window that name does not
+  resolve and `sbatch` refuses the job ("Access denied to reservation") — pass
+  `RESERVATION=` to fall back to the open GPU queue for a dry run. It only
+  affects the GPU server: the reservation holds GPU nodes, so the script
+  deliberately drops it for the `GPUS=0` CPU job, which would otherwise never
+  schedule.
 - **Take the timings yourself.** The
   [2026-08-02 dry run](dry-run-2026-08-02.md) stood the CPU server up but never
   sent it a query, so the GPU-vs-CPU contrast is still unmeasured. Run both

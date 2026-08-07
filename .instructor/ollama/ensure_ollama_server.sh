@@ -19,7 +19,8 @@
 #
 # Environment overrides:
 #   WALLTIME=4:00:00      how long the server should live; see the note below
-#   RESERVATION=class_day4  the teaching reservation; currently off by default
+#   RESERVATION=class_day4  the teaching reservation; the default, pass
+#                         RESERVATION= to use the open queue instead
 #   CONSTRAINT=...        which cards are eligible; see the default below
 #   CPUS=8                cores for the server; matters a lot on CPU, see below
 #   MODEL=llama3.2:1b     passed through to the server script
@@ -124,11 +125,7 @@ CONSTRAINT="${CONSTRAINT-}"
 # resolve and sbatch refuses the job ("Access denied to reservation"), so run
 # with RESERVATION= to submit to the open queue instead — a dry run the week
 # before, say. Bare `-` rather than `:-` so an explicit empty value wins.
-#
-# TEMPORARILY DEFAULTED OFF: jobs go to the open GPU queue. Restore for the
-# class by changing the default back to:  RESERVATION="${RESERVATION-class_day4}"
-# (or pass RESERVATION=class_day4 on the command line in the meantime).
-RESERVATION="${RESERVATION-}"
+RESERVATION="${RESERVATION-class_day4}"
 MODEL="${MODEL:-llama3.2:1b}"
 WAIT_SECONDS="${WAIT_SECONDS:-1800}"   # covers a cold image+model pull, and queueing
 
